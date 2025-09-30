@@ -1,0 +1,6 @@
+﻿http:
+  middlewares:
+    headers-default:
+      headers:
+        frameDeny: true
+        contentTypeNosniff: true
