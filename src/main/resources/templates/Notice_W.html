@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>공지사항 페이지</title>
+<!-- toast ui CSS -->
+<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+<link rel="stylesheet" href="/css/Notice_W">
+</head>
+<body>
+	<div class="Notice_w_Container"> 
+		<div class="Notice_w_box"> 
+			<div>
+				<h1>공지사항</h1>
+			</div>
+			
+			<div class="Notice_w_title">
+				<h3>제목</h3>
+				<input type="checkbox">
+				<h3>중요</h3>
+				<input type="text">
+			</div>
+			<div class="Notice_w">
+				<h3>파일 첨부</h3>
+				<div></div>
+				<button>내 PC</button>
+			</div>
+			<div id="editor"></div>
+			<div class="Notice_w_btn">
+				<button>등록</button>
+			</div>
+		</div>
+	</div>
+<!-- toast ui JS -->
+<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+<script>
+	  const editor = new toastui.Editor({
+	    el: document.querySelector('#editor'), // 에디터를 넣을 div
+	    height: '500px',                       // 높이
+	    initialEditType: 'wysiwyg',            // wysiwyg = 일반 문서 작성 모드 (markdown 도 가능)
+	    previewStyle: 'vertical'               // 미리보기 스타일
+	  });
+</script>
+</body>
+</html>
