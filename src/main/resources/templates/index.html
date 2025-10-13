@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>그룹웨어 대시보드</title>
+    <title>AMU GROUP WARE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
 </head>
@@ -40,13 +40,16 @@
                 <div class="relative">
                     <button id="btnProfile" class="profile-btn">
                         <img id="avatar" class="avatar" src="https://i.pravatar.cc/80" alt="avatar"/>
-                        <span id="displayName" class="hidden sm:inline text-sm">사용자</span>
+                        <span id="displayName" class="hidden sm:inline text-sm" th:text="${loginId}">사용자</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon-sm text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
                     </button>
                     <div id="menuProfile" class="dropdown hidden">
                         <a href="/mypage.html" class="dropdown-item">마이페이지</a>
                         <a href="/settings.html" class="dropdown-item">설정</a>
-                        <button id="btnLogout" class="dropdown-item w-full text-left" th:href="@{/logout}">로그아웃</button>
+                        <form th:action="@{/logout}" method="post" style="display:inline">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button id="btnLogout" class="dropdown-item w-full text-left">로그아웃</button>
+                        </form>
                     </div>
                 </div>
             </div>

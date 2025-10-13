@@ -12,8 +12,10 @@ public class HomeController {
     @GetMapping("/")
     public String home(Model model, @AuthenticationPrincipal OAuth2User user) {
         if (user != null) {
-            String username = user.getAttribute("preferred_username");
-            model.addAttribute("username", username);
+            String loginId = user.getAttribute("preferred_username");
+            model.addAttribute("loginId", loginId);
+            model.addAttribute("username", user.getAttribute("name"));
+            model.addAttribute("email", user.getAttribute("email"));
             return "index";
         } else {
             return "/login";
