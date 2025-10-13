@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>그룹웨어 대시보드</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+</head>
+<body class="bg-slate-50 text-slate-800">
+<div class="min-h-dvh grid grid-rows-[auto,1fr]">
+    <!-- 헤더 -->
+    <header class="site-header">
+        <div class="container h-16 flex items-center gap-3">
+            <button id="btnSidebar" class="icon-btn md:hidden" aria-label="메뉴 열기">
+                <!-- 햄버거 아이콘 -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <a href="#" class="brand">
+                <span class="brand-badge">GW</span>
+                <span>Groupware</span>
+            </a>
+            <div class="ml-auto flex items-center gap-2">
+                <!-- 검색 -->
+                <div class="hidden md:block">
+                    <label class="search">
+                        <span class="sr-only">검색</span>
+                        <span class="search-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon-sm text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.3-4.3M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+                        </span>
+                        <input id="globalSearch" type="search" placeholder="검색 (문서/결재/사람)" class="search-input" />
+                    </label>
+                </div>
+                <!-- 알림 -->
+                <button id="btnNotif" class="icon-btn relative" aria-label="알림">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/></svg>
+                    <span id="notifBadge" class="badge hidden">0</span>
+                </button>
+                <!-- 프로필 -->
+                <div class="relative">
+                    <button id="btnProfile" class="profile-btn">
+                        <img id="avatar" class="avatar" src="https://i.pravatar.cc/80" alt="avatar"/>
+                        <span id="displayName" class="hidden sm:inline text-sm">사용자</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon-sm text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div id="menuProfile" class="dropdown hidden">
+                        <a href="/mypage.html" class="dropdown-item">마이페이지</a>
+                        <a href="/settings.html" class="dropdown-item">설정</a>
+                        <button id="btnLogout" class="dropdown-item w-full text-left" th:href="@{/logout}">로그아웃</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- 본문: 사이드바 + 메인 -->
+    <div class="container grid grid-cols-1 md:grid-cols-[240px,1fr] gap-4 sm:gap-6 py-4">
+        <!-- 사이드바 -->
+        <aside id="sidebar" class="sidebar">
+            <nav class="nav">
+                <a class="nav-item active" href="#">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
+                    홈
+                </a>
+                <a class="nav-item" href="/approvals.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-7 4h8M7 8h10M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                    전자결재
+                </a>
+                <a class="nav-item" href="/mail.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l9 6 9-6M4 6h16a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>
+                    메일/채팅
+                </a>
+                <a class="nav-item" href="/docs.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h8M8 10h8m-8 4h4M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
+                    문서관리
+                </a>
+                <a class="nav-item" href="/calendar.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                    캘린더
+                </a>
+                <a class="nav-item" href="/attendance.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    근태관리
+                </a>
+                <a class="nav-item" href="/admin.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l9-5-9-5-9 5 9 5zm0 0v6"/></svg>
+                    관리자
+                </a>
+            </nav>
+        </aside>
+
+
+        <!-- 메인 대시보드 -->
+        <main class="space-y-4 md:space-y-6">
+            <!-- 인사말 + 퀵액션 -->
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+                <div class="card lg:col-span-2">
+                    <h1 id="greeting" class="h1" th:text="'안녕하세요, ' + ${username} + '님 👋'">안녕하세요 👋</h1>
+                    <p id="greetingSub" class="muted" th:text="${#temporals.format(#temporals.createNow(), 'M월 d일 (EEE)')}">오늘도 좋은 하루 보내세요.</p>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <a href="/approvals-new.html" class="btn">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            새 결재 작성
+                        </a>
+                        <a href="/docs-new.html" class="btn">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                            새 문서
+                        </a>
+                        <a href="/attendance.html#request" class="btn">
+                            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                            휴가/근태 신청
+                        </a>
+                    </div>
+                </div>
+                <div class="card">
+                    <h2 class="h2">근태 요약</h2>
+                    <div id="attendanceBox" class="grid grid-cols-2 gap-3 text-sm mt-3">
+                        <div class="pill">
+                            <div class="muted">오늘 출근</div>
+                            <div id="checkIn" class="pill-value skeleton">--:--</div>
+                        </div>
+                        <div class="pill">
+                            <div class="muted">주간 근무</div>
+                            <div id="weeklyHours" class="pill-value skeleton">--시간</div>
+                        </div>
+                        <div class="pill">
+                            <div class="muted">잔여 연차</div>
+                            <div id="vacationLeft" class="pill-value skeleton">--일</div>
+                        </div>
+                        <div class="pill">
+                            <div class="muted">상태</div>
+                            <div id="statusNow" class="pill-value skeleton">-</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- 카드 그리드: 결재/일정/문서/공지 -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+                <article class="card">
+                    <div class="card-head">
+                        <h2 class="h2">결재 대기</h2>
+                        <a href="/approvals.html" class="link">전체 보기</a>
+                    </div>
+                    <ul id="approvalsList" class="list">
+                        <li class="list-item skeleton">불러오는 중…</li>
+                    </ul>
+                </article>
+
+
+                <article class="card">
+                    <div class="card-head">
+                        <h2 class="h2">오늘 일정</h2>
+                        <a href="/calendar.html" class="link">캘린더</a>
+                    </div>
+                    <ul id="todayEvents" class="list">
+                        <li class="list-item skeleton">불러오는 중…</li>
+                    </ul>
+                </article>
+
+
+                <article class="card">
+                    <div class="card-head">
+                        <h2 class="h2">최근 문서</h2>
+                        <a href="/docs.html" class="link">문서함</a>
+                    </div>
+                    <ul id="recentDocs" class="list">
+                        <li class="list-item skeleton">불러오는 중…</li>
+                    </ul>
+                </article>
+
+
+                <article class="card xl:col-span-2">
+                    <div class="card-head">
+                        <h2 class="h2">공지사항</h2>
+                        <a href="/board.html" class="link">게시판</a>
+                    </div>
+                    <ul id="notices" class="list">
+                        <li class="list-item skeleton">불러오는 중…</li>
+                    </ul>
+                </article>
+
+
+                <article class="card">
+                    <div class="card-head">
+                        <h2 class="h2">To‑Do</h2>
+                        <button id="btnAddTodo" class="btn btn-ghost">추가</button>
+                    </div>
+                    <ul id="todoList" class="list"></ul>
+                </article>
+            </section>
+        </main>
+    </div>
+</div>
+
+
+<script defer th:src="@{/js/index.js}"></script>
+</body>
+</html>

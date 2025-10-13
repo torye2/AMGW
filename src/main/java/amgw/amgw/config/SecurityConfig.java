@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcClientInitiatedLogoutSuccessHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
@@ -23,14 +24,29 @@ public class SecurityConfig {
         oidcLogout.setPostLogoutRedirectUri("{baseUrl}/");
 
         http
+                .csrf(csrf -> csrf
+                        .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/health", "/error", "/favicon.ico",
-                                "/css/**", "/js/**", "/images/**").permitAll()
+                        .requestMatchers("/health", "/error", "/favicon.ico",
+                                "/css/**", "/js/**", "/images/**",
+                                "/login").permitAll()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(Customizer.withDefaults())
-                .logout(l -> l.logoutSuccessHandler(oidcLogout));
+                .oauth2Login(oauth -> oauth
+                        .loginPage("/login")
+                        .successHandler((req, res, auth) -> {
+                            // OAuth2User user = (OAuth2User) authn.getPrincipal();
+                            // String sub = user.getAttribute("sub"); String email = user.getAttribute("email"); ...
+                            // userService.provisionIfNeeded(sub, email, ...);
+                            res.sendRedirect("/");
+                        })
+                )
+                .logout(l -> l
+                        .logoutUrl("/logout")
+                        .logoutSuccessHandler(oidcLogout)
+                );
         return http.build();
     }
 }

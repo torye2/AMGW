@@ -1,0 +1,86 @@
+/* =============== 공통 레이아웃 =============== */
+.container{ margin-left:auto; margin-right:auto; max-width:80rem; padding-left:1rem; padding-right:1rem; }
+@media (min-width:640px){ .container{ padding-left:1.5rem; padding-right:1.5rem; } }
+@media (min-width:1024px){ .container{ padding-left:2rem; padding-right:2rem; } }
+
+
+.site-header{ position:sticky; top:0; z-index:40; border-bottom:1px solid #e2e8f0; background:rgba(255,255,255,.7); backdrop-filter:blur(8px); }
+
+
+/* =============== 헤더 요소 =============== */
+.brand{ display:flex; align-items:center; gap:.5rem; font-weight:600; }
+.brand-badge{ display:inline-flex; height:2rem; width:2rem; align-items:center; justify-content:center; border-radius:.5rem; background:#e0e7ff; color:#4338ca; }
+
+
+.icon{ height:1.25rem; width:1.25rem; }
+.icon-sm{ height:1rem; width:1rem; }
+
+
+.icon-btn{ padding:.5rem; border:1px solid #e2e8f0; border-radius:.5rem; }
+.icon-btn:hover{ background:#f1f5f9; }
+
+
+.badge{ position:absolute; top:-.25rem; right:-.25rem; display:flex; align-items:center; justify-content:center; height:1.25rem; min-width:1.25rem; padding:0 .25rem; border-radius:9999px; background:#ef4444; color:#fff; font-size:10px; }
+
+
+.profile-btn{ display:flex; align-items:center; gap:.5rem; border:1px solid #e2e8f0; border-radius:.5rem; padding:.375rem .5rem; }
+.profile-btn:hover{ background:#f8fafc; }
+.avatar{ height:1.75rem; width:1.75rem; border-radius:9999px; object-fit:cover; }
+
+
+.dropdown{ position:absolute; right:0; margin-top:.5rem; width:12rem; border:1px solid #e2e8f0; background:#fff; border-radius:.75rem; padding:.25rem; box-shadow:0 8px 24px rgba(15,23,42,.08); }
+.dropdown-item{ display:block; border-radius:.5rem; padding:.5rem .75rem; font-size:.875rem; }
+.dropdown-item:hover{ background:#f8fafc; }
+
+
+.search{ position:relative; display:block; }
+.search-icon{ position:absolute; inset:0 auto 0 .75rem; display:flex; align-items:center; pointer-events:none; }
+.search-input{ width:18rem; border:1px solid #e2e8f0; border-radius:.5rem; padding:.5rem .75rem .5rem 2.25rem; font-size:.875rem; box-shadow:0 1px 2px rgba(15,23,42,.04); outline:none; }
+.search-input:focus{ box-shadow:0 0 0 3px rgba(79,70,229,.2); border-color:#c7d2fe; }
+
+
+/* =============== 사이드바 =============== */
+.sidebar{ position:sticky; top:5rem; height:max-content; max-height:calc(100dvh - 6rem); overflow-y:auto; border:1px solid #e2e8f0; background:#fff; border-radius:.75rem; padding: .75rem 1rem; box-shadow:0 8px 24px rgba(15,23,42,.08); }
+.nav{ display:flex; flex-direction:column; gap:.25rem; font-size:.875rem; }
+.nav-item{ display:flex; align-items:center; gap:.5rem; border-radius:.5rem; padding:.5rem .75rem; }
+.nav-item:hover{ background:#f8fafc; }
+.nav-item.active{ background:#f1f5f9; font-weight:600; }
+
+
+/* =============== 카드 & 타이포그래피 =============== */
+.card{ border:1px solid #e2e8f0; background:#fff; border-radius:1rem; padding:1.25rem; box-shadow:0 8px 24px rgba(15,23,42,.08); }
+.card-head{ display:flex; align-items:center; justify-content:space-between; }
+.h1{ font-size:1.25rem; font-weight:600; }
+@media (min-width:640px){ .h1{ font-size:1.5rem; } }
+.h2{ font-weight:600; }
+.muted{ color:#64748b; font-size:.875rem; }
+.link{ font-size:.875rem; color:#4338ca; }
+.link:hover{ text-decoration:underline; }
+
+
+.pill{ background:#f8fafc; border-radius:.75rem; padding:.75rem; }
+.pill-value{ margin-top:.125rem; font-weight:600; }
+
+
+.btn{ display:inline-flex; align-items:center; gap:.5rem; border:1px solid #e2e8f0; border-radius:.5rem; padding:.5rem .75rem; font-size:.875rem; }
+.btn:hover{ background:#f8fafc; }
+.btn-ghost{ background:#fff; }
+
+
+.list{ margin-top:.75rem; display:flex; flex-direction:column; gap:.5rem; }
+.list-item{ border:1px solid #e2e8f0; border-radius:.75rem; padding:.75rem; font-size:.875rem; }
+.list-item:hover{ background:#f8fafc; }
+
+
+/* =============== 스크롤바 =============== */
+::-webkit-scrollbar{ width:10px; height:10px; }
+::-webkit-scrollbar-thumb{ background:#cbd5e1; border-radius:9999px; }
+::-webkit-scrollbar-track{ background:#f8fafc; }
+
+
+/* =============== 스켈레톤 로딩 =============== */
+.skeleton { position: relative; overflow: hidden; }
+.skeleton::after { content:""; position:absolute; inset:0; transform:translateX(-100%);
+    background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(148,163,184,.25) 50%, rgba(255,255,255,0) 100%);
+    animation: shimmer 1.2s infinite; }
+@keyframes shimmer { 100% { transform: translateX(100%); } }
