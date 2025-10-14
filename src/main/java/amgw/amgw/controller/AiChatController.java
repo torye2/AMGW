@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -74,8 +73,11 @@ public class AiChatController {
     // -------------------------------
     private String getPageUrl(String pageName) {
         try {
+            System.out.println("DB 조회 시도: " + pageName);
             String sql = "SELECT url FROM pages WHERE page_name = ?";
             List<String> urls = jdbcTemplate.queryForList(sql, String.class, pageName);
+            System.out.println("DB 조회 결과: " + urls);
+            System.out.println("[DB 조회] pageName=" + pageName + ", url=" + (urls.isEmpty() ? "없음" : urls.get(0)));
             return urls.isEmpty() ? null : urls.get(0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -88,35 +90,37 @@ public class AiChatController {
     // -------------------------------
     private String callGeminiForAction(String userPrompt) {
         try {
-            URL url = new URL(
-                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY
-            );
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            conn.setDoOutput(true);
+            // 1️⃣ DB에서 페이지 목록 조회
+            String sql = "SELECT page_name, url FROM pages";
+            List<Map<String, Object>> pageList = jdbcTemplate.queryForList(sql);
 
+            // 2️⃣ DB 정보 문자열로 만들기
+            StringBuilder dbInfo = new StringBuilder();
+            dbInfo.append("현재 그룹웨어 페이지 정보:\n");
+            for (Map<String, Object> page : pageList) {
+                dbInfo.append("- ").append(page.get("page_name"))
+                        .append(": ").append(page.get("url")).append("\n");
+            }
+
+            // 3️⃣ systemPrompt 작성 (DB 정보 포함)
             String systemPrompt = """
-                            당신은 그룹웨어 시스템 AI 챗봇입니다.
-                            - 항상 특정 기능 요청을 바로 수행하지 마세요. 필요 시 확인 질문 후 기능을 실행합니다.
-                            - 사용자가 특정 기능 페이지로 가길 원하면 다음 형식으로 반환:
-                              {"answer": "페이지로 이동하시겠습니까?", "redirect": "/페이지.html"}
-                            - 일반 대화는 {"answer": "대화 내용"} 형식으로 반환
-                            - 업무 요약 요청 시 {"answer": "업무 요약 내용"} 형식으로 반환
-                            - 정보 안내 요청 시 {"answer": "안내 메시지"} 형식으로 반환
-                            - JSON 외 다른 형태로는 절대 응답하지 마세요.
-            
-                            예시:
-                            - "전자결재" → {"answer": "전자결재에 대해 어떤 기능이 필요하신가요? 결재를 올리는 건가요, 아니면 결재 문서를 확인하는 건가요?"}
-                            - "전자결재 페이지로 보내줘" → {"answer": "전자결재 페이지로 이동하시겠습니까?", "redirect": "/approval.html"}
-                            - "오늘 회의 내용 요약해줘" → {"answer": "오늘 회의에서는 일정 검토, 프로젝트 진행 상황 점검, 신규 업무 배정이 있었습니다."}
-                            - "근태 관리 기능 알려줘" → {"answer": "근태 관리에서는 출퇴근 기록 조회, 휴가 신청, 근태 통계 확인이 가능합니다."}
-            
-            """;
+                당신은 그룹웨어 시스템 AI 챗봇입니다.
+                - 항상 특정 기능 요청을 바로 수행하지 마세요. 필요 시 확인 질문 후 기능을 실행합니다.
+                - 사용자가 특정 기능 페이지로 가길 원하면 다음 형식으로 반환:
+                  {"answer": "페이지로 이동하시겠습니까?", "redirect": "/페이지.html"}
+                - 일반 대화는 {"answer": "대화 내용"} 형식으로 반환
+                - 업무 요약 요청 시 {"answer": "업무 요약 내용"} 형식으로 반환
+                - 정보 안내 요청 시 {"answer": "안내 메시지"} 형식으로 반환
+                - JSON 외 다른 형태로는 절대 응답하지 마세요.
 
+                예시:
+                - "전자결재" → {"answer": "전자결재에 대해 어떤 기능이 필요하신가요? 결재를 올리는 건가요, 아니면 결재 문서를 확인하는 건가요?"}
+                - "오늘 회의 내용 요약해줘" → {"answer": "오늘 회의에서는 일정 검토, 프로젝트 진행 상황 점검, 신규 업무 배정이 있었습니다."}
+                
+                """ + dbInfo.toString();
+
+            // 4️⃣ Gemini API 호출 구조는 그대로
             JsonObject jsonRoot = new JsonObject();
-
-            // system_instruction
             JsonObject systemInstruction = new JsonObject();
             JsonArray systemParts = new JsonArray();
             JsonObject sysPart = new JsonObject();
@@ -125,7 +129,6 @@ public class AiChatController {
             systemInstruction.add("parts", systemParts);
             jsonRoot.add("system_instruction", systemInstruction);
 
-            // contents
             JsonArray contents = new JsonArray();
             JsonObject contentObj = new JsonObject();
             contentObj.addProperty("role", "user");
@@ -136,6 +139,14 @@ public class AiChatController {
             contentObj.add("parts", userParts);
             contents.add(contentObj);
             jsonRoot.add("contents", contents);
+
+            URL url = new URL(
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY
+            );
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            conn.setDoOutput(true);
 
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(jsonRoot.toString().getBytes("utf-8"));
@@ -156,6 +167,7 @@ public class AiChatController {
             return "{\"answer\": \"AI 호출 중 오류가 발생했습니다.\"}";
         }
     }
+
 
     private String extractTextFromJson(String json) {
         try {
