@@ -4,7 +4,6 @@ import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -21,7 +20,7 @@ public class ChatController {
             "파일공유", "/file-share.html"
     );
 
-    private static final String API_KEY = "AIzaSyCdkVsuY8DVF92MG2I_J2hitV7uzjEVyPA";
+    private static final String API_KEY = "AIzaSyCdkVsuY8DVF92MG2I_J2hitV7uzjEVyPA"; // 실제 API Key로 교체
 
     @GetMapping
     public String chatPage() {
@@ -34,10 +33,8 @@ public class ChatController {
         String question = payload.get("question");
         String aiResponse = callGeminiForAction(question);
 
-        // 🔹 안전 파싱
         try {
             if (!aiResponse.trim().startsWith("{")) {
-                // JSON 아닌 경우 바로 answer로 전달
                 return Map.of("answer", aiResponse);
             }
 
@@ -45,12 +42,16 @@ public class ChatController {
             reader.setLenient(true);
             JsonObject obj = JsonParser.parseReader(reader).getAsJsonObject();
 
-            if (obj.has("redirect") && !obj.get("redirect").getAsString().isEmpty()) {
-                return Map.of("redirect", obj.get("redirect").getAsString());
-            }
+            // redirect + answer 반환
+            String answer = obj.has("answer") ? obj.get("answer").getAsString() : null;
+            String redirect = obj.has("redirect") ? obj.get("redirect").getAsString() : null;
 
-            if (obj.has("answer")) {
-                return Map.of("answer", obj.get("answer").getAsString());
+            if (answer != null && redirect != null) {
+                return Map.of("answer", answer, "redirect", redirect);
+            } else if (answer != null) {
+                return Map.of("answer", answer);
+            } else if (redirect != null) {
+                return Map.of("answer", "페이지로 이동하시겠습니까?", "redirect", redirect);
             }
 
             return Map.of("answer", aiResponse);
@@ -74,13 +75,22 @@ public class ChatController {
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
             conn.setDoOutput(true);
 
-            // 🔹 AI에게 반드시 JSON으로 응답하도록 지시
             String systemPrompt = """
                     당신은 그룹웨어 시스템 AI 챗봇입니다.
-                    사용자의 질문에 반드시 JSON 형식으로 답변하세요.
-                    - 특정 기능 요청 → {"redirect": "/페이지.html"}
-                    - 일반 대화 → {"answer": "대화 내용"}
-                    JSON 외 다른 형태로는 절대 응답하지 마세요.
+                    - 항상 특정 기능 요청을 바로 수행하지 마세요. 필요 시 확인 질문 후 기능을 실행합니다.
+                    - 사용자가 특정 기능 페이지로 가길 원하면 다음 형식으로 반환:
+                      {"answer": "페이지로 이동하시겠습니까?", "redirect": "/페이지.html"}
+                    - 일반 대화는 {"answer": "대화 내용"} 형식으로 반환
+                    - 업무 요약 요청 시 {"answer": "업무 요약 내용"} 형식으로 반환
+                    - 정보 안내 요청 시 {"answer": "안내 메시지"} 형식으로 반환
+                    - JSON 외 다른 형태로는 절대 응답하지 마세요.
+                    
+                    예시:
+                    - "전자결재" → {"answer": "전자결재에 대해 어떤 기능이 필요하신가요? 결재를 올리는 건가요, 아니면 결재 문서를 확인하는 건가요?"}
+                    - "전자결재 페이지로 보내줘" → {"answer": "전자결재 페이지로 이동하시겠습니까?", "redirect": "/approval.html"}
+                    - "오늘 회의 내용 요약해줘" → {"answer": "오늘 회의에서는 일정 검토, 프로젝트 진행 상황 점검, 신규 업무 배정이 있었습니다."}
+                    - "근태 관리 기능 알려줘" → {"answer": "근태 관리에서는 출퇴근 기록 조회, 휴가 신청, 근태 통계 확인이 가능합니다."}
+
                     """;
 
             JsonObject jsonRoot = new JsonObject();
@@ -106,7 +116,6 @@ public class ChatController {
             contents.add(contentObj);
             jsonRoot.add("contents", contents);
 
-            // 전송
             try (OutputStream os = conn.getOutputStream()) {
                 os.write(jsonRoot.toString().getBytes("utf-8"));
             }
@@ -127,9 +136,6 @@ public class ChatController {
         }
     }
 
-    // -------------------------------
-    // Gemini 응답에서 text 추출
-    // -------------------------------
     private String extractTextFromJson(String json) {
         try {
             JsonReader reader = new JsonReader(new StringReader(json));
