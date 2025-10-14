@@ -1,184 +1,85 @@
 package amgw.amgw.controller;
 
-import com.google.gson.*;
-import com.google.gson.stream.JsonReader;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.stereotype.Controller;
+import amgw.amgw.chat.model.ChatMessage;
+import amgw.amgw.dto.ChatDto;
+import amgw.amgw.repository.UserRepository;
+import amgw.amgw.service.ChatService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 
-@Controller
-@RequestMapping("/chat")
-public class ChatController {
+@Slf4j
+@RestController
+@RequestMapping("/api/chat")
+@RequiredArgsConstructor
+public class ChatController {   // ← 클래스명만 변경
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate; // DB 조회용
+    private final ChatService chat;
+    private final UserRepository userRepo;
 
-    private static final String API_KEY = "AIzaSyCdkVsuY8DVF92MG2I_J2hitV7uzjEVyPA";
+    public record CreateGroupReq(String name, List<Long> memberIds) {}
+    public record InviteReq(List<Long> userIds) {}
 
-    @GetMapping
-    public String chatPage() {
-        return "chat";
+    @PostMapping("/rooms/direct")
+    public Map<String, Object> createDirect(@RequestParam Long userId) {
+        var room = chat.createDirectRoom(userId);
+        return Map.of("roomId", room.getId());
     }
 
-    @PostMapping("/api")
-    @ResponseBody
-    public Map<String, String> chat(@RequestBody Map<String, String> payload) {
-        String question = payload.get("question");
-        String aiResponse = callGeminiForAction(question);
-
-        try {
-            if (!aiResponse.trim().startsWith("{")) {
-                return Map.of("answer", aiResponse);
-            }
-
-            JsonReader reader = new JsonReader(new StringReader(aiResponse));
-            reader.setLenient(true);
-            JsonObject obj = JsonParser.parseReader(reader).getAsJsonObject();
-
-            // AI가 특정 페이지 요청으로 판별한 경우
-            if (obj.has("page_name")) {
-                String pageName = obj.get("page_name").getAsString();
-                String pageUrl = getPageUrl(pageName);
-
-                if (pageUrl != null) {
-                    return Map.of("answer", pageName + " 페이지로 이동하시겠습니까?", "redirect", pageUrl);
-                } else {
-                    return Map.of("answer", pageName + " 페이지 정보를 찾을 수 없습니다.");
-                }
-            }
-
-            String answer = obj.has("answer") ? obj.get("answer").getAsString() : null;
-            String redirect = obj.has("redirect") ? obj.get("redirect").getAsString() : null;
-
-            if (answer != null && redirect != null) return Map.of("answer", answer, "redirect", redirect);
-            else if (answer != null) return Map.of("answer", answer);
-            else if (redirect != null) return Map.of("answer", "페이지로 이동하시겠습니까?", "redirect", redirect);
-
-            return Map.of("answer", aiResponse);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Map.of("answer", aiResponse);
-        }
+    @PostMapping("/rooms/group")
+    public Map<String, Object> createGroup(@RequestBody CreateGroupReq req) {
+        log.info("createGroup req name={} memberIds={}", req.name(), req.memberIds());
+        var room = chat.createGroupRoom(req.name(), req.memberIds());
+        log.info("createGroup ok roomId={}", room.getId());
+        return Map.of("roomId", room.getId());
     }
 
-    // -------------------------------
-    // DB에서 페이지 URL 조회
-    // -------------------------------
-    private String getPageUrl(String pageName) {
-        try {
-            String sql = "SELECT url FROM pages WHERE page_name = ?";
-            List<String> urls = jdbcTemplate.queryForList(sql, String.class, pageName);
-            return urls.isEmpty() ? null : urls.get(0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    @GetMapping("/rooms")
+    public List<Map<String,Object>> myRooms() {
+        return chat.myRooms();
     }
 
-    // -------------------------------
-    // Gemini API 호출
-    // -------------------------------
-    private String callGeminiForAction(String userPrompt) {
-        try {
-            URL url = new URL(
-                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY
-            );
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-            conn.setDoOutput(true);
-
-            String systemPrompt = """
-                            당신은 그룹웨어 시스템 AI 챗봇입니다.
-                            - 항상 특정 기능 요청을 바로 수행하지 마세요. 필요 시 확인 질문 후 기능을 실행합니다.
-                            - 사용자가 특정 기능 페이지로 가길 원하면 다음 형식으로 반환:
-                              {"answer": "페이지로 이동하시겠습니까?", "redirect": "/페이지.html"}
-                            - 일반 대화는 {"answer": "대화 내용"} 형식으로 반환
-                            - 업무 요약 요청 시 {"answer": "업무 요약 내용"} 형식으로 반환
-                            - 정보 안내 요청 시 {"answer": "안내 메시지"} 형식으로 반환
-                            - JSON 외 다른 형태로는 절대 응답하지 마세요.
-            
-                            예시:
-                            - "전자결재" → {"answer": "전자결재에 대해 어떤 기능이 필요하신가요? 결재를 올리는 건가요, 아니면 결재 문서를 확인하는 건가요?"}
-                            - "전자결재 페이지로 보내줘" → {"answer": "전자결재 페이지로 이동하시겠습니까?", "redirect": "/approval.html"}
-                            - "오늘 회의 내용 요약해줘" → {"answer": "오늘 회의에서는 일정 검토, 프로젝트 진행 상황 점검, 신규 업무 배정이 있었습니다."}
-                            - "근태 관리 기능 알려줘" → {"answer": "근태 관리에서는 출퇴근 기록 조회, 휴가 신청, 근태 통계 확인이 가능합니다."}
-            
-            """;
-
-            JsonObject jsonRoot = new JsonObject();
-
-            // system_instruction
-            JsonObject systemInstruction = new JsonObject();
-            JsonArray systemParts = new JsonArray();
-            JsonObject sysPart = new JsonObject();
-            sysPart.addProperty("text", systemPrompt);
-            systemParts.add(sysPart);
-            systemInstruction.add("parts", systemParts);
-            jsonRoot.add("system_instruction", systemInstruction);
-
-            // contents
-            JsonArray contents = new JsonArray();
-            JsonObject contentObj = new JsonObject();
-            contentObj.addProperty("role", "user");
-            JsonArray userParts = new JsonArray();
-            JsonObject userPart = new JsonObject();
-            userPart.addProperty("text", userPrompt);
-            userParts.add(userPart);
-            contentObj.add("parts", userParts);
-            contents.add(contentObj);
-            jsonRoot.add("contents", contents);
-
-            try (OutputStream os = conn.getOutputStream()) {
-                os.write(jsonRoot.toString().getBytes("utf-8"));
-            }
-
-            InputStream is = (conn.getResponseCode() == 200) ? conn.getInputStream() : conn.getErrorStream();
-            try (BufferedReader br = new BufferedReader(new InputStreamReader(is, "utf-8"))) {
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    response.append(line.trim());
-                }
-                return extractTextFromJson(response.toString());
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "{\"answer\": \"AI 호출 중 오류가 발생했습니다.\"}";
-        }
+    @GetMapping("/rooms/{roomId}/messages")
+    public Page<ChatDto.ChatMessageRes> history(@PathVariable Long roomId,
+                                                @RequestParam(defaultValue = "0") int page,
+                                                @RequestParam(defaultValue = "50") int size) {
+        Page<ChatMessage> p = chat.history(roomId, page, size);
+        return p.map(m -> new ChatDto.ChatMessageRes(
+                m.getId(),
+                m.getRoomId(),
+                m.getSenderId(),
+                userRepo.findById(m.getSenderId())
+                        .map(u -> u.getName() != null ? u.getName()
+                                : (u.getUsername() != null ? u.getUsername() : u.getEmail()))
+                        .orElse("알 수 없음"),
+                m.getContent(),
+                m.getContentType().name(),
+                m.getCreatedAt().atZone(ZoneId.systemDefault()).toInstant()
+        ));
     }
 
-    private String extractTextFromJson(String json) {
-        try {
-            JsonReader reader = new JsonReader(new StringReader(json));
-            reader.setLenient(true);
-            JsonObject root = JsonParser.parseReader(reader).getAsJsonObject();
+    @PostMapping("/rooms/{roomId}/read/{messageId}")
+    public void markRead(@PathVariable Long roomId, @PathVariable Long messageId) {
+        chat.markRead(roomId, messageId);
+    }
 
-            JsonArray candidates = null;
-            if (root.has("response")) candidates = root.getAsJsonObject("response").getAsJsonArray("candidates");
-            else if (root.has("candidates")) candidates = root.getAsJsonArray("candidates");
+    @PostMapping("/rooms/{roomId}/invite")
+    public void invite(@PathVariable Long roomId, @RequestBody InviteReq req) {
+        chat.inviteMembers(roomId, req.userIds());
+    }
 
-            if (candidates != null && !candidates.isEmpty()) {
-                JsonObject candidate = candidates.get(0).getAsJsonObject();
-                if (candidate.has("content")) {
-                    JsonArray parts = candidate.getAsJsonObject("content").getAsJsonArray("parts");
-                    if (parts != null && !parts.isEmpty())
-                        return parts.get(0).getAsJsonObject().get("text").getAsString();
-                }
-                if (candidate.has("outputText")) return candidate.get("outputText").getAsString();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return "(AI 응답 파싱 실패)";
+    @DeleteMapping("/rooms/{roomId}/members/{userId}")
+    public void kick(@PathVariable Long roomId, @PathVariable Long userId) {
+        chat.removeMember(roomId, userId);
+    }
+
+    @PostMapping("/rooms/{roomId}/leave")
+    public void leave(@PathVariable Long roomId) {
+        chat.leaveRoom(roomId);
     }
 }
