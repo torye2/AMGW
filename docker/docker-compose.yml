@@ -28,14 +28,13 @@
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./reverse-proxy/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
-    networks: [gw]
+    networks: [ gw ]
     labels:
       - "traefik.enable=true"
       # 대시보드 라우터 (api@internal 사용!)
       - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
       - "traefik.http.routers.dashboard.entrypoints=web"
       - "traefik.http.routers.dashboard.service=api@internal"
-
 
   keycloak-db:
     image: postgres:16
@@ -48,31 +47,30 @@
       - kcdb:/var/lib/postgresql/data
     networks: [gw]
 
-    keycloak:
-      image: quay.io/keycloak/keycloak:25.0
-      command: ["start-dev"]
-      environment:
-        KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-        KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-        KC_DB: ${KC_DB}
-        KC_DB_URL: ${KC_DB_URL}
-        KC_DB_USERNAME: ${KC_DB_USERNAME}
-        KC_DB_PASSWORD: ${KC_DB_PASSWORD}
-        KC_HOSTNAME: keycloak.${DOMAIN}
-        KC_HOSTNAME_URL: http://keycloak.${DOMAIN}
-        TZ: ${TZ}
-      depends_on: [keycloak-db]
-      networks: [gw]
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.keycloak.rule=Host(`keycloak.${DOMAIN}`)"
-        - "traefik.http.routers.keycloak.entrypoints=web"
-        - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
-        # (선택) 루트 → /admin/로 리다이렉트
-        - "traefik.http.middlewares.kc-redirect.redirectregex.regex=^https?://keycloak\\.${DOMAIN}/?$"
-        - "traefik.http.middlewares.kc-redirect.redirectregex.replacement=http://keycloak.${DOMAIN}/admin/"
-        - "traefik.http.routers.keycloak.middlewares=kc-redirect"
-
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    command: ["start-dev"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB: ${KC_DB}
+      KC_DB_URL: ${KC_DB_URL}
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_HOSTNAME: keycloak.${DOMAIN}
+      KC_HOSTNAME_URL: http://keycloak.${DOMAIN}
+      TZ: ${TZ}
+    depends_on: [keycloak-db]
+    networks: [gw]
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.keycloak.rule=Host(`keycloak.${DOMAIN}`)"
+      - "traefik.http.routers.keycloak.entrypoints=web"
+      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
+      # (선택) 루트 → /admin/로 리다이렉트
+      - "traefik.http.middlewares.kc-redirect.redirectregex.regex=^https?://keycloak\\.${DOMAIN}/?$"
+      - "traefik.http.middlewares.kc-redirect.redirectregex.replacement=http://keycloak.${DOMAIN}/admin/"
+      - "traefik.http.routers.keycloak.middlewares=kc-redirect"
 
   nextcloud-db:
     image: mariadb:11
@@ -119,4 +117,3 @@ volumes:
   ncdb: {}
   ncdata: {}
   mysqldata: {}
-
