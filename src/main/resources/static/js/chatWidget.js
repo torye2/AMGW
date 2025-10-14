@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         try {
             addMessage(question, "user");
             chatInput.value = "";
-            const data = await api("/chat/api", {
+            const data = await api("/aiChat/aiApi", {
                 method: "POST",
                 body: JSON.stringify({ question })
             });

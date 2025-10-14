@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/chat")
-public class ChatController {
+@RequestMapping("/aiChat")
+public class AiChatController {
 
     @Autowired
     private JdbcTemplate jdbcTemplate; // DB 조회용
@@ -24,10 +24,10 @@ public class ChatController {
 
     @GetMapping
     public String chatPage() {
-        return "chat";
+        return "aiChat";
     }
 
-    @PostMapping("/api")
+    @PostMapping("/aiApi")
     @ResponseBody
     public Map<String, String> chat(@RequestBody Map<String, String> payload) {
         String question = payload.get("question");
