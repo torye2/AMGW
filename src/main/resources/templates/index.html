@@ -6,6 +6,8 @@
     <title>AMU GROUP WARE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 <body class="bg-slate-50 text-slate-800">
 <div class="min-h-dvh grid grid-rows-[auto,1fr]">
@@ -200,5 +202,6 @@
 
 
 <script defer th:src="@{/js/index.js}"></script>
+<script src="/js/chatWidget.js" defer></script>
 </body>
 </html>
