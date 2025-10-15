@@ -1,4 +1,19 @@
 ﻿services:
+  caddy:
+    image: caddy:2
+    container_name: caddy
+    ports:
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./certs:/certs:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - nextcloud
+      - keycloak
+    networks: [gw]
+
   mysql:
     image: mysql:8.4
     environment:
@@ -59,6 +74,9 @@
       KC_DB_PASSWORD: ${KC_DB_PASSWORD}
       KC_HOSTNAME: keycloak.${DOMAIN}
       KC_HOSTNAME_URL: http://keycloak.${DOMAIN}
+      KEYCLOAK_FRONTEND_URL: https://keycloak.localhost/
+      KC_PROXY: edge
+      KC_HOSTNAME_PORT: 8080
       TZ: ${TZ}
     depends_on: [keycloak-db]
     networks: [gw]
@@ -117,3 +135,5 @@ volumes:
   ncdb: {}
   ncdata: {}
   mysqldata: {}
+  caddy_data: {}
+  caddy_config: {}
