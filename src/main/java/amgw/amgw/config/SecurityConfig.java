@@ -16,13 +16,8 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final ClientRegistrationRepository clients;
-    private final OidcLoginSuccessHandler successHandler;
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        var oidcLogout = new OidcClientInitiatedLogoutSuccessHandler(clients);
-        oidcLogout.setPostLogoutRedirectUri("{baseUrl}/");
 
         http
                 .csrf(csrf -> csrf
@@ -35,13 +30,14 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                .oauth2Login(oauth -> oauth
+                .formLogin(login -> login
                         .loginPage("/login")
-                        .successHandler(successHandler) // ★ 여기에만 연결
+                        .defaultSuccessUrl("/", true)
+                        .permitAll()
                 )
                 .logout(l -> l
                         .logoutUrl("/logout")
-                        .logoutSuccessHandler(oidcLogout)
+                        .logoutSuccessUrl("/login?logout")
                 );
 
         return http.build();

@@ -1,142 +1,45 @@
 ﻿services:
-  caddy:
-    image: caddy:2
-    container_name: caddy
-    ports:
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./certs:/certs:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - nextcloud
-      - keycloak
-    networks: [gw]
-
-  mysql:
+  db:
     image: mysql:8.4
+    container_name: mysql-portal
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: gw
-      TZ: ${TZ}
-    command:
-      [
-        "--character-set-server=utf8mb4",
-        "--collation-server=utf8mb4_0900_ai_ci"
-      ]
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpw}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-gw}
+      MYSQL_USER: ${MYSQL_USER:-gwapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-GwApp!2025}
+      TZ: ${TZ:-Asia/Seoul}
     ports:
-      - "${MYSQL_HOST_PORT:-3307}:3306"
+      - "${MYSQL_PORT:-3307}:3306"
     volumes:
-      - mysqldata:/var/lib/mysql
-    networks: [gw]
-
-  reverse-proxy:
-    image: traefik:v3.1
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.file.filename=/etc/traefik/traefik_dynamic.yml"
-      - "--entrypoints.web.address=:80"
-    ports:
-      - "${PROXY_HTTP_PORT}:80"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - ./reverse-proxy/traefik_dynamic.yml:/etc/traefik/traefik_dynamic.yml:ro
-    networks: [ gw ]
-    labels:
-      - "traefik.enable=true"
-      # 대시보드 라우터 (api@internal 사용!)
-      - "traefik.http.routers.dashboard.rule=Host(`traefik.${DOMAIN}`)"
-      - "traefik.http.routers.dashboard.entrypoints=web"
-      - "traefik.http.routers.dashboard.service=api@internal"
-
-  keycloak-db:
-    image: postgres:16
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: ${KC_DB_USERNAME}
-      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
-      TZ: ${TZ}
-    volumes:
-      - kcdb:/var/lib/postgresql/data
-    networks: [gw]
-
-  keycloak:
-    image: quay.io/keycloak/keycloak:25.0
-    command: ["start-dev"]
-    environment:
-      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
-      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
-      KC_DB: ${KC_DB}
-      KC_DB_URL: ${KC_DB_URL}
-      KC_DB_USERNAME: ${KC_DB_USERNAME}
-      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
-
-      KC_HTTP_ENABLED: true
-      KC_PROXY: edge
-
-      KC_HOSTNAME: keycloak.localhost
-      KC_HOSTNAME_STRICT: true
-      TZ: ${TZ}
-    depends_on: [keycloak-db]
-    networks: [gw]
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.keycloak.rule=Host(`keycloak.${DOMAIN}`)"
-      - "traefik.http.routers.keycloak.entrypoints=web"
-      - "traefik.http.services.keycloak.loadbalancer.server.port=8080"
-      # (선택) 루트 → /admin/로 리다이렉트
-      - "traefik.http.middlewares.kc-redirect.redirectregex.regex=^https?://keycloak\\.${DOMAIN}/?$"
-      - "traefik.http.middlewares.kc-redirect.redirectregex.replacement=http://keycloak.${DOMAIN}/admin/"
-      - "traefik.http.routers.keycloak.middlewares=kc-redirect"
-
-  nextcloud-db:
-    image: mariadb:11
-    environment:
-      MARIADB_ROOT_PASSWORD: ${NEXTCLOUD_DB_PASS}
-      MARIADB_DATABASE: nextcloud
-      MARIADB_USER: nextcloud
-      MARIADB_PASSWORD: ${NEXTCLOUD_DB_PASS}
-      TZ: ${TZ}
-    volumes:
-      - ncdb:/var/lib/mysql
-    networks: [gw]
-
-  nextcloud:
-    image: nextcloud:28
-    depends_on:
-      - nextcloud-db
-    environment:
-      TZ: ${TZ}
-    volumes:
-      - ncdata:/var/www/html
-      - ./nextcloud/config:/var/www/html/config
-    networks: [gw]
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.nextcloud.rule=Host(`${NEXTCLOUD_HOST}`)"
-      - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
-    extra_hosts:
-      - "keycloak.localhost:172.19.0.6"
+      - mysql-data:/var/lib/mysql
 
   onlyoffice:
     image: onlyoffice/documentserver:8.1
+    container_name: onlyoffice
     environment:
-      TZ: ${TZ}
-    networks: [gw]
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.onlyoffice.rule=Host(`${ONLYOFFICE_HOST}`)"
-      - "traefik.http.services.onlyoffice.loadbalancer.server.port=80"
+      JWT_ENABLED: "${ONLYOFFICE_JWT_ENABLED:-true}"
+      JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
+      TZ: ${TZ:-Asia/Seoul}
+    ports:
+      - "${ONLYOFFICE_PORT:-8081}:80"
 
-networks:
-  gw: {}
+  portal:
+    image: your/portal:latest
+    container_name: portal
+    depends_on:
+      - db
+      - onlyoffice
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://amgw-db.cjmik2sqe1xf.ap-northeast-2.rds.amazonaws.com:3306/gw?useSSL=true&serverTimezone=Asia/Seoul"
+      SPRING_DATASOURCE_USERNAME: gwapp
+      SPRING_DATASOURCE_PASSWORD: GwApp!2025
+      ONLYOFFICE_URL: "http://onlyoffice"   # 내부 통신용
+      ONLYOFFICE_JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
+      TZ: ${TZ:-Asia/Seoul}
+    ports:
+      - "${PORTAL_PORT:-8080}:8080"
+    volumes:
+      - ./files:/app/files  # 로컬 저장 쓸 때
 
 volumes:
-  kcdb: {}
-  ncdb: {}
-  ncdata: {}
-  mysqldata: {}
-  caddy_data: {}
-  caddy_config: {}
+  mysql-data:

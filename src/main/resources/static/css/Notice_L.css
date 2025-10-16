@@ -1,0 +1,115 @@
+.Notice_L_Container {
+	max-width: 1024px;
+}
+
+.Notice_LBox{
+	border-collapse: collapse;
+}
+
+.Notice_L-head {
+	line-height: 40px;
+	width: 800px;
+	background: #efefef;
+	
+}
+
+#Notice_L-head {
+	border-bottom: 1px solid #ccc;
+}
+
+#List_CheckBox {
+	font-weight:bold;
+	text-align:center;
+	font-size: 20px;
+	width: 30px;
+}
+
+#List_number {
+	font-weight:bold;
+	text-align:center;
+	width: 80px;
+}
+
+#List_title {
+	font-weight:bold;
+	text-align: center;
+	width: 410px;
+}
+
+#user_id {
+	font-weight:bold;
+	text-align: center;
+	width: 80px;
+}
+
+#reg_Creationdate {
+	font-weight:bold;
+	text-align: center;
+	width: 120px;
+}
+
+#check_count {
+	font-weight:bold;
+	text-align: center;
+	width: 80px;
+}
+
+.Notice_L-body {
+	border-bottom: 1px solid #ccc;
+}
+
+.Notice_L-body td {
+	padding: 5px;
+	height: 30px;
+}
+
+.important-cell {
+	text-align: center;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+}
+
+.important-cell p {
+	border-radius: 6px;
+	border: 2px solid #ff4d4d;
+	color: #ff4d4d;
+	font-size: 10px;
+	width: 40px;
+	height: 15px;
+}
+
+#Number_notice,
+#userId_notice,
+#time_notice,
+#count_notice {
+	text-align: center;
+}
+
+.Notice_not {
+	border-bottom: 1px solid #ccc;
+	text-align: center;
+    color: #777;
+    padding: 5px;
+    height: 30px;
+}
+
+.pagination {
+	gap:5px;
+	width: 800px;
+	margin: 5px;
+	display: flex;
+	justify-content: center;
+}
+
+.Notice_Lbtn {
+	display: flex;
+	width: 800px;
+	margin-top: 5px;
+	justify-content: flex-end;
+}
+
+.Notice_Lbtn button {
+	margin: 3px;
+	display:flex;
+}

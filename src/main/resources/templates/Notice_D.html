@@ -1,18 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title>공지사항 상세 페이지</title>
+<link rel="stylesheet" href="../css/Notice_D.css" />
 </head>
 <body>
-	<div>
+	<div class="Notice_D_Container">
 		<div>
-			<h1>공지사항 내용</h1>
+			<h1>공지사항 - 내용확인</h1>
 		</div>
-		
-		<div>
-			<h4>제목</h4>
-			<h4>내용</h4>
+		<table class="Notice_D_table">
+			<tr class="top_table">
+				<th>제목</th>
+				<td colspan="5" th:text="${notice.notice_title}"></td> <!-- 게시글 제목표시 -->
+			</tr>
+			<tr class="middle_table">
+				<th>작성자</th>
+				<td th:text="${notice.user_id}"></td> <!-- 작성자 아이디표시 -->
+				<th>작성날짜</th>
+				<td th:text="${#dates.format(notice.registration_time, 'yyyy-MM-dd HH:mm')}"></td> <!-- 등록날짜 아니면 수정날짜 표시 -->
+				<th>조회수</th>
+				<td th:text="${notice.notice_count}"></td> <!-- 조회수 표시 -->
+			</tr>
+			<tr class="bottom_table">
+				<th>첨부파일</th> 
+				<td colspan="5">
+					<span th:each="file : ${notice.files}">
+						<a th:href="@{'/download/' + ${file.file_id}}" th:text="${file.orig_name}"></a>
+						<span th:text="${file.file_size + 'KB'}"></span> <!-- 파일용량 표시 -->
+					</span>
+				</td> <!-- 파일이름 표시 / 파일 이름 클릭시 다운로드 -->
+				
+			</tr>
+		</table>
+		<div id="Notice_D" th:utext="${notice.notice_detail}"></div> <!-- 게시글 내용 표시 -->
+		<div class="Notice_D-Btn">
+			<form th:action="@{/Notice_W}" method="get" id="fix_form">
+				<input type="hidden" name="notice_id" th:value="${notice.notice_id}" />
+				<button type="submit">수정</button>
+			</form>
+			
+			<form th:action="@{/Notice_Delete}" method="post" id="delete_form">
+				<input type="hidden" name="noticeIds" th:value="${notice.notice_id}" />
+				<button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+			</form>
+			
+			<form th:action="@{/Notice_L}" method="get" id="list_form">
+			<button type="submit">목록</button>
+			</form>
 		</div>
 	</div>
 </body>

@@ -83,6 +83,36 @@
 
   $("#btnReload")?.addEventListener('click', loadMy);
 
+        // 이동한 페이지에서 autoFillData가 있으면 폼 자동 입력
+        window.addEventListener("DOMContentLoaded", () => {
+            const data = sessionStorage.getItem("autoFillData");
+            if (!data) return;
+
+            const info = JSON.parse(data);
+            sessionStorage.removeItem("autoFillData"); // 먼저 삭제
+
+            const form = document.getElementById("attForm");
+            if (!form) return;
+
+            // 1️⃣ type select 처리
+            if (info.type) {
+                const typeSelect = form.querySelector('[name="type"]');
+                if (typeSelect) {
+                    const optionToSelect = Array.from(typeSelect.options)
+                        .find(o => o.text === info.type || o.value === info.type);
+                    if (optionToSelect) typeSelect.value = optionToSelect.value;
+                }
+            }
+
+            // 2️⃣ 나머지 필드 처리
+            if (info.reason) form.querySelector('[name="reason"]').value = info.reason;
+            if (info.startDate) form.querySelector('[name="startDate"]').value = info.startDate;
+            if (info.endDate) form.querySelector('[name="endDate"]').value = info.endDate;
+
+            alert("AI가 입력 정보를 자동으로 채웠습니다.");
+            console.log("👉 autoFill 데이터:", info);
+        });
+
   // 초기 로드
   loadMy();
 })();

@@ -1,45 +1,167 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
-<title>공지사항 페이지</title>
+<title>공지사항 작성 페이지</title>
 <!-- toast ui CSS -->
-<link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
-<link rel="stylesheet" href="/css/Notice_W">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="../css/Notice_W.css" />
 </head>
 <body>
 	<div class="Notice_w_Container"> 
 		<div class="Notice_w_box"> 
-			<div>
-				<h1>공지사항</h1>
-			</div>
+			<h1>공지사항 작성</h1>
 			
-			<div class="Notice_w_title">
-				<h3>제목</h3>
-				<input type="checkbox">
-				<h3>중요</h3>
-				<input type="text">
-			</div>
-			<div class="Notice_w">
-				<h3>파일 첨부</h3>
-				<div></div>
-				<button>내 PC</button>
-			</div>
-			<div id="editor"></div>
-			<div class="Notice_w_btn">
-				<button>등록</button>
-			</div>
+			<form id="noticeForm" th:action="@{/Notice_W}" method="post" enctype="multipart/form-data">
+				
+				<table class="Notice_w">
+					<tr class="Notice_titleline">
+						<td id="Notice_title">제목</td>
+						<td id="Notice_importance">
+							<label><input type="checkbox" name="important" value="true">중요!</label>
+						</td>
+						<td></td>
+						<td>
+							<input type="text" id="Notice_typetext" name="notice_title" th:value="${notice.notice_title}" required>
+							<input type="hidden" name="notice_id" th:value="${notice.notice_id}">
+						</td>
+					</tr>
+					<tr class="fileupload_line">
+						<td id="file_upload">파일첨부</td>
+						<td colspan="2" class="upload_btn">
+							<button type="button" id="My_PC">내 PC</button>
+						</td>
+						<td colspan="2" id="FileCapacity_msg">
+							<p>총 0KB / 최대 2.00GB x 5개 까지</p>
+						</td>
+					</tr>
+				</table>
+				<!-- 파일이 없을 경우 -->
+				<div class="upload_box">
+					<div class="upload_area" id="upload_area">
+						<p id="upload_msg">📎 파일을 업로드 해주세요</p> 
+						<table class="file_list" id="fileList">
+							<thead>
+								<tr id="fileupload_box">
+									<th>X</th>
+									<th>파일명</th>
+									<th>용량</th>
+								</tr>
+							</thead>
+							<tbody id="fileListBody">
+								<tr th:each="file : ${notice.files}">
+									<td>X</td>
+									<td th:text="${file.file_name}"></td>
+									<td th:text="${file.file_size}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="UI_editor">
+					<div id="UI_editorBox">
+						<div class="font_size">
+							<select id="font_box" title="글꼴">
+								<option value="맑은 고딕" class="background_fff">맑은 고딕</option>
+								<option value="굴림" class="background_fff">굴림</option>
+								<option value="돋움" class="background_fff">돋움</option>
+								<option value="바탕" class="background_fff">바탕</option>
+								<option value="궁서" class="background_fff">궁서</option>
+								<option value="Arial" class="background_fff">Arial</option>
+								<option value="Courier New" class="background_fff">Courier New</option>
+								<option value="Tahoma" class="background_fff">Tahoma</option>
+								<option value="Times New Roman" class="background_fff">Times New Roman</option>
+								<option value="Verdana" class="background_fff">Verdana</option>
+								<option value="Sans Serif" class="background_fff">Sans Serif</option>
+								<option value="Noto Sans KR" class="background_fff">Noto Sans KR</option>
+							</select>
+						
+							<select id="font-size" title="크기">
+								<option value="7px" class="background_fff">7px</option>
+								<option value="8px" class="background_fff">8px</option>
+								<option value="9px" class="background_fff">9px</option>
+								<option value="10px" class="background_fff">10px</option>
+								<option value="11px" class="background_fff">11px</option>
+								<option value="12px" class="background_fff">12px</option>
+								<option value="14px" class="background_fff" selected>14px</option>
+								<option value="18px" class="background_fff">18px</option>
+								<option value="24px" class="background_fff">24px</option>
+								<option value="36px" class="background_fff">36px</option>
+								<option value="48px" class="background_fff">48px</option>
+							</select>
+						</div>
+						<div class="btn_group" id="font_utility">
+							<button type="button" id="boldBtn" onclick="execCmd('bold', this)" title="굵기(Ctrl+B)">B</button>
+							<button type="button" id="italicBtn" onclick="execCmd('italic', this)" title="기울임(Ctrl+I)">I</button>
+							<button type="button" id="underlineBtn" onclick="execCmd('underline', this)" title="밑줄(Ctrl+U)">U</button>
+							<button type="button" id="strikeBtn" onclick="execCmd('strikeThrough', this)" title="취소선">S</button>
+						</div>
+						
+						<div class="btn_group" id="font_color">
+							<div class="color-picker">
+								<button id="textColorBtn" title="글씨색"><i class="fa-solid fa-palette"></i></button>
+								<input type="color" id="textColorInput">
+							</div>
+							<div class="color-picker">
+								<button id="bgColorBtn" title="배경색"><i class="fa-solid fa-brush"></i></button>
+								<input type="color" id="bgColorInput">
+							</div>
+						</div>
+						
+						<div class="btn_group" id="Sentence_Utility">
+							<button type="button" id="alignBtn" title="정렬"><i class="fa-solid fa-align-left"></i></button>
+							<button type="button" id="listBtn" title="리스트"><i class="fa-solid fa-list-ul"></i></button>
+							<button type="button" onclick="execCmd('outdent')" title="내어쓰기"><i class="fa-solid fa-outdent"></i></button>
+							<button type="button" onclick="execCmd('indent')" title="들여쓰기"><i class="fa-solid fa-indent"></i></button>
+							<button type="button" id="lineHeightBtn" title="줄간격"><i class="fa-solid fa-up-down"></i></button>
+						</div>
+						
+						<div class="btn_group" id="line_graph">
+							<button type="button" onclick="execCmd('insertHr')" title="구분선"><i class="fa-solid fa-minus"></i></button>
+							<button type="button" onclick="execCmd('insertTable')" title="표 삽입"><i class="fa-solid fa-table"></i></button>
+						</div>
+						
+						<div class="btn_group" id="url_imgs">
+							<button type="button" onclick="execCmd('createLink')" title="URL">🔗</button>
+							<button type="button" title="이미지" id="insertImageBtn">🖼️</button>
+							<input type="file" id="imageInput" accept="image/*">
+						</div>
+						
+					</div>
+				</div>
+			
+				<div id="editor" contenteditable="true" class="editor-content" th:utext="${notice.notice_detail}"></div>
+				<input type="hidden" name="notice_detail" id="notice_detail_input" th:value="${notice.notice_detail}">
+				
+				<div id="alignMenu">
+					<button type="button" title="왼쪽"><i class="fa-solid fa-align-left"></i></button>
+					<button type="button" title="가운데"><i class="fa-solid fa-align-center"></i></button>
+					<button type="button" title="오른쪽"><i class="fa-solid fa-align-right"></i></button>
+					<button type="button" title="양쪽"><i class="fa-solid fa-align-justify"></i></button>
+				</div>
+				
+				<div id="listMenu">
+					<button type="button" title="smail-disc"><i class="fa-solid fa-list-ul"></i></button>
+					<button type="button" title="Decimal"><i class="fa-solid fa-list-ol"></i></button>
+					<button type="button" title="check"><i class="fa-solid fa-list-check"></i></button>
+				</div>
+				
+				<div id="lineHeightMenu" class="submenu">
+					<button type="button" data-line="50%">50%</button>
+					<button type="button" data-line="80%">80%</button>
+					<button type="button" data-line="100%">100%</button>
+					<button type="button" data-line="120%">120%</button>
+					<button type="button" data-line="150%">150%</button>
+					<button type="button" data-line="180%">180%</button>
+				</div>
+				
+				<div class="Notice_w_btn">
+					<button type="submit">등록</button>
+				</div>
+			</form>
+			
 		</div>
 	</div>
-<!-- toast ui JS -->
-<script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
-<script>
-	  const editor = new toastui.Editor({
-	    el: document.querySelector('#editor'), // 에디터를 넣을 div
-	    height: '500px',                       // 높이
-	    initialEditType: 'wysiwyg',            // wysiwyg = 일반 문서 작성 모드 (markdown 도 가능)
-	    previewStyle: 'vertical'               // 미리보기 스타일
-	  });
-</script>
+	<script src="/JS/Notice_W.js"></script>
 </body>
 </html>
