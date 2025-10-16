@@ -2,7 +2,6 @@ package amgw.amgw.controller;
 
 import amgw.amgw.attendance.model.AttendanceRequest;
 import amgw.amgw.service.AttendanceService;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -50,22 +49,5 @@ public class AttendanceRestController {
     public Map<String,Object> reject(@PathVariable Long id){
         var saved = service.reject(id, null);
         return Map.of("ok", true, "status", saved.getStatus());
-    }
-
-    @JsonInclude(JsonInclude.Include.ALWAYS)
-    public static record SummaryRes(
-            String todayCheckIn,
-            String weeklyHoursText,
-            Double vacationLeft,
-            String statusNow
-    ) {}
-
-    @GetMapping("/api/attendance/summary")
-    public SummaryRes summary() {
-        String checkIn = attendanceService.findTodayCheckInTimeOrNull();
-        String weekly  = attendanceService.calcWeeklyHoursTextOrNull();
-        Double left    = attendanceService.findVacationLeftOrNull();
-        String status  = attendanceService.findCurrentStatusOrNull();
-        return new SummaryRes(checkIn, weekly, left, status);
     }
 }
