@@ -2,7 +2,6 @@ package amgw.amgw.service;
 
 import amgw.amgw.attendance.model.AttendanceRequest;
 import amgw.amgw.repository.AttendanceRequestRepository;
-import amgw.amgw.service.CurrentUserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

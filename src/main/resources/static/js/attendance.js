@@ -77,7 +77,7 @@
       loadMy();
     }catch(err){
       console.error(err);
-      msg.textContent = '신청 중 오류가 발생했습니다.';
+      //msg.textContent = '신청 중 오류가 발생했습니다.';
     }
   });
 
@@ -85,4 +85,65 @@
 
   // 초기 로드
   loadMy();
+})();
+
+(function(){
+  function getMeta(name){ return document.querySelector(`meta[name="${name}"]`)?.content || ""; }
+  function fmtHM(iso){
+    if(!iso) return "--:--";
+    const d = new Date(iso);
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  async function api(path, method="GET", body){
+    const token  = getMeta("_csrf");
+    const header = getMeta("_csrf_header");
+    const init = {
+      method,
+      headers: { "Content-Type":"application/json", ...(token && header ? { [header]: token } : {}) },
+      credentials: "include",
+    };
+    if(body!==undefined) init.body = JSON.stringify(body);
+    const res = await fetch(path, init);
+    const text = await res.text();
+    if(!res.ok){
+      let msg = text;
+      try{ msg = JSON.parse(text).message || text; }catch(_){}
+      throw new Error(msg);
+    }
+    try{ return JSON.parse(text); }catch(_){ return text; }
+  }
+
+  async function refreshToday(){
+    try{
+      const data = await api("/api/attendance/today");
+      document.getElementById("todayCheckIn").textContent  = fmtHM(data?.checkInAt);
+      document.getElementById("todayCheckOut").textContent = fmtHM(data?.checkOutAt);
+    }catch(e){
+      console.warn(e);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", ()=>{
+    const btnIn  = document.getElementById("btnCheckIn");
+    const btnOut = document.getElementById("btnCheckOut");
+
+    btnIn?.addEventListener("click", async ()=>{
+      try{
+        await api("/api/attendance/check-in", "POST", { note: null });
+        await refreshToday();
+        alert("출근이 등록되었습니다.");
+      }catch(e){ alert(e.message || "출근 등록 실패"); }
+    });
+
+    btnOut?.addEventListener("click", async ()=>{
+      try{
+        await api("/api/attendance/check-out", "POST", { note: null });
+        await refreshToday();
+        alert("퇴근이 등록되었습니다.");
+      }catch(e){ alert(e.message || "퇴근 등록 실패"); }
+    });
+
+    refreshToday();
+  });
 })();

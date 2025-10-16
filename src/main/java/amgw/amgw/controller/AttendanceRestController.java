@@ -16,6 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AttendanceRestController {
     private final AttendanceService service;
+    private final AttendanceService attendanceService;
 
     // 생성
     @PostMapping("/requests")
