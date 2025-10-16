@@ -73,3 +73,42 @@ async function loadAttendance() {
     } catch (e) {
     }
 }
+
+
+(function () {
+  function safeSet(id, val, fallback) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = (val === undefined || val === null || val === "") ? (fallback || "") : String(val);
+    el.classList.remove("skeleton");
+  }
+
+  async function fetchSummary() {
+    try {
+      const res = await fetch("/api/attendance/summary", {
+        credentials: "include",
+        headers: { Accept: "application/json" }
+      });
+      if (!res.ok) return; // HTML/리다이렉트 등은 무시
+      const ct = res.headers.get("content-type") || "";
+      if (!ct.includes("application/json")) return;
+
+      const data = await res.json();
+      // 서버에서 내려줄 필드 예시:
+      // { todayCheckIn: "09:13", weeklyHoursText: "31h 20m", vacationLeft: 7.5, statusNow: "근무중" }
+
+      safeSet("checkIn", data.todayCheckIn, "--:--");
+      safeSet("weeklyHours", data.weeklyHoursText, "0h 0m");
+      safeSet("vacationLeft", data.vacationLeft != null ? `${data.vacationLeft}` : null, "--일");
+      safeSet("statusNow", data.statusNow, "-");
+    } catch (_) {
+      // 조용히 실패 — 다른 코드 방해 X
+    }
+  }
+
+  // 페이지 로드 후 1회 갱신
+  window.addEventListener("load", fetchSummary);
+
+  // 출근/퇴근 성공 후 수동 갱신 훅 (다른 코드에서 호출 가능)
+  window.refreshAttendanceSummary = fetchSummary;
+})();
