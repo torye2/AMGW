@@ -1,7 +1,7 @@
 package amgw.amgw.controller;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,15 +9,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
     @GetMapping("/")
-    public String home(Model model, @AuthenticationPrincipal OAuth2User user) {
+    public String home(Model model, @AuthenticationPrincipal UserDetails user) {
         if (user != null) {
-            String loginId = user.getAttribute("preferred_username");
+            String loginId = user.getUsername();
             model.addAttribute("loginId", loginId);
-            model.addAttribute("username", user.getAttribute("name"));
-            model.addAttribute("email", user.getAttribute("email"));
+            model.addAttribute("username", user.getUsername());
             return "index";
         } else {
-            return "/login";
+            return "index";
         }
     }
 }
