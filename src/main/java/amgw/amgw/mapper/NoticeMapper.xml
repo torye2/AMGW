@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  <mapper namespace="amgw.amgw.mapper.NoticeMapper">
+  	
+  	<!-- 공지사항 등록 -->
+  	<insert id="insertNotice" parameterType="amgw.amgw.dto.NoticeDto" useGeneratedKeys="true" keyProperty="notice_id">
+  		INSERT INTO notice
+  		(notice_count, notice_title, notice_detail, user_id, registration_time, important)
+  		VALUES
+  		(#{notice_count}, #{notice_title}, #{notice_detail}, #{user_id}, #{registration_time}, #{important})
+  	</insert>
+  	
+  	<!-- 특정 공지사항 조회 -->
+  	<select id="selectNotice" parameterType="int" resultType="amgw.amgw.dto.NoticeDto">
+  		SELECT * , 
+  			CASE WHEN important = TRUE THEN '중요!' ELSE NULL END AS displayNumber
+  		FROM notice n
+  		WHERE notice_id = #{notice_id}
+  	</select>
+  	
+  	<!-- 공지사항 전체 조회 (페이징 + 중요상단) -->
+  	<select id="selectAllNotices" resultType="amgw.amgw.dto.NoticeDto">
+  		SELECT *,
+  			CASE WHEN important = TRUE THEN '중요!' ELSE NULL END AS displayNumber
+  		FROM notice n
+  		ORDER BY important DESC, notice_id ASC
+  		LIMIT #{limit} OFFSET #{offset}
+  	</select>
+  	
+  	<!-- 공지사항 전체 개수 조회 -->
+  	<select id="selectNoticeCount" resultType="int">
+  		SELECT COUNT(*) FROM notice
+  	</select>
+  	
+  	<!-- 공지사항 수정 -->
+  	<update id="updateNotice" parameterType="amgw.amgw.dto.NoticeDto">
+  		UPDATE notice
+  		SET notice_title = #{notice_title},
+  			notice_detail = #{notice_detail},
+  			fix_time = NOW(),
+  			important = #{important}
+  		WHERE notice_id = #{notice_id}
+  	</update>
+  
+  	<!-- 공지사항 단일 삭제 -->
+  	<delete id="deleteNotice" parameterType="int">
+	    DELETE FROM notice
+	    WHERE notice_id = #{notice_id}
+	</delete>
+  	
+  	<!-- 공지사항 다중 삭제 -->
+  	<delete id="deleteNotices" parameterType="java.util.List">
+  		DELETE FROM notice
+  		WHERE notice_id IN
+  		<foreach item="id" collection="noticeIds" open="(" separator="," close=")">
+  			#{id}
+  		</foreach>
+  	</delete>
+  	
+  	<!-- 조회수 증가 -->
+  	<update id="incrementNoticeCount" parameterType="int">
+  		UPDATE notice
+  		SET notice_count = notice_count + 1
+  		WHERE notice_id = #{notice_id}
+  	</update>
+  	
+  	<!-- 중요 표시 -->
+  	<update id="makeAsImportant" parameterType="int">
+  		UPDATE notice
+  		SET important = TRUE
+  		WHERE notice_id = #{notice_id}
+  	</update>
+  	
+  	<!-- 첨부파일 조회 -->
+  	<select id="selectFilesByNotice" parameterType="int" resultType="amgw.amgw.dto.Upload_fileDto">
+  		SELECT * FROM upload_file
+  		WHERE attach_idx = #{notice_id}
+  	</select>
+  	
+  	<!-- 첨부파일 등록 -->
+  	<insert id="insertFile" parameterType="amgw.amgw.dto.Upload_fileDto">
+  		INSERT INTO upload_file
+  		(attach_idx, orig_name, stored_name, rel_path, context_type, file_size, user_id, registration_time)
+  		VALUES
+  		(#{attach_idx}, #{orig_name}, #{stored_name}, #{rel_path}, #{context_type}, #{file_size}, #{user_id}, NOW())
+  	</insert>
+  	
+  	<select id="selectFileById" parameterType="int" resultType="amgw.amgw.dto.Upload_fileDto">
+  		SELECT * FROM upload_file WHERE file_id = #{fileId}
+  	</select>
+  </mapper>
