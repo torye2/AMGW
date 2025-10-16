@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <title>전자결재</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body class="container py-6">
+<div class="flex items-center justify-between mb-4">
+    <h1 class="h1">전자결재</h1>
+    <a class="btn" href="/approvals/new">새 결재</a>
+</div>
+
+<h2 class="h2 mt-6">내 문서</h2>
+<ul id="myList" class="list">
+    <li class="list-item skeleton">불러오는 중…</li>
+</ul>
+
+<h2 class="h2 mt-8">결재할 문서</h2>
+<ul id="inbox" class="list">
+    <li class="list-item skeleton">불러오는 중…</li>
+</ul>
+
+<script>
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+    function el(tag, className, html){
+      const x = document.createElement(tag);
+      if(className) x.className = className;
+      if(html != null) x.innerHTML = html;
+      return x;
+    }
+
+    function renderEmpty(ul, text){
+      ul.innerHTML = '';
+      ul.appendChild(el('li', 'list-item muted', text));
+    }
+
+    async function loadMy(){
+      const ul = document.getElementById('myList');
+      ul.innerHTML = '<li class="list-item skeleton">불러오는 중…</li>';
+      try{
+        const r = await fetch('/api/approvals/my');
+        const arr = await r.json();
+        ul.innerHTML = '';
+        if(!arr.length){ return renderEmpty(ul, '표시할 문서가 없습니다.'); }
+        arr.forEach(d=>{
+          const li = el('li', 'list-item');
+          li.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-medium">
+                  <a class="link" href="/approvals/${d.id}">${d.title}</a>
+                </div>
+                <div class="muted text-sm">${d.docType} · ${d.status}</div>
+              </div>
+              <a class="btn btn-ghost" href="/approvals/${d.id}">상세</a>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
+      }catch(e){
+        renderEmpty(ul, '불러오기에 실패했습니다.');
+      }
+    }
+
+    async function loadInbox(){
+      const ul = document.getElementById('inbox');
+      ul.innerHTML = '<li class="list-item skeleton">불러오는 중…</li>';
+      try{
+        const r = await fetch('/api/approvals/inbox');
+        const arr = await r.json();
+        ul.innerHTML = '';
+        if(!arr.length){ return renderEmpty(ul, '결재할 문서가 없습니다.'); }
+        arr.forEach(d=>{
+          const li = el('li', 'list-item');
+          li.innerHTML = `
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-medium">
+                  <a class="link" href="/approvals/${d.id}">${d.title}</a>
+                </div>
+                <div class="muted text-sm">기안자 #${d.drafterId}</div>
+              </div>
+              <div class="flex gap-2">
+                <a class="btn btn-ghost" href="/approvals/${d.id}">보기</a>
+                <button class="btn" data-approve="${d.id}">승인</button>
+                <button class="btn btn-ghost" data-reject="${d.id}">반려</button>
+              </div>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
+
+        // 승인/반려 클릭 핸들러(이벤트 위임)
+        ul.onclick = async (e)=>{
+          const idA = e.target?.dataset?.approve;
+          const idR = e.target?.dataset?.reject;
+          if(!idA && !idR) return;
+
+          const url = idA ? `/api/approvals/${idA}/approve`
+                          : `/api/approvals/${idR}/reject`;
+          try{
+            const res = await fetch(url, { method:'POST', headers: { [csrfHeader]: csrf } });
+            const j = await res.json();
+            if(j.ok){ await loadInbox(); }
+            else { alert('처리 실패'); }
+          }catch(err){
+            alert('요청 중 오류가 발생했습니다.');
+          }
+        };
+      }catch(e){
+        renderEmpty(ul, '불러오기에 실패했습니다.');
+      }
+    }
+
+    (async ()=>{
+      await loadMy();
+      await loadInbox();
+    })();
+</script>
+</body>
+</html>

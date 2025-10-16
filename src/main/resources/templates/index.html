@@ -68,7 +68,7 @@
                     <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
                     홈
                 </a>
-                <a class="nav-item" href="/approvals.html">
+                <a class="nav-item" th:href="@{/approvals}">
                     <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-7 4h8M7 8h10M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
                     전자결재
                 </a>
@@ -104,7 +104,7 @@
                     <h1 id="greeting" class="h1" th:text="'안녕하세요, ' + ${username} + '님 👋'">안녕하세요 👋</h1>
                     <p id="greetingSub" class="muted" th:text="${#temporals.format(#temporals.createNow(), 'M월 d일 (EEE)')}">오늘도 좋은 하루 보내세요.</p>
                     <div class="mt-4 flex flex-wrap gap-2">
-                        <a href="/approvals-new.html" class="btn">
+                        <a href="/approvals/new" class="btn">
                             <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             새 결재 작성
                         </a>
@@ -147,7 +147,7 @@
                 <article class="card">
                     <div class="card-head">
                         <h2 class="h2">결재 대기</h2>
-                        <a href="/approvals.html" class="link">전체 보기</a>
+                        <a href="/approvals" class="link">전체 보기</a>
                     </div>
                     <ul id="approvalsList" class="list">
                         <li class="list-item skeleton">불러오는 중…</li>
@@ -199,6 +199,103 @@
         </main>
     </div>
 </div>
+
+
+<script>
+    // ---- 결재 대기 로더 ----
+    const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+    function apEl(tag, className, html){
+      const x = document.createElement(tag);
+      if(className) x.className = className;
+      if(html != null) x.innerHTML = html;
+      return x;
+    }
+
+    function renderEmptyApprovals(msg){
+      const ul = document.getElementById('approvalsList');
+      ul.innerHTML = '';
+      ul.appendChild(apEl('li', 'list-item muted', msg));
+    }
+
+    async function loadApprovalsWaiting(){
+      const ul = document.getElementById('approvalsList');
+      if(!ul) return;
+
+      // 스켈레톤
+      ul.innerHTML = '<li class="list-item skeleton">불러오는 중…</li>';
+
+      try{
+        const res = await fetch('/api/approvals/inbox', { credentials: 'same-origin' });
+        if(!res.ok) throw new Error('inbox load failed');
+        const items = await res.json();
+
+        ul.innerHTML = '';
+        if(!items?.length){
+          return renderEmptyApprovals('결재할 문서가 없습니다.');
+        }
+
+        // 대시보드니까 상위 5개만 보여주기 (원하면 개수 조절)
+        items.slice(0,5).forEach(d => {
+          const li = apEl('li', 'list-item');
+          li.innerHTML = `
+            <div class="flex items-center justify-between gap-3">
+              <div class="min-w-0">
+                <div class="font-medium truncate">
+                  <a class="link" href="/approvals/${d.id}">${d.title ?? '(제목 없음)'}</a>
+                </div>
+                <div class="muted text-sm">
+                  기안자 #${d.drafterId} · 종류 ${d.docType} · 상태 ${d.status}
+                </div>
+              </div>
+              <div class="flex-shrink-0 flex gap-2">
+                <a class="btn btn-ghost" href="/approvals/${d.id}">보기</a>
+                <button class="btn" data-approve="${d.id}">승인</button>
+                <button class="btn btn-ghost" data-reject="${d.id}">반려</button>
+              </div>
+            </div>
+          `;
+          ul.appendChild(li);
+        });
+
+        // 승인/반려 (이벤트 위임)
+        ul.onclick = async (e) => {
+          const idA = e.target?.dataset?.approve;
+          const idR = e.target?.dataset?.reject;
+          if(!idA && !idR) return;
+
+          const url = idA
+            ? `/api/approvals/${idA}/approve`
+            : `/api/approvals/${idR}/reject`;
+
+          try{
+            const res = await fetch(url, {
+              method: 'POST',
+              headers: csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {}
+            });
+            const j = await res.json();
+            if(j.ok){
+              // 목록 갱신
+              await loadApprovalsWaiting();
+            }else{
+              alert('처리 실패');
+            }
+          }catch(err){
+            console.error(err);
+            alert('요청 중 오류가 발생했습니다.');
+          }
+        };
+
+      }catch(err){
+        console.error(err);
+        renderEmptyApprovals('불러오기에 실패했습니다.');
+      }
+    }
+
+    // 첫 로드 시 실행
+    document.addEventListener('DOMContentLoaded', loadApprovalsWaiting);
+</script>
 
 
 <script defer th:src="@{/js/index.js}"></script>

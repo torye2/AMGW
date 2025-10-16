@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>새 결재</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="container py-6">
+<h1 class="h1 mb-4">새 결재 작성</h1>
+<form id="formAppr" class="space-y-3">
+    <select id="docType" class="input"><option>GENERAL</option><option>VACATION</option><option>EXPENSE</option></select>
+    <input id="title" class="input" placeholder="제목" required>
+    <textarea id="body" class="input" placeholder="내용" rows="8" required></textarea>
+    <input id="approverId" class="input" placeholder="승인자 ID" type="number" required>
+    <button class="btn" type="submit">제출</button>
+</form>
+
+<script>
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+    document.getElementById('formAppr').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const p = new URLSearchParams();
+      p.set('title', document.getElementById('title').value.trim());
+      p.set('body', document.getElementById('body').value.trim());
+      p.set('approverId', document.getElementById('approverId').value);
+      p.set('docType', document.getElementById('docType').value);
+
+      const res = await fetch('/api/approvals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', [csrfHeader]: csrf },
+        body: p.toString()
+      });
+      const j = await res.json();
+      if(j.ok){ alert('제출되었습니다. 문서ID: '+j.id); location.href='/approvals'; }
+      else { alert('제출 실패'); }
+    });
+</script>
+</body>
+</html>

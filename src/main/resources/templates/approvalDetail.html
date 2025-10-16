@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>결재 문서</title>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body class="container py-6">
+<a class="link" href="/approvals">← 목록으로</a>
+
+<h1 id="docTitle" class="h1 mt-2 skeleton">제목</h1>
+<div class="muted mt-1">
+    <span id="docMeta" class="skeleton">작성자/승인자/상태</span>
+</div>
+
+<article id="docBody" class="card mt-4 skeleton" style="white-space:pre-wrap">내용</article>
+
+<div class="mt-4 flex gap-2">
+    <button id="btnApprove" class="btn hidden">승인</button>
+    <button id="btnReject"  class="btn btn-ghost hidden">반려</button>
+</div>
+
+<script>
+    const csrf = document.querySelector('meta[name="_csrf"]')?.content;
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
+
+    const pathParts = location.pathname.split('/');
+    const docId = pathParts[pathParts.length - 1];
+
+    async function loadDetail() {
+      const r = await fetch(`/api/approvals/${docId}`);
+      if (!r.ok) { alert('문서를 불러오지 못했습니다.'); return; }
+      const d = await r.json();
+
+      // 채우기
+      document.getElementById('docTitle').textContent = d.title ?? '(제목 없음)';
+      document.getElementById('docTitle').classList.remove('skeleton');
+
+      const meta = `종류: ${d.docType} · 상태: ${d.status} · 기안자: #${d.drafterId} · 승인자: #${d.approverId}`;
+      const metaEl = document.getElementById('docMeta');
+      metaEl.textContent = meta;
+      metaEl.classList.remove('skeleton');
+
+      const bodyEl = document.getElementById('docBody');
+      bodyEl.textContent = d.body ?? '';
+      bodyEl.classList.remove('skeleton');
+
+      // 버튼 노출 조건(예: 결재자이고 상태가 SUBMITTED 일 때만)
+      const isSubmitted = d.status === 'SUBMITTED';
+      // 서버에서 현재 사용자 ID를 내려주지 않으니, 간단히 버튼 항상 보이게 하려면 아래 한 줄만:
+      // if (isSubmitted) { showButtons(); }
+      // 결재자 본인 체크가 필요하면 /api/me 같은 엔드포인트를 만들어 비교하세요.
+      if (isSubmitted) {
+        document.getElementById('btnApprove').classList.remove('hidden');
+        document.getElementById('btnReject').classList.remove('hidden');
+      }
+    }
+
+    async function approve() {
+      const r = await fetch(`/api/approvals/${docId}/approve`, { method:'POST', headers:{ [csrfHeader]: csrf }});
+      const j = await r.json();
+      if (j.ok) { alert('승인되었습니다.'); location.reload(); }
+      else alert('승인 실패');
+    }
+
+    async function reject() {
+      const r = await fetch(`/api/approvals/${docId}/reject`, { method:'POST', headers:{ [csrfHeader]: csrf }});
+      const j = await r.json();
+      if (j.ok) { alert('반려되었습니다.'); location.reload(); }
+      else alert('반려 실패');
+    }
+
+    document.getElementById('btnApprove').addEventListener('click', approve);
+    document.getElementById('btnReject').addEventListener('click', reject);
+
+    loadDetail();
+</script>
+</body>
+</html>
