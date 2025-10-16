@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>AMGW Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <!-- 로그인 사용자의 gw.users.id (나/타인 구분용) -->
+    <meta name="me-id" th:content="${meId}"/>
+
+    <!-- CSRF (fetch에서 헤더로 전송) -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <link rel="stylesheet" th:href="@{/css/chat.css}" />
+</head>
+<body>
+<div class="wrap">
+    <!-- 사이드바: 방 목록 + 생성 -->
+    <aside class="sidebar">
+        <h3>내 채팅방</h3>
+
+        <!-- 서버사이드 렌더된 방 목록 -->
+        <div id="rooms">
+            <div th:each="r : ${rooms}"
+                 class="room"
+                 th:attr="data-room-id=${r.get('roomId')}"
+                 th:text="${(r.get('name') ?: r.get('type')) + (r.get('lastMessage') != null ? ' · ' + r.get('lastMessage') : '')}">
+                Room label
+            </div>
+        </div>
+
+        <!-- 1:1 방 생성 -->
+        <form id="directForm" method="post" action="#" class="mt12">
+            <input type="number" name="userId" placeholder="상대 userId" class="full input-pad"/>
+            <button type="submit" class="full mt6">1:1 방 만들기</button>
+        </form>
+
+        <!-- 그룹 방 만들기 (userId 여러 명) -->
+        <form id="createGroupForm" method="post" action="#" class="space-y-2 mt12">
+            <input name="name" class="full input-pad" placeholder="그룹명 (예: 프로젝트 A)"/>
+            <input name="userIds" class="full input-pad" placeholder="초대 userId들(쉼표: 1,2,3)"/>
+            <div class="help">userId는 gw.users.id 값입니다.</div>
+            <button class="full mt6" type="submit">그룹 방 만들기</button>
+        </form>
+    </aside>
+
+    <!-- 본문: 타이틀 / 메시지 / 입력 -->
+    <main class="main">
+        <div id="title" class="titlebar">방을 선택하세요</div>
+        <div id="messages" class="messages"></div>
+        <div class="input">
+            <input id="msg" placeholder="메시지를 입력하세요" />
+            <button id="sendBtn">보내기</button>
+        </div>
+    </main>
+</div>
+
+<!-- WebSocket/STOMP -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<!-- 페이지 스크립트 -->
+<script th:src="@{/js/chat.js}"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+# Nextcloud
+nc.localhost {
+    tls /certs/nc.localhost+1.pem /certs/nc.localhost+1-key.pem
+    encode zstd gzip
+
+    @acmeChallenge path /.well-known/acme-challenge/*
+    handle @acmeChallenge {
+        respond "Not used in local" 200
+    }
+
+    reverse_proxy nextcloud:80
+
+    header {
+        X-Forwarded-Proto https
+        X-Forwarded-Host {host}
+        X-Real-IP {remote_host}
+    }
+}
+
+# Keycloak
+keycloak.localhost {
+    tls /certs/nc.localhost+1.pem /certs/nc.localhost+1-key.pem
+    encode zstd gzip
+
+    reverse_proxy keycloak:8080
+
+    header {
+        X-Forwarded-Proto https
+        X-Forwarded-Host {host}
+        X-Real-IP {remote_host}
+    }
+}
