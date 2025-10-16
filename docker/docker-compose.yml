@@ -108,6 +108,7 @@
     depends_on:
       - nextcloud-db
     environment:
+      NC_ALLOW_LOCAL_REMOTE_SERVERS: true
       TZ: ${TZ}
     volumes:
       - ncdata:/var/www/html
@@ -118,7 +119,7 @@
       - "traefik.http.routers.nextcloud.rule=Host(`${NEXTCLOUD_HOST}`)"
       - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
     extra_hosts:
-      - "keycloak.localhost:172.19.0.6"
+      - "keycloak.localhost:172.19.0.9"
 
   onlyoffice:
     image: onlyoffice/documentserver:8.1
