@@ -72,11 +72,12 @@
       KC_DB_URL: ${KC_DB_URL}
       KC_DB_USERNAME: ${KC_DB_USERNAME}
       KC_DB_PASSWORD: ${KC_DB_PASSWORD}
-      KC_HOSTNAME: keycloak.${DOMAIN}
-      KC_HOSTNAME_URL: http://keycloak.${DOMAIN}
-      KEYCLOAK_FRONTEND_URL: https://keycloak.localhost/
+
+      KC_HTTP_ENABLED: "true"
       KC_PROXY: edge
-      KC_HOSTNAME_PORT: 8080
+
+      KC_HOSTNAME: keycloak.localhost
+      KC_HOSTNAME_STRICT: "true"
       TZ: ${TZ}
     depends_on: [keycloak-db]
     networks: [gw]
@@ -116,6 +117,8 @@
       - "traefik.enable=true"
       - "traefik.http.routers.nextcloud.rule=Host(`${NEXTCLOUD_HOST}`)"
       - "traefik.http.services.nextcloud.loadbalancer.server.port=80"
+    extra_hosts:
+      - "keycloak.gw.test:172.19.0.6"
 
   onlyoffice:
     image: onlyoffice/documentserver:8.1
