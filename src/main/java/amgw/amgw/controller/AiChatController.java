@@ -17,7 +17,7 @@ import java.util.Map;
 public class AiChatController {
 
     @Autowired
-    private JdbcTemplate jdbcTemplate; // DB 조회용
+    private JdbcTemplate jdbcTemplate;
 
     private static final String API_KEY = "AIzaSyCdkVsuY8DVF92MG2I_J2hitV7uzjEVyPA";
 
@@ -32,37 +32,52 @@ public class AiChatController {
         String question = payload.get("question");
         String aiResponse = callGeminiForAction(question);
 
+        String answer = null;
+        String redirect = null;
+
         try {
-            if (!aiResponse.trim().startsWith("{")) {
-                return Map.of("answer", aiResponse);
-            }
-
-            JsonReader reader = new JsonReader(new StringReader(aiResponse));
-            reader.setLenient(true);
-            JsonObject obj = JsonParser.parseReader(reader).getAsJsonObject();
-
-            // AI가 특정 페이지 요청으로 판별한 경우
-            if (obj.has("page_name")) {
-                String pageName = obj.get("page_name").getAsString();
-                String pageUrl = getPageUrl(pageName);
-
-                if (pageUrl != null) {
-                    return Map.of("answer", pageName + " 페이지로 이동하시겠습니까?", "redirect", pageUrl);
-                } else {
-                    return Map.of("answer", pageName + " 페이지 정보를 찾을 수 없습니다.");
+            // 1️⃣ 문자열이 JSON인지 확인 후 파싱
+            JsonObject obj = null;
+            try {
+                obj = JsonParser.parseString(aiResponse).getAsJsonObject();
+            } catch(Exception e) {
+                int start = aiResponse.indexOf("{");
+                int end = aiResponse.lastIndexOf("}");
+                if(start >= 0 && end > start) {
+                    obj = JsonParser.parseString(aiResponse.substring(start, end + 1)).getAsJsonObject();
                 }
             }
 
-            String answer = obj.has("answer") ? obj.get("answer").getAsString() : null;
-            String redirect = obj.has("redirect") ? obj.get("redirect").getAsString() : null;
+            if(obj != null){
+                answer = obj.has("answer") ? obj.get("answer").getAsString() : null;
+                redirect = obj.has("redirect") ? obj.get("redirect").getAsString() : null;
+            }
 
-            if (answer != null && redirect != null) return Map.of("answer", answer, "redirect", redirect);
-            else if (answer != null) return Map.of("answer", answer);
-            else if (redirect != null) return Map.of("answer", "페이지로 이동하시겠습니까?", "redirect", redirect);
+            // ✅ autoFillData 출력
+            if(obj.has("autoFillData")) {
+                JsonObject autoFillData = obj.getAsJsonObject("autoFillData");
+                Map<String, String> responseMap = Map.of(
+                        "answer", answer != null ? answer : "휴가 신청 페이지로 이동합니다.",
+                        "redirect", redirect != null ? redirect : "/attendance.html",
+                        "type", autoFillData.get("type").getAsString(),
+                        "reason", autoFillData.get("reason").getAsString(),
+                        "startDate", autoFillData.get("startDate").getAsString(),
+                        "endDate", autoFillData.get("endDate").getAsString()
+                );
+                return responseMap;
+            }
 
-            return Map.of("answer", aiResponse);
 
-        } catch (Exception e) {
+            // 2️⃣ 안전하게 기본값 보장
+            if(redirect != null && redirect.startsWith("/")) {
+                if(answer == null) answer = "페이지로 이동하시겠습니까?";
+                return Map.of("answer", answer, "redirect", redirect);
+            } else {
+                if(answer != null) return Map.of("answer", answer);
+                else return Map.of("answer", aiResponse);
+            }
+
+        } catch(Exception e){
             e.printStackTrace();
             return Map.of("answer", aiResponse);
         }
@@ -73,11 +88,8 @@ public class AiChatController {
     // -------------------------------
     private String getPageUrl(String pageName) {
         try {
-            System.out.println("DB 조회 시도: " + pageName);
             String sql = "SELECT url FROM pages WHERE page_name = ?";
             List<String> urls = jdbcTemplate.queryForList(sql, String.class, pageName);
-            System.out.println("DB 조회 결과: " + urls);
-            System.out.println("[DB 조회] pageName=" + pageName + ", url=" + (urls.isEmpty() ? "없음" : urls.get(0)));
             return urls.isEmpty() ? null : urls.get(0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,36 +102,41 @@ public class AiChatController {
     // -------------------------------
     private String callGeminiForAction(String userPrompt) {
         try {
-            // 1️⃣ DB에서 페이지 목록 조회
-            String sql = "SELECT page_name, url FROM pages";
-            List<Map<String, Object>> pageList = jdbcTemplate.queryForList(sql);
+            List<Map<String, Object>> pageList = jdbcTemplate.queryForList("SELECT page_name, url FROM pages");
 
-            // 2️⃣ DB 정보 문자열로 만들기
-            StringBuilder dbInfo = new StringBuilder();
-            dbInfo.append("현재 그룹웨어 페이지 정보:\n");
+            StringBuilder dbInfo = new StringBuilder("현재 그룹웨어 페이지 정보:\n");
             for (Map<String, Object> page : pageList) {
                 dbInfo.append("- ").append(page.get("page_name"))
                         .append(": ").append(page.get("url")).append("\n");
             }
 
-            // 3️⃣ systemPrompt 작성 (DB 정보 포함)
             String systemPrompt = """
                 당신은 그룹웨어 시스템 AI 챗봇입니다.
-                - 항상 특정 기능 요청을 바로 수행하지 마세요. 필요 시 확인 질문 후 기능을 실행합니다.
-                - 사용자가 특정 기능 페이지로 가길 원하면 다음 형식으로 반환:
-                  {"answer": "페이지로 이동하시겠습니까?", "redirect": "/페이지.html"}
-                - 일반 대화는 {"answer": "대화 내용"} 형식으로 반환
-                - 업무 요약 요청 시 {"answer": "업무 요약 내용"} 형식으로 반환
-                - 정보 안내 요청 시 {"answer": "안내 메시지"} 형식으로 반환
-                - JSON 외 다른 형태로는 절대 응답하지 마세요.
-
-                예시:
-                - "전자결재" → {"answer": "전자결재에 대해 어떤 기능이 필요하신가요? 결재를 올리는 건가요, 아니면 결재 문서를 확인하는 건가요?"}
-                - "오늘 회의 내용 요약해줘" → {"answer": "오늘 회의에서는 일정 검토, 프로젝트 진행 상황 점검, 신규 업무 배정이 있었습니다."}
-                
+                - 특정 기능 요청은 확인 후 수행
+                - 페이지 이동 시 {"answer":"페이지로 이동하시겠습니까?", "redirect":"/페이지.html"} 형식
+                - 일반 대화는 {"answer":"대화 내용"} 형식
+                - JSON 외 응답 금지
+                - 사용자가 '휴가 신청', '근태 등록', '외근 신청' 등 '근태 관리' 기능을 요청하면 반드시 autoFillData 필드를 JSON 형식으로 작성하세요. 추가로 일반 대화도 작성하세요. 일반 대화는 autoFillData 필드 외부에 작성 됩니다.
+                - autoFillData 필드 의미:
+                        - type: 휴가 종류 (연차, 병가 등)
+                        - reason: 휴가 사유
+                        - startDate: 시작 날짜 (YYYY-MM-DD)
+                        - endDate: 종료 날짜 (YYYY-MM-DD)
+                     JSON 구조 예시:
+                     {
+                       "redirect": "/attendance.html",
+                       "autoFillData": {
+                         "type": "연차",
+                         "reason": "개인 사유",
+                         "startDate": "2025-10-15",
+                         "endDate": "2025-10-17"
+                       }
+                     }
+                     JSON 구조 외부 답변: 
+                     "answer": "휴가 신청 페이지로 이동합니다."
+                     페이지 정보가 필요하면 dbInfo를 참고
                 """ + dbInfo.toString();
 
-            // 4️⃣ Gemini API 호출 구조는 그대로
             JsonObject jsonRoot = new JsonObject();
             JsonObject systemInstruction = new JsonObject();
             JsonArray systemParts = new JsonArray();
@@ -140,9 +157,7 @@ public class AiChatController {
             contents.add(contentObj);
             jsonRoot.add("contents", contents);
 
-            URL url = new URL(
-                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY
-            );
+            URL url = new URL("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
@@ -168,7 +183,9 @@ public class AiChatController {
         }
     }
 
-
+    // -------------------------------
+    // AI 응답에서 text 추출
+    // -------------------------------
     private String extractTextFromJson(String json) {
         try {
             JsonReader reader = new JsonReader(new StringReader(json));
