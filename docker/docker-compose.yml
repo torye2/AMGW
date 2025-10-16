@@ -73,11 +73,11 @@
       KC_DB_USERNAME: ${KC_DB_USERNAME}
       KC_DB_PASSWORD: ${KC_DB_PASSWORD}
 
-      KC_HTTP_ENABLED: "true"
+      KC_HTTP_ENABLED: true
       KC_PROXY: edge
 
-      KC_HOSTNAME: keycloak.localhost
-      KC_HOSTNAME_STRICT: "true"
+      KC_HOSTNAME: keycloak.gw.test
+      KC_HOSTNAME_STRICT: true
       TZ: ${TZ}
     depends_on: [keycloak-db]
     networks: [gw]
