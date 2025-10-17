@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>회원 승인 관리 · AMU Groupware</title>
+
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <script defer th:src="@{/js/common.js}"></script>
+    <script defer th:src="@{/js/admin.js}"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+<main class="container max-w-4xl p-6">
+    <div class="card">
+        <div class="flex items-center justify-between mb-4">
+            <h1 class="h1">가입 승인 요청</h1>
+            <a th:href="@{/logout}" class="link text-sm">로그아웃</a>
+        </div>
+
+        <table class="user-table">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>아이디</th>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>부서</th>
+                <th>작업</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="user : ${pendingUsers}" th:data-id="${user.id}">
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.username}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.email}"></td>
+                <td th:text="${user.department}"></td>
+                <td>
+                    <button class="btn-approve">승인</button>
+                    <button class="btn-reject">거절</button>
+                </td>
+            </tr>
+            <tr th:if="${pendingUsers.isEmpty()}">
+                <td colspan="6" class="text-center text-slate-500">승인 대기 중인 사용자가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

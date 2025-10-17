@@ -49,24 +49,11 @@ window.addEventListener('DOMContentLoaded', ()=>{
     init();
 });
 
-
-// === 대시보드 데이터 로딩 ===
-async function loadMe(){
-    try {
-        const me = await api('/api/user/me');
-        const nickname = me.nickname || '사용자';
-        el('displayName').textContent = nickname;
-        el('greeting').textContent = `안녕하세요, ${nickname}님 👋`;
-        el('greetingSub').textContent = new Date().toLocaleDateString('ko-KR', { weekday:'long', month:'long', day:'numeric'}) + ' 일정이 준비됐어요.';
-    } catch(e){ console.warn('me 로드 실패', e); }
-}
-
-
 async function loadAttendance() {
     try {
         const a = await api('/api/attendance/summary');
-        el('checkIn').textContent = fmtTime(a.checkIn);
-        el('weeklyHours').textContent = (a.weeklyHours ?? '--') + '시간';
+        el('checkIn').textContent = fmtTime(a.todayCheckIn);
+        el('weeklyHours').textContent = (a.weeklyHoursText ?? '--') + '시간';
         el('vacationLeft').textContent = (a.vacationLeft ?? '--') + '일';
         el('statusNow').textContent = a.status || '-';
         document.querySelectorAll('#attendanceBox .skeleton').forEach(x => x.classList.remove('skeleton'));

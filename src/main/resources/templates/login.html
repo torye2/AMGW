@@ -1,12 +1,59 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head><title>로그인</title></head>
-<body>
-<h2>로그인</h2>
-<form th:action="@{/login}" method="post">
-    <div><label>아이디: <input type="text" name="username"/></label></div>
-    <div><label>비밀번호: <input type="password" name="password"/></label></div>
-    <div><button type="submit">로그인</button></div>
-</form>
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>로그인 · AMU Groupware</title>
+
+    <!-- 공통 + 로그인 전용 -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
+
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <script defer th:src="@{/js/common.js}"></script>
+    <script defer th:src="@{/js/login.js}"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+<div class="min-h-dvh grid place-items-center">
+    <main class="container max-w-md w-full">
+        <div class="card">
+            <div class="flex items-center justify-between mb-4">
+                <div class="brand">
+                    <span class="brand-badge">GW</span>
+                    <span>Groupware</span>
+                </div>
+                <a class="link text-sm" th:href="@{/signup}">회원가입</a>
+            </div>
+
+            <h1 class="h1 mb-2">로그인</h1>
+            <p class="muted text-sm mb-4">사내 그룹웨어 계정으로 로그인하세요.</p>
+
+            <!-- 에러/로그아웃 메시지 -->
+            <div class="text-sm mb-3">
+                <div class="pill text-rose-600" th:if="${param.error}">아이디 또는 비밀번호가 올바르지 않습니다.</div>
+                <div class="pill text-emerald-700" th:if="${param.logout}">로그아웃 되었습니다.</div>
+                <div class="pill text-amber-700" th:if="${param.disabled}">계정이 승인 대기 중입니다.</div>
+            </div>
+
+            <form th:action="@{/login}" method="post" class="login-form">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <label>아이디</label>
+                <input name="username" autocomplete="username" />
+
+                <label>비밀번호</label>
+                <div class="pwd-wrap">
+                    <input id="password" name="password" type="password" autocomplete="current-password" />
+                    <button type="button" id="togglePwd" aria-label="비밀번호 표시">👁️</button>
+                </div>
+
+                <button class="btn login-btn" type="submit">로그인</button>
+            </form>
+        </div>
+    </main>
+</div>
 </body>
 </html>

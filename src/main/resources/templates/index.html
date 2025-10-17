@@ -39,10 +39,10 @@
                     <span id="notifBadge" class="badge hidden">0</span>
                 </button>
                 <!-- 프로필 -->
-                <div class="relative">
+                <div class="relative" th:if="${me != null}">
                     <button id="btnProfile" class="profile-btn">
                         <img id="avatar" class="avatar" src="https://i.pravatar.cc/80" alt="avatar"/>
-                        <span id="displayName" class="hidden sm:inline text-sm" th:text="${loginId}">사용자</span>
+                        <span id="displayName" class="hidden sm:inline text-sm" th:text="${me.name}">사용자</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon-sm text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
                     </button>
                     <div id="menuProfile" class="dropdown hidden">
@@ -53,6 +53,9 @@
                             <button id="btnLogout" class="dropdown-item w-full text-left">로그아웃</button>
                         </form>
                     </div>
+                </div>
+                <div class="relative" th:if="${me == null}">
+                    <a id="loginBtn" class="hidden sm:inline text-sm" th:href="@{/login}">로그인</a>
                 </div>
             </div>
         </div>
@@ -101,7 +104,9 @@
             <!-- 인사말 + 퀵액션 -->
             <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                 <div class="card lg:col-span-2">
-                    <h1 id="greeting" class="h1" th:text="'안녕하세요, ' + ${username} + '님 👋'">안녕하세요 👋</h1>
+                    <div th:if="${me != null}">
+                    <h1 id="greeting" class="h1" th:text="'안녕하세요, ' + ${me.name} + '님 👋'">안녕하세요 👋</h1>
+                    </div>
                     <p id="greetingSub" class="muted" th:text="${#temporals.format(#temporals.createNow(), 'M월 d일 (EEE)')}">오늘도 좋은 하루 보내세요.</p>
                     <div class="mt-4 flex flex-wrap gap-2">
                         <a href="/approvals/new" class="btn">
@@ -131,7 +136,7 @@
                         </div>
                         <div class="pill">
                             <div class="muted">잔여 연차</div>
-                            <div id="vacationLeft" class="pill-value skeleton">--일</div>
+                            <div id="vacationLeft" class="pill-value skeleton">14일</div>
                         </div>
                         <div class="pill">
                             <div class="muted">상태</div>

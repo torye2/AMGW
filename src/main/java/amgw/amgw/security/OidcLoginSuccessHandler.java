@@ -1,6 +1,5 @@
 package amgw.amgw.security;
 
-import amgw.amgw.entity.UserEntity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import amgw.amgw.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.ServletException;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -36,16 +34,16 @@ public class OidcLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
         if (principal instanceof DefaultOidcUser oidc) {
             var claims = oidc.getClaims();
             String provider = "keycloak";
-            String sub      = String.valueOf(claims.get("sub"));
+            String sub = String.valueOf(claims.get("sub"));
             String username = (String) claims.getOrDefault("preferred_username", null);
-            String email    = (String) claims.getOrDefault("email", null);
-            String name     = (String) claims.getOrDefault("name", null);
-            String picture  = (String) claims.getOrDefault("picture", null);
+            String email = (String) claims.getOrDefault("email", null);
+            String name = (String) claims.getOrDefault("name", null);
+            String picture = (String) claims.getOrDefault("picture", null);
 
             Map<String, Object> realmAccess = (Map<String, Object>) claims.get("realm_access");
             List<String> realmRoles = realmAccess == null ? List.of() : (List<String>) realmAccess.getOrDefault("roles", List.of());
             String rolesJson = om.writeValueAsString(Map.of("realm", realmRoles));
-
+/*
             var user = userRepository.findByProviderAndSubject(provider, sub)
                     .map(u -> {
                         u.setUsername(username);
@@ -72,7 +70,8 @@ public class OidcLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandl
             userRepository.save(user);
             log.info("💾 upserted user provider={} sub={}", provider, sub);
         }
-
-        super.onAuthenticationSuccess(request, response, authentication); // 3개 인자!
+*/
+            super.onAuthenticationSuccess(request, response, authentication); // 3개 인자!
+        }
     }
 }

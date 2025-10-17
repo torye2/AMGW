@@ -8,16 +8,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
+
     @GetMapping("/")
-    public String home(Model model, @AuthenticationPrincipal UserDetails user) {
-        if (user != null) {
-            String loginId = user.getUsername();
-            model.addAttribute("loginId", loginId);
-            model.addAttribute("username", user.getUsername());
+    public String home() {
             return "index";
-        } else {
-            return "index";
-        }
     }
 }
 

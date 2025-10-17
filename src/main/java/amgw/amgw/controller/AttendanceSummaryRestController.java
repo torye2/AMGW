@@ -28,9 +28,14 @@ public class AttendanceSummaryRestController {
         int m = mins % 60;
         String weeklyHoursText = (mins == 0) ? "0h 0m" : (h + "h " + m + "m");
 
+        String vacationLeft = "14";
+        String status = "";
+
         return Map.of(
                 "todayCheckIn", todayCheckIn,
-                "weeklyHoursText", weeklyHoursText
+                "weeklyHoursText", weeklyHoursText,
+                "vacationLeft", vacationLeft,
+                "status", status
         );
     }
 }
