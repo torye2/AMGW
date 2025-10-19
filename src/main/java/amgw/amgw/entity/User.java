@@ -3,6 +3,8 @@ package amgw.amgw.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor @Builder
@@ -23,8 +25,14 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false)
+    private LocalDateTime emailVerifiedAt;
+
     @Column(length = 50)
     private String department;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -33,4 +41,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status_code = UserStatus.PENDING; // PENDING / ACTIVE / DISABLED
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EmailVerifyStatus email_verify_status = EmailVerifyStatus.PENDING;
 }

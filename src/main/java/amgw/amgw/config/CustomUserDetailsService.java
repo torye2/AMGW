@@ -1,13 +1,16 @@
 package amgw.amgw.config;
 
+import amgw.amgw.entity.EmailVerifyStatus;
 import amgw.amgw.entity.User;
 import amgw.amgw.entity.UserStatus;
 import amgw.amgw.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,6 +28,12 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new DisabledException("Account not approved yet");
         }
 
+        if (user.getEmail_verify_status() != EmailVerifyStatus.VERIFIED) {
+            throw new CredentialsExpiredException("이메일 미인증");
+        }
+
+        List<String> roles = List.of("ROLE_" + user.getRole());
+
         return CustomUserDetails.builder()
                 .userId(user.getId())
                 .username(user.getUsername())
@@ -32,7 +41,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .name(user.getName())
                 .email(user.getEmail())
                 .status(user.getStatus_code())
-                .roles(List.of("EMPLOYEE"))
+                .roles(roles)
+                .createdAt(LocalDateTime.now())
                 .build();
     }
 }

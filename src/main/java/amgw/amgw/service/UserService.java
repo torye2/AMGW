@@ -1,6 +1,7 @@
 package amgw.amgw.service;
 
 import amgw.amgw.dto.SignupForm;
+import amgw.amgw.entity.EmailVerifyStatus;
 import amgw.amgw.entity.User;
 import amgw.amgw.entity.UserRole;
 import amgw.amgw.entity.UserStatus;
@@ -9,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +28,8 @@ public class UserService {
                 .password(passwordEncoder.encode(form.getPassword()))
                 .role(UserRole.EMPLOYEE)
                 .status_code(UserStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .email_verify_status(EmailVerifyStatus.PENDING)
                 .build();
         userRepository.save(user);
     }

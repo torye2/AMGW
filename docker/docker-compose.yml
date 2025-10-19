@@ -1,19 +1,6 @@
 ﻿services:
-  db:
-    image: mysql:8.4
-    container_name: mysql-portal
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpw}
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-gw}
-      MYSQL_USER: ${MYSQL_USER:-gwapp}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-GwApp!2025}
-      TZ: ${TZ:-Asia/Seoul}
-    ports:
-      - "${MYSQL_PORT:-3307}:3306"
-    volumes:
-      - mysql-data:/var/lib/mysql
-
   onlyoffice:
+    restart: "no"
     image: onlyoffice/documentserver:8.1
     container_name: onlyoffice
     environment:
@@ -23,23 +10,24 @@
     ports:
       - "${ONLYOFFICE_PORT:-8081}:80"
 
-  portal:
-    image: your/portal:latest
-    container_name: portal
-    depends_on:
-      - db
-      - onlyoffice
-    environment:
-      SPRING_DATASOURCE_URL: "jdbc:mysql://amgw-db.cjmik2sqe1xf.ap-northeast-2.rds.amazonaws.com:3306/gw?useSSL=true&serverTimezone=Asia/Seoul"
-      SPRING_DATASOURCE_USERNAME: gwapp
-      SPRING_DATASOURCE_PASSWORD: GwApp!2025
-      ONLYOFFICE_URL: "http://onlyoffice"   # 내부 통신용
-      ONLYOFFICE_JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
-      TZ: ${TZ:-Asia/Seoul}
-    ports:
-      - "${PORTAL_PORT:-8080}:8080"
-    volumes:
-      - ./files:/app/files  # 로컬 저장 쓸 때
+#  portal:
+#    restart: "no"
+#    build: ..
+#    container_name: portal
+#    depends_on:
+#      - db
+#      - onlyoffice
+#    environment:
+#      SPRING_DATASOURCE_URL: "jdbc:mysql://amgw-db.cjmik2sqe1xf.ap-northeast-2.rds.amazonaws.com:3306/gw?useSSL=true&serverTimezone=Asia/Seoul"
+#      SPRING_DATASOURCE_USERNAME: gwapp
+#      SPRING_DATASOURCE_PASSWORD: GwApp!2025
+#      ONLYOFFICE_URL: "http://onlyoffice"   # 내부 통신용
+#      ONLYOFFICE_JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
+#      TZ: ${TZ:-Asia/Seoul}
+#    ports:
+#      - "18080:8080"
+#    volumes:
+#      - ./files:/app/files  # 로컬 저장 쓸 때
 
 volumes:
   mysql-data:

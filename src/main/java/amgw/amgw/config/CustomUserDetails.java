@@ -9,6 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,6 +24,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private final String email;
     private final UserStatus status;    // PENDING/ACTIVE/INACTIVE/SUSPENDED/TERMINATED
     private final List<String> roles;   // ["ROLE_EMPLOYEE", "ROLE_ADMIN"...]
+    private final LocalDateTime createdAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

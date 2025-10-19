@@ -42,7 +42,7 @@ public class AdminController {
     @ResponseBody
     public String rejectUser(@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow();
-        user.setStatus_code(UserStatus.SUSPENDED);
+        user.setStatus_code(UserStatus.REJECTED);
         userRepository.save(user);
         return "OK";
     }

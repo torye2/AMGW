@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>이메일 인증 결과</title>
+    <link rel="stylesheet" th:href="@{/css/verify.css}" href="/css/verify.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+<div class="container">
+    <div class="card" th:with="okVal=${ok} ? true : false">
+    <span th:classappend="${okVal} ? 'badge badge-success' : 'badge badge-error'">
+      <span th:text="${okVal} ? '인증 완료' : '실패'">상태</span>
+    </span>
+
+        <h1 th:text="${okVal} ? '이메일 인증이 완료되었습니다' : '이메일 인증에 실패했습니다'">
+            이메일 인증 결과
+        </h1>
+
+        <p th:text="${message}">토큰이 유효하지 않거나 만료되었습니다. 다시 시도해주세요.</p>
+
+        <div style="margin-top:16px;">
+            <a class="btn" th:if="${okVal}" th:href="@{/}" href="/">메인으로</a>
+
+            <!-- 실패 시 재시도 버튼 -->
+            <form th:if="${!okVal}" method="post" action="/verify/email/start" data-guard="submit" style="display:inline;">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button class="btn" type="submit">인증 메일 다시 보내기</button>
+            </form>
+            <a class="btn secondary" th:href="@{/login}" href="/login">로그인 화면</a>
+        </div>
+    </div>
+</div>
+
+<script th:src="@{/js/verify.js}" src="/js/verify.js"></script>
+</body>
+</html>
