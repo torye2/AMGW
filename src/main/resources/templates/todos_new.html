@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>To-Do 추가</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+</head>
+<body class="bg-slate-50 text-slate-800">
+<div class="container py-8 max-w-2xl">
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="h1">To-Do 추가</h1>
+        <a class="btn btn-ghost" href="/">← 대시보드</a>
+    </div>
+
+    <form method="post" th:action="@{/todos/new}" class="card p-4 grid gap-3">
+        <input class="input" name="title" placeholder="할 일 제목" required/>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <label class="text-sm">
+                <span class="muted block mb-1">마감일</span>
+                <input type="date" class="input" name="dueDate"/>
+            </label>
+            <label class="text-sm">
+                <span class="muted block mb-1">우선순위</span>
+                <select class="input" name="priority">
+                    <option value="NORMAL">보통</option>
+                    <option value="HIGH">높음</option>
+                    <option value="LOW">낮음</option>
+                </select>
+            </label>
+        </div>
+        <div>
+            <button class="btn" type="submit">저장</button>
+            <a class="btn btn-ghost" href="/">취소</a>
+        </div>
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+    </form>
+</div>
+</body>
+</html>
