@@ -26,4 +26,16 @@ public interface NoticeMapper {
 	int insertFile(Upload_fileDto file);
 	int makeAsImportant(@Param("notice_id") int notice_id);
 	int deleteNotices(@Param("noticeIds") List<Integer> noticeIds);
+	
+	List<NoticeDto> searchNotices(
+		@Param("searchType") String searchType,
+		@Param("keyword") String keyword,
+		@Param("offset") int offset,
+		@Param("limit") int limit
+	);
+	
+	int selectNoticeCountBySearch(
+		@Param("searchType") String searchType,
+		@Param("keyword") String keyword
+	);
 }

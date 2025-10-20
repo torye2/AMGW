@@ -39,20 +39,32 @@ public class NoticeController {
 	@GetMapping("/Notice_L")
 	public String noticeList(@RequestParam(name = "page", defaultValue = "1") int page,
 							 @RequestParam(name = "pageSize", defaultValue = "10") int pageSize,
+							 @RequestParam(name = "searchType", required = false) String searchType,
+							 @RequestParam(name = "keyword", required = false) String keyword,
 							 Model model) {
 		
-		int totalCount = noticeService.selectNoticeCount();
-		int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+		int totalCount; 
+		List<NoticeDto> notices;
 		
-		if (totalPages == 0) {
-			totalPages = 1;
+		if (keyword != null && !keyword.trim().isEmpty()) {
+			//검색이 있는 경우
+			totalCount = noticeMapper.selectNoticeCountBySearch(searchType, keyword);
+			int offset = (page - 1) * pageSize;
+			notices = noticeMapper.searchNotices(searchType, keyword, offset, pageSize);
+		} else {
+			//검색이 없는 경우
+			totalCount = noticeService.selectNoticeCount();
+			notices = noticeService.selectAllNotices(page, pageSize);
 		}
 		
-		List<NoticeDto> notices = noticeService.selectAllNotices(page, pageSize);
+		int totalPages = (int) Math.ceil((double) totalCount / pageSize);
+		if (totalPages == 0) totalPages = 1;
 		
 		model.addAttribute("notices", notices);
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", totalPages);
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("searchType", searchType);
 		
 		return "Notice_L";
 

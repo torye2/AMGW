@@ -1,69 +1,136 @@
-.Notice_L_Container {
-	max-width: 1024px;
+.Notice_Ltopbox {
+	width: 300px;
+	height: 60px;
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	text-align: center;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 25px;	
+}
+
+.Notice_Ltopbox div {
+	font-size: 30px;
+}
+
+.Notice_search {
+	display: flex;
+	justify-content: flex-end;
+	margin-bottom: 10px;
+}
+
+.Notice_searchbox {
+	margin-right: 10px;
+	height: 50px;
+	width: 423px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-collapse: collapse; 
+	border: 1px solid #e2e8f0;
+	border-radius: 1rem;
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
+.Notice_searchbox select {
+	text-align: center;
+	width: 90px;
+	height: 50px;
+	border: 1px solid #e2e8f0;
+	backdrop-filter:blur(8px);
+	border-radius: 1rem 0 0 1rem;
+}
+
+.Notice_searchbox input {
+	width: 250px;
+	height: 40px;
+}
+
+.Notice_searchbox button {
+	width: 70px;
+	height: 50px;
+	border: 1px solid #e2e8f0;
+	backdrop-filter:blur(8px);
+	background: #e2e8f0;
+	border-radius: 0 1rem 1rem 0;
+}
+
+.Notice_searchbox button:hover {
+	background: #222;
+	color: #fff;
+}
+
+.Notice_Lbottonbox {
+	width:1200px;
+	min-height: 300px;
 }
 
 .Notice_LBox{
-	border-collapse: collapse;
-}
-
-.Notice_L-head {
-	line-height: 40px;
-	width: 800px;
-	background: #efefef;
-	
+	border: 1px solid #e2e8f0;
+	border-collapse:separate;
+	border-radius: 1rem;
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
 }
 
 #Notice_L-head {
-	border-bottom: 1px solid #ccc;
+	line-height: 50px;
 }
 
 #List_CheckBox {
 	font-weight:bold;
 	text-align:center;
 	font-size: 20px;
-	width: 30px;
+	width: 45px;
 }
 
 #List_number {
 	font-weight:bold;
 	text-align:center;
-	width: 80px;
+	width: 105px;
 }
 
 #List_title {
 	font-weight:bold;
 	text-align: center;
-	width: 410px;
+	width: 685px;
 }
 
 #user_id {
 	font-weight:bold;
 	text-align: center;
-	width: 80px;
+	width: 105px;
 }
 
 #reg_Creationdate {
 	font-weight:bold;
 	text-align: center;
-	width: 120px;
+	width: 155px;
 }
 
 #check_count {
 	font-weight:bold;
 	text-align: center;
-	width: 80px;
+	width: 105px;
 }
 
 .Notice_L-body {
 	border-bottom: 1px solid #ccc;
+	height: 50px;
 }
 
 .Notice_L-body td {
 	padding: 5px;
-	height: 30px;
+	text-align: center;
 }
 
 .important-cell {
+	height: 50px;
 	text-align: center;
 	display: flex;
 	justify-content: space-around;
@@ -72,11 +139,12 @@
 
 .important-cell p {
 	border-radius: 6px;
-	border: 2px solid #ff4d4d;
+	border: 2px groove #ff4d4d;
 	color: #ff4d4d;
-	font-size: 10px;
+	text-align:center;
+	font-size: 12px;
 	width: 40px;
-	height: 15px;
+	height: 20px;
 }
 
 #Number_notice,
@@ -87,29 +155,98 @@
 }
 
 .Notice_not {
-	border-bottom: 1px solid #ccc;
 	text-align: center;
     color: #777;
     padding: 5px;
-    height: 30px;
+    height: 50px;
 }
 
 .pagination {
-	gap:5px;
-	width: 800px;
-	margin: 5px;
+	gap:8px;
+	width: 1195px;
+	margin: 10px;
 	display: flex;
 	justify-content: center;
 }
 
+.pagination a {
+  display: inline-block;
+  border: 1px solid #ccc;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 30px;
+}
+
+.pagination a:hover {
+  background-color: #f0f0f0;
+}
+
+.pagination a.active {
+  background-color: #f1f5f9; /* 파란색 배경 */
+  color: #333;
+  border-color: #f1f5f9;
+  font-weight: bold;
+}
+
+#Notice_Previous {
+	text-align: center;
+	display:inline-block;
+	height: 30px;
+	width: 60px;
+	border: 1px solid #e2e8f0;
+	border-radius: .5rem 0 0 .5rem;
+	backdrop-filter:blur(8px);
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	color: #333;
+	transition: all 0.2s ease;
+}
+
+#Notice_page-number {
+	text-align: center;
+	display:inline-block;
+	height: 30px;
+	width: 40px;
+	border: 1px solid #e2e8f0;
+	backdrop-filter:blur(8px);
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
+#Notice_Next {
+	text-align: center;
+	display:inline-block;
+	height: 30px;
+	width: 60px;
+	border: 1px solid #e2e8f0;
+	border-radius: 0 .5rem .5rem 0;
+	backdrop-filter:blur(8px);
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
 .Notice_Lbtn {
 	display: flex;
-	width: 800px;
+	width: 1195px;
 	margin-top: 5px;
 	justify-content: flex-end;
 }
 
 .Notice_Lbtn button {
 	margin: 3px;
-	display:flex;
+	border: 1px solid #e2e8f0;
+	border-radius: .5rem;
+	backdrop-filter:blur(8px);
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	line-height: 30px;
+	width:60px;
+}
+
+.Notice_Lbtn button:hover {
+	background:#e2e8f0;
+	color: #222;
+	border: 2px solid #e2e8f0;
 }

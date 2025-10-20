@@ -25,7 +25,7 @@
   		SELECT *,
   			CASE WHEN important = TRUE THEN '중요!' ELSE NULL END AS displayNumber
   		FROM notice n
-  		ORDER BY important DESC, notice_id ASC
+  		ORDER BY important DESC, notice_id DESC
   		LIMIT #{limit} OFFSET #{offset}
   	</select>
   	
@@ -89,5 +89,35 @@
   	
   	<select id="selectFileById" parameterType="int" resultType="amgw.amgw.dto.Upload_fileDto">
   		SELECT * FROM upload_file WHERE file_id = #{fileId}
+  	</select>
+  	
+  	<!-- 검색 조건에 따라 제목/내용 검색 -->
+  	<select id="searchNotices" resultType="amgw.amgw.dto.NoticeDto">
+  		SELECT *
+  		FROM notice
+  		<where>
+  			<if test="searchType == 'title'">
+  				notice_title LIKE CONCAT('%', #{keyword},'%')
+  			</if>
+  			<if test="searchType == 'content'">
+  				notice_title LIKE CONCAT('%', #{keyword},'%')
+  			</if>
+  		</where>
+  		ORDER BY important DESC, notice_id DESC
+  		LIMIT #{limit} OFFSET #{offset}
+  	</select>
+  	
+  	<!-- 검색 결과 개수 -->
+  	<select id="selectNoticeCountBySearch" resultType="int">
+  		SELECT COUNT(*)
+  		FROM notice
+  		<where>
+  			<if test="searchType == 'title'">
+  				notice_title LIKE CONCAT('%', #{keyword},'%')
+  			</if>
+  			<if test="searchType == 'content'">
+  				notice_detail LIKE CONCAT('%', #{keyword},'%')
+  			</if>
+  		</where>
   	</select>
   </mapper>

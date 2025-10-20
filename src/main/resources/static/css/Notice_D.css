@@ -1,17 +1,47 @@
-.Notice_D_Container {
-	max-width: 900px;
-}
-
 .Notice_D_table {
 	border-collapse:collapse;
 }
 
+#Notice_top {
+	width : 300px;
+	height: 60px;
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	text-align: center;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	margin-bottom: 25px;
+}
+
+#Notice_top h1 {
+	text-align: center;
+	font-size: 30px;
+}
+
+#Noitce_middle {
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	margin-bottom: 25px; 
+}
+
+.Notice_D_table {
+	width: 1150px;
+	margin: 20px auto;
+}
+
 .top_table {
-	border: 1px solid #ccc;
+	border: 1px solid #e2e8f0;
 }
 
 .top_table th {
-	background: #eaeaea;
+	background: #f1f5f9;
 }
 
 .top_table th,
@@ -23,11 +53,11 @@
 }
 
 .middle_table {
-	border: 1px solid #ccc;
+	border: 1px solid #e2e8f0;
 }
 
 .middle_table th {
-	background: #eaeaea;
+	background: #f1f5f9;
 }
 
 .middle_table th, 
@@ -40,11 +70,11 @@
 
 
 .bottom_table {
-	border: 1px solid #ccc;
+	border: 1px solid #e2e8f0;
 }
 
 .bottom_table th {
-	background: #eaeaea;
+	background: #f1f5f9;
 }
 
 .bottom_table th,
@@ -63,18 +93,41 @@
 	font-size: 13px;
 }
 
+.Notice_Botton {
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
 #Notice_D {
+	margin: 20px auto;
 	padding: 5px;
-	border: 1px solid #ccc;
-	width: 900;
+	border: 1px solid #e2e8f0;
+	width: 1150px;
 	min-height: 400px;
 }
 
 .Notice_D-Btn {
 	display: flex;
 	justify-content: flex-end;
+	gap: 10px;
 }
 
 .Notice_D-Btn button {
-	margin: 10px 3px;
+	gap: 20px;
+	width: 70px;
+	height: 40px;
+	margin: 10px 0;
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
+.Notice_D-Btn button:hover {
+	background: #e2e8f0;
+	color: #222;
 }

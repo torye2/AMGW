@@ -4,51 +4,142 @@
 <meta charset="UTF-8">
 <title>공지사항 상세 페이지</title>
 <link rel="stylesheet" href="../css/Notice_D.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" th:href="@{/css/styles.css}" />
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 <body>
-	<div class="Notice_D_Container">
-		<div>
-			<h1>공지사항 - 내용확인</h1>
-		</div>
-		<table class="Notice_D_table">
-			<tr class="top_table">
-				<th>제목</th>
-				<td colspan="5" th:text="${notice.notice_title}"></td> <!-- 게시글 제목표시 -->
-			</tr>
-			<tr class="middle_table">
-				<th>작성자</th>
-				<td th:text="${notice.user_id}"></td> <!-- 작성자 아이디표시 -->
-				<th>작성날짜</th>
-				<td th:text="${#dates.format(notice.registration_time, 'yyyy-MM-dd HH:mm')}"></td> <!-- 등록날짜 아니면 수정날짜 표시 -->
-				<th>조회수</th>
-				<td th:text="${notice.notice_count}"></td> <!-- 조회수 표시 -->
-			</tr>
-			<tr class="bottom_table">
-				<th>첨부파일</th> 
-				<td colspan="5">
-					<span th:each="file : ${notice.files}">
-						<a th:href="@{'/download/' + ${file.file_id}}" th:text="${file.orig_name}"></a>
-						<span th:text="${file.file_size + 'KB'}"></span> <!-- 파일용량 표시 -->
-					</span>
-				</td> <!-- 파일이름 표시 / 파일 이름 클릭시 다운로드 -->
+	<!-- 헤더 -->
+    <header class="site-header">
+        <div class="container h-16 flex items-center gap-3">
+            <button id="btnSidebar" class="icon-btn md:hidden" aria-label="메뉴 열기">
+                <!-- 햄버거 아이콘 -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            </button>
+            <a href="#" class="brand">
+                <span class="brand-badge">GW</span>
+                <span>Groupware</span>
+            </a>
+            <div class="ml-auto flex items-center gap-2">
+                <!-- 검색 -->
+                <div class="hidden md:block">
+                    <label class="search">
+                        <span class="sr-only">검색</span>
+                        <span class="search-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon-sm text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.3-4.3M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+                        </span>
+                        <input id="globalSearch" type="search" placeholder="검색 (문서/결재/사람)" class="search-input" />
+                    </label>
+                </div>
+                <!-- 알림 -->
+                <button id="btnNotif" class="icon-btn relative" aria-label="알림">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/></svg>
+                    <span id="notifBadge" class="badge hidden">0</span>
+                </button>
+                <!-- 프로필 -->
+                <div class="relative">
+                    <button id="btnProfile" class="profile-btn">
+                        <img id="avatar" class="avatar" src="https://i.pravatar.cc/80" alt="avatar"/>
+                        <span id="displayName" class="hidden sm:inline text-sm" th:text="${loginId}">사용자</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon-sm text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div id="menuProfile" class="dropdown hidden">
+                        <a href="/mypage.html" class="dropdown-item">마이페이지</a>
+                        <a href="/settings.html" class="dropdown-item">설정</a>
+                        <form th:action="@{/logout}" method="post" style="display:inline">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                            <button id="btnLogout" class="dropdown-item w-full text-left">로그아웃</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 본문: 사이드바 + 메인 -->
+    <div class="container grid grid-cols-1 md:grid-cols-[240px,1fr] gap-4 sm:gap-6 py-4">
+        <!-- 사이드바 -->
+        <aside id="sidebar" class="sidebar">
+            <nav class="nav">
+                <a class="nav-item active" href="#">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
+                    홈
+                </a>
+                <a class="nav-item" href="/approvals.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-7 4h8M7 8h10M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                    전자결재
+                </a>
+                <a class="nav-item" th:href="@{/chat}">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l9 6 9-6M4 6h16a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>
+                    메일/채팅
+                </a>
+                <a class="nav-item" href="https://nc.localhost/apps/files">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h8M8 10h8m-8 4h4M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
+                    문서관리
+                </a>
+                <a class="nav-item" href="/calendar.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+                    캘린더
+                </a>
+                <a class="nav-item" href="/attendance.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    근태관리
+                </a>
+                <a class="nav-item" href="/admin.html">
+                    <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l9-5-9-5-9 5 9 5zm0 0v6"/></svg>
+                    관리자
+                </a>
+            </nav>
+        </aside>
+	
+		<div class="Notice_D_Container">
+			<div id="Notice_top">
+				<h1>공지사항</h1>
+			</div>
+			<div id="Noitce_middle">
+				<table class="Notice_D_table">
+					<tr class="top_table">
+						<th>제목</th>
+						<td colspan="5" th:text="${notice.notice_title}"></td> <!-- 게시글 제목표시 -->
+					</tr>
+					<tr class="middle_table">
+						<th>작성자</th>
+						<td th:text="${notice.user_id}"></td> <!-- 작성자 아이디표시 -->
+						<th>작성날짜</th>
+						<td th:text="${#dates.format(notice.registration_time, 'yyyy-MM-dd HH:mm')}"></td> <!-- 등록날짜 아니면 수정날짜 표시 -->
+						<th>조회수</th>
+						<td th:text="${notice.notice_count}"></td> <!-- 조회수 표시 -->
+					</tr>
+					<tr class="bottom_table">
+						<th>첨부파일</th> 
+						<td colspan="5">
+							<span th:each="file : ${notice.files}">
+								<a th:href="@{'/download/' + ${file.file_id}}" th:text="${file.orig_name}"></a>
+								<span th:text="${file.file_size + 'KB'}"></span> <!-- 파일용량 표시 -->
+							</span>
+						</td> <!-- 파일이름 표시 / 파일 이름 클릭시 다운로드 -->
+					</tr>
+				</table>
+			</div>
+			<div class="Notice_Botton">
+				<div id="Notice_D" th:utext="${notice.notice_detail}"></div> <!-- 게시글 내용 표시 -->
+			</div>
+			<div class="Notice_D-Btn">
+				<form th:action="@{/Notice_W}" method="get" id="fix_form">
+					<input type="hidden" name="notice_id" th:value="${notice.notice_id}" />
+					<button type="submit">수정</button>
+				</form>
 				
-			</tr>
-		</table>
-		<div id="Notice_D" th:utext="${notice.notice_detail}"></div> <!-- 게시글 내용 표시 -->
-		<div class="Notice_D-Btn">
-			<form th:action="@{/Notice_W}" method="get" id="fix_form">
-				<input type="hidden" name="notice_id" th:value="${notice.notice_id}" />
-				<button type="submit">수정</button>
-			</form>
-			
-			<form th:action="@{/Notice_Delete}" method="post" id="delete_form">
-				<input type="hidden" name="noticeIds" th:value="${notice.notice_id}" />
-				<button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
-			</form>
-			
-			<form th:action="@{/Notice_L}" method="get" id="list_form">
-			<button type="submit">목록</button>
-			</form>
+				<form th:action="@{/Notice_Delete}" method="post" id="delete_form">
+					<input type="hidden" name="noticeIds" th:value="${notice.notice_id}" />
+					<button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+				</form>
+				
+				<form th:action="@{/Notice_L}" method="get" id="list_form">
+					<button type="submit">목록</button>
+				</form>
+			</div>
 		</div>
 	</div>
 </body>

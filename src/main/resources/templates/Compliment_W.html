@@ -95,57 +95,26 @@
             </nav>
         </aside>
 		<div>
-				
 			<div class="Notice_Topbox"> 
-				<h1>공지사항</h1>
-			</div>
-					
-			<form id="noticeForm" th:action="@{/Notice_W}" method="post" enctype="multipart/form-data">
+				<h1>칭찬합니다.</h1>
+			</div>		
+			<!-- <form id="noticeForm" th:action="@{/Compliment_W}" method="post" enctype="multipart/form-data"> -->
 				<div class="Noitce_middle">
 					<table class="Notice_w">
 						<tr class="Notice_titleline">
 							<td id="Notice_title">제목</td>
-							<td id="Notice_importance">
-								<label><input type="checkbox" name="important" value="true">중요!</label>
-							</td>
-							<td></td>
 							<td id="Notice_typebox">
-								<input type="text" id="Notice_typetext" name="notice_title" th:value="${notice.notice_title}" required>
-								<input type="hidden" name="notice_id" th:value="${notice.notice_id}">
+								<input type="text" id="Notice_typetext" name="notice_title" required>
+								<input type="hidden" name="notice_id">
 							</td>
 						</tr>
-						<tr class="fileupload_line">
-							<td id="file_upload">파일첨부</td>
-							<td colspan="2" class="upload_btn">
-								<button type="button" id="My_PC">내 PC</button>
-							</td>
-							<td colspan="2" id="FileCapacity_msg">
-								<p>총 0KB / 최대 2.00GB x 5개 까지</p>
+						<tr>
+							<th>비밀번호</th>
+							<td> 
+								<input type="text" name="password"> 
 							</td>
 						</tr>
 					</table>
-					<!-- 파일이 없을 경우 -->
-					<div class="upload_box">
-						<div class="upload_area" id="upload_area">
-							<p id="upload_msg">📎 파일을 업로드 해주세요</p> 
-							<table class="file_list" id="fileList">
-								<thead>
-									<tr id="fileupload_box">
-										<th>삭제</th>
-										<th>파일명</th>
-										<th>용량</th>
-									</tr>
-								</thead>
-								<tbody id="fileListBody">
-									<tr th:each="file : ${notice.files}">
-										<td>X</td>
-										<td th:text="${file.file_name}"></td>
-										<td th:text="${file.file_size}"></td>
-									</tr>
-								</tbody>
-							</table>
-						</div>
-					</div>
 				</div>
 				<div class="UI_editor">
 					<div id="UI_editorBox">
@@ -217,8 +186,8 @@
 						</div>
 					</div>
 				
-					<div id="editor" contenteditable="true" class="editor-content" th:utext="${notice.notice_detail}"></div>
-					<input type="hidden" name="notice_detail" id="notice_detail_input" th:value="${notice.notice_detail}">
+					<div id="editor" contenteditable="true" class="editor-content"></div>
+					<input type="hidden" name="notice_detail" id="notice_detail_input">
 					
 					<div id="alignMenu">
 						<button type="button" title="왼쪽"><i class="fa-solid fa-align-left"></i></button>
@@ -245,9 +214,9 @@
 				<div class="Notice_w_btn">
 					<button type="submit">등록</button>
 				</div>
-			</form>
+			<!-- </form>  -->
 		</div>
 	</div>
-	<script src="/JS/Notice_W.js"></script>
+	<script src="/JS/Compliment_W.js"></script>
 </body>
 </html>
