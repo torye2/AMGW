@@ -300,6 +300,80 @@
 
     // 첫 로드 시 실행
     document.addEventListener('DOMContentLoaded', loadApprovalsWaiting);
+
+
+
+
+
+  // ---- To-Do 카드: 목록 로드 + 버튼 이동 ----
+  const todoListEl = document.getElementById('todoList');
+  const btnAddTodo = document.getElementById('btnAddTodo');
+
+  async function loadTodosCard(){
+    if(!todoListEl) return;
+    todoListEl.innerHTML = '<li class="list-item skeleton">불러오는 중…</li>';
+    try{
+      const res = await fetch('/api/todos', { credentials:'same-origin' });
+      if(!res.ok) throw new Error('todos load failed');
+      const arr = await res.json();
+      todoListEl.innerHTML = '';
+      if(!arr?.length){
+        todoListEl.innerHTML = '<li class="list-item muted">할 일이 없습니다.</li>';
+        return;
+      }
+      // 상위 5개만
+      arr.slice(0,5).forEach(t=>{
+        const li = document.createElement('li');
+        li.className = 'list-item';
+        const due = t.dueDate ? ` · 마감 ${t.dueDate}` : '';
+        const pr  = t.priority ? ` · ${t.priority}` : '';
+        li.innerHTML = `
+          <div class="flex items-center justify-between gap-3">
+            <label class="flex items-center gap-3 min-w-0">
+              <input type="checkbox" data-id="${t.id}" ${t.done?'checked':''} class="accent-slate-700">
+              <a class="truncate ${t.done?'line-through text-slate-400':''}" href="/todos">${t.title}</a>
+            </label>
+            <div class="muted text-sm shrink-0">${due}${pr}</div>
+          </div>
+        `;
+        todoListEl.appendChild(li);
+      });
+    }catch(e){
+      console.error(e);
+      todoListEl.innerHTML = '<li class="list-item muted">불러오기에 실패했습니다.</li>';
+    }
+  }
+
+  // 완료 토글 (대시보드 카드에서도 체크 가능)
+  todoListEl?.addEventListener('change', async (e)=>{
+    const cb = e.target;
+    if(cb.type==='checkbox' && cb.dataset.id){
+      try{
+        const r = await fetch(`/api/todos/${cb.dataset.id}`, {
+          method:'PATCH',
+          headers:{ 'Content-Type':'application/json', ...(csrfHeader&&csrfToken?{[csrfHeader]:csrfToken}:{}) },
+          body: JSON.stringify({ done: cb.checked })
+        });
+        await r.json(); // 응답 소비
+        // 체크 스타일만 즉시 반영
+        const span = cb.closest('label')?.querySelector('a');
+        if(span){
+          if(cb.checked){ span.classList.add('line-through','text-slate-400'); }
+          else { span.classList.remove('line-through','text-slate-400'); }
+        }
+      }catch(e){ console.warn(e); }
+    }
+  });
+
+  // “추가” 버튼 → 입력 페이지로 이동
+  btnAddTodo?.addEventListener('click', ()=>{
+    location.href = '/todos/new';
+  });
+
+  // 초기 로딩 훅에 등록
+  document.addEventListener('DOMContentLoaded', ()=>{
+    loadTodosCard();
+  });
 </script>
 
 
