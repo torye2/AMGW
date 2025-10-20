@@ -10,16 +10,22 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class TodoPageController {
 
-    @GetMapping("/todos/new")
-    public String newPage(){ return "todos_new"; }
+    private final TodoService svc;
 
-    // 폼 제출을 간단히 처리해서 대시보드로 리다이렉트 (REST 대신 폼 사용하고 싶을 때)
+    @GetMapping("/todos/new")
+    public String newPage() {
+        return "todos_new";
+    }
+
     @PostMapping("/todos/new")
     public String submit(@RequestParam String title,
-                         @RequestParam(required=false) String dueDate,
-                         @RequestParam(defaultValue="NORMAL") Todo.Priority priority,
-                         TodoService svc) {
-        svc.add(title, (dueDate==null||dueDate.isBlank())? null : java.time.LocalDate.parse(dueDate), priority);
+                         @RequestParam(required = false) String dueDate,
+                         @RequestParam(defaultValue = "NORMAL") Todo.Priority priority) {
+
+        svc.add(title,
+                (dueDate == null || dueDate.isBlank()) ? null : java.time.LocalDate.parse(dueDate),
+                priority);
+
         return "redirect:/";
     }
 }
