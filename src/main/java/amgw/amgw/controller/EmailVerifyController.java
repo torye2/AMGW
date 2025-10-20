@@ -24,7 +24,7 @@ public class EmailVerifyController {
         if (me == null) return "redirect:/login";
         service.start(me.getUserId(), req.getRemoteAddr(), req.getHeader("User-Agent"));
         model.addAttribute("message", "인증 메일을 전송했습니다. 30분 안에 확인해주세요.");
-        return "verify/email_sent"; // 템플릿 페이지
+        return "email_sent"; // 템플릿 페이지
     }
 
     // (선택) 관리자용: 특정 사용자에게 재발송
@@ -48,7 +48,7 @@ public class EmailVerifyController {
         } catch (IllegalArgumentException ex) {
             model.addAttribute("ok", false);
             model.addAttribute("message", "유효하지 않거나 만료된 토큰입니다. 다시 시도해주세요.");
-            return "verify/email_done";
+            return "email_done";
         }
     }
 }

@@ -19,6 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             if (res.ok) {
                 row.style.opacity = 0.4;
+                alert(res.message + " action: " + action);
                 row.querySelectorAll("button").forEach(b => b.disabled = true);
                 btn.textContent = action === "approve" ? "승인 완료" : "거절됨";
                 btn.style.background = action === "approve" ? "#22c55e" : "#ef4444";

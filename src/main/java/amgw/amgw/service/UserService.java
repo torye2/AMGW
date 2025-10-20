@@ -19,11 +19,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder =  new BCryptPasswordEncoder();
 
-    public void register(SignupForm form) {
+    public User register(SignupForm form) {
         User user = User.builder()
-                .username(form.getUsername())
-                .name(form.getName())
-                .email(form.getEmail())
+                .username(form.getUsername().trim())
+                .name(form.getName().trim())
+                .email(form.getEmail().trim())
                 .department(form.getDepartment())
                 .password(passwordEncoder.encode(form.getPassword()))
                 .role(UserRole.EMPLOYEE)
@@ -31,6 +31,10 @@ public class UserService {
                 .createdAt(LocalDateTime.now())
                 .email_verify_status(EmailVerifyStatus.PENDING)
                 .build();
-        userRepository.save(user);
+        return userRepository.save(user);
+    }
+
+    public boolean existsByUsername(String username) {
+        return userRepository.findByUsername(username).isPresent();
     }
 }
