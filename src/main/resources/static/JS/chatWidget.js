@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const container = document.createElement("div");
     container.innerHTML = html;
     document.body.appendChild(container);
-    console.log("✅ Chat Widget HTML 로드 완료");
   } catch (err) {
     console.error("❌ Chat Widget HTML 로드 실패", err);
     return;
@@ -20,6 +19,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   const chatForm = document.getElementById("chatForm");
   const chatInput = document.getElementById("chatInput");
   const chatWindow = document.getElementById("chatWindow");
+  const todayCheckIn = document.getElementById("todayCheckIn");
+  const todayCheckOut = document.getElementById("todayCheckOut");
 
   // 3️⃣ 토글
   chatToggleBtn?.addEventListener("click", () => chatLayer.classList.toggle("hidden"));
@@ -31,6 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const h = document.querySelector('meta[name="_csrf_header"]')?.content;
     return { t, h };
   }
+
   async function api(path, opts = {}) {
     const { t, h } = getCsrf();
     const headers = { "Content-Type": "application/json" };
@@ -41,20 +43,49 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // 5️⃣ 메시지 추가
-  function addMessage(text, sender = "ai") {
+  function addMessage(text, type = "ai") {
     const div = document.createElement("div");
-    div.className =
-      sender === "ai"
-        ? "p-2 bg-indigo-50 rounded-lg text-slate-800"
-        : "p-2 bg-slate-100 rounded-lg text-slate-800 text-right";
+
+    switch(type) {
+      case "ai": // 일반 AI
+        div.className = "p-2 bg-indigo-50 rounded-lg text-slate-800";
+        break;
+      case "user":
+        div.className = "p-2 bg-slate-100 rounded-lg text-slate-800 text-right";
+        break;
+      case "checkIn": // 출근
+        div.className = "p-2 bg-green-100 rounded-lg text-green-800 font-bold";
+        break;
+      case "checkOut": // 퇴근
+        div.className = "p-2 bg-yellow-100 rounded-lg text-yellow-800 font-bold";
+        break;
+      case "warning":
+        div.className = "p-2 bg-red-100 rounded-lg text-red-800 font-bold";
+        break;
+    }
+
     div.textContent = text;
     chatWindow.appendChild(div);
     chatWindow.scrollTop = chatWindow.scrollHeight;
   }
 
-  // 6️⃣ 질문 전송
+  // 6️⃣ 오늘 출퇴근 조회
+  async function loadTodayAttendance() {
+    try {
+      const data = await api("/api/attendance/today");
+      todayCheckIn.textContent = data?.checkInAt ? new Date(data.checkInAt).toLocaleTimeString() : "-";
+      todayCheckOut.textContent = data?.checkOutAt ? new Date(data.checkOutAt).toLocaleTimeString() : "-";
+    } catch (err) {
+      console.error("오늘 출퇴근 조회 실패", err);
+    }
+  }
+
+  await loadTodayAttendance();
+
+  // 7️⃣ 질문 전송
   async function sendQuestion(question) {
     try {
+      // 사용자 메시지
       addMessage(question, "user");
       chatInput.value = "";
 
@@ -63,8 +94,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         body: JSON.stringify({ question })
       });
 
-      if (data.answer) addMessage(data.answer, "ai");
+      // 출퇴근 처리
+      if (data.action === "checkIn" || data.action === "checkOut") {
+        const type = data.action === "checkIn" ? "checkIn" : "checkOut";
+        if(data.status === "ok") {
+          addMessage(`✅ ${data.action === "checkIn" ? "출근" : "퇴근"} 시간이 기록되었습니다.`, type);
+        } else if(data.status === "already") {
+          addMessage(`⚠️ 이미 오늘 ${data.action === "checkIn" ? "출근" : "퇴근"} 기록이 있습니다.`, "warning");
+        }
+        await loadTodayAttendance();
+      } else {
+        // 일반 AI 답변
+        if(data.answer) addMessage(data.answer, "ai");
+      }
 
+      // 페이지 이동 처리
       if (data.redirect) {
         const btnContainer = document.createElement("div");
         btnContainer.className = "mt-1 flex gap-2";
@@ -73,11 +117,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         yesBtn.textContent = "네";
         yesBtn.className = "p-1 bg-blue-500 text-white rounded";
         yesBtn.onclick = () => {
-            // data.autoFill 대신 data 전체를 저장
-            sessionStorage.setItem("autoFillData", JSON.stringify(data));
-            console.log("✅ autoFill 저장됨:", data);
-
-            setTimeout(() => (window.location.href = data.redirect), 200);
+          sessionStorage.setItem("autoFillData", JSON.stringify(data));
+          setTimeout(() => (window.location.href = data.redirect), 200);
         };
 
         const noBtn = document.createElement("button");
@@ -92,18 +133,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         chatWindow.appendChild(btnContainer);
         chatWindow.scrollTop = chatWindow.scrollHeight;
       }
+
     } catch (err) {
       console.error(err);
       addMessage("❌ AI 호출 중 오류 발생", "ai");
     }
   }
 
-  // 7️⃣ 폼 이벤트
+  // 8️⃣ 폼 이벤트
   chatForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const q = chatInput.value.trim();
     if (q) sendQuestion(q);
   });
-
-  console.log("✅ Chat Widget JS 초기화 완료");
 });

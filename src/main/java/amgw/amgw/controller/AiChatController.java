@@ -1,9 +1,11 @@
 package amgw.amgw.controller;
 
+import amgw.amgw.config.CustomUserDetails;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import java.io.*;
@@ -34,6 +36,8 @@ public class AiChatController {
 
         String answer = null;
         String redirect = null;
+        String action = null;
+        String status = null;
 
         try {
             // 1️⃣ 문자열이 JSON인지 확인 후 파싱
@@ -51,6 +55,7 @@ public class AiChatController {
             if(obj != null){
                 answer = obj.has("answer") ? obj.get("answer").getAsString() : null;
                 redirect = obj.has("redirect") ? obj.get("redirect").getAsString() : null;
+                action = obj.has("action") ? obj.get("action").getAsString() : null;
             }
 
             // ✅ autoFillData 출력
@@ -67,6 +72,18 @@ public class AiChatController {
                 return responseMap;
             }
 
+            // 출퇴근 처리
+            if("checkIn".equals(action) || "checkOut".equals(action)) {
+                status = markAttendance(action); // DB 업데이트 + status 반환
+                if(answer == null) {
+                    answer = status.equals("ok") ? "출퇴근 처리되었습니다." : "이미 오늘 " + ("checkIn".equals(action) ? "출근" : "퇴근") + " 기록이 있습니다.";
+                }
+                return Map.of(
+                        "answer", answer,
+                        "action", action,
+                        "status", status
+                );
+            }
 
             // 2️⃣ 안전하게 기본값 보장
             if(redirect != null && redirect.startsWith("/")) {
@@ -134,6 +151,9 @@ public class AiChatController {
                      }
                      JSON 구조 외부 답변: 
                      "answer": "휴가 신청 페이지로 이동합니다."
+                     - 사용자가 '출근', '퇴근'을 입력하면 JSON 형식으로 {"action": "checkIn"} 또는 {"action": "checkOut"} 반환
+                     - 출퇴근 요청 시 {"answer":"출퇴근 처리되었습니다.","action":"checkIn" 또는 "checkOut"} 형식
+                    
                      페이지 정보가 필요하면 dbInfo를 참고
                 """ + dbInfo.toString();
 
@@ -210,4 +230,38 @@ public class AiChatController {
         }
         return "(AI 응답 파싱 실패)";
     }
+    private String markAttendance(String action) {
+        Long userId = ((CustomUserDetails) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal()).getUserId();
+
+        String checkSql = "SELECT id, check_in_at, check_out_at FROM attendance_log WHERE user_id = ? AND work_date = CURDATE()";
+        List<Map<String, Object>> list = jdbcTemplate.queryForList(checkSql, userId);
+
+        if(list.isEmpty()) {
+            // 오늘 기록이 없으면 새 레코드 삽입
+            String insertSql = "INSERT INTO attendance_log(user_id, work_date, check_in_at, created_at, updated_at) VALUES (?, CURDATE(), ?, NOW(), NOW())";
+            String insertSqlOut = "INSERT INTO attendance_log(user_id, work_date, check_out_at, created_at, updated_at) VALUES (?, CURDATE(), ?, NOW(), NOW())";
+
+            if("checkIn".equals(action)) jdbcTemplate.update(insertSql, userId, new java.sql.Timestamp(System.currentTimeMillis()));
+            else if("checkOut".equals(action)) jdbcTemplate.update(insertSqlOut, userId, new java.sql.Timestamp(System.currentTimeMillis()));
+
+            return "ok"; // 새로 기록됨
+        } else {
+            Map<String, Object> record = list.get(0);
+            if("checkIn".equals(action)) {
+                if(record.get("check_in_at") == null) {
+                    jdbcTemplate.update("UPDATE attendance_log SET check_in_at = ?, updated_at = NOW() WHERE id = ?", new java.sql.Timestamp(System.currentTimeMillis()), record.get("id"));
+                    return "ok"; // 새로 기록됨
+                } else return "already"; // 이미 기록됨
+            } else if("checkOut".equals(action)) {
+                if(record.get("check_out_at") == null) {
+                    jdbcTemplate.update("UPDATE attendance_log SET check_out_at = ?, updated_at = NOW() WHERE id = ?", new java.sql.Timestamp(System.currentTimeMillis()), record.get("id"));
+                    return "ok"; // 새로 기록됨
+                } else return "already"; // 이미 기록됨
+            }
+        }
+        return "already";
+    }
+
 }
+
