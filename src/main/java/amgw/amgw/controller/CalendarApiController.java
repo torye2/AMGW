@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,7 +53,7 @@ public class CalendarApiController {
         service.delete(id);
         return ResponseEntity.noContent().build();
     }
-
+/*
     private Map<String,Object> toFullCalendar(CalendarEvent e){
         // FullCalendar는 start/end를 “로컬 또는 Z”로 기대 → UTC ISO 문자열 반환(Z)
         return Map.of(
@@ -69,6 +70,32 @@ public class CalendarApiController {
                 "borderColor", e.getColor()
         );
     }
+
+ */
+    // after (안전)
+    private Map<String, Object> toFullCalendar(CalendarEvent ev) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id", ev.getId());
+        m.put("title", ev.getTitle() != null ? ev.getTitle() : "(제목 없음)");
+        m.put("start", ev.getStartUtc().toString());
+
+        if (ev.getEndUtc() != null) {
+            m.put("end", ev.getEndUtc().toString());
+        } // end는 없어도 FullCalendar가 처리 가능
+
+        m.put("allDay", ev.isAllDay());
+
+        if (ev.getColor() != null && !ev.getColor().isBlank()) {
+            m.put("color", ev.getColor());
+        }
+
+        // 필요하면 확장 필드도 안전하게 추가
+        if (ev.getDescription() != null) m.put("description", ev.getDescription());
+        if (ev.getLocation() != null)    m.put("location", ev.getLocation());
+
+        return m;
+    }
+
 
     private Instant toUtc(String isoLocalOrZ, boolean allDay, String tz){
         // allDay면 YYYY-MM-DD만 올 수 있음 → 해당 타임존의 00:00 기준으로 UTC 변환
