@@ -14,8 +14,6 @@
     <!-- CSRF (fetch에서 헤더로 전송) -->
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-
-    <link rel="stylesheet" th:href="@{/css/chat.css}" />
 </head>
 <body class="bg-slate-50 text-slate-800">
 <div class="min-h-dvh grid grid-rows-[auto,1fr]">
@@ -36,17 +34,22 @@
         </div>
 
         <!-- 1:1 방 생성 -->
-        <form id="directForm" method="post" action="#" class="mt12">
-            <input type="number" name="userId" placeholder="상대 userId" class="full input-pad"/>
-            <button type="submit" class="full mt6">1:1 방 만들기</button>
-        </form>
+        <div class="form-card mt12">
+            <form id="directForm" method="post" action="#" class="mt12">
+                <input type="number" name="userId" placeholder="상대 userId" class="full input-pad"/>
+                <button type="submit" class="full mt6">1:1 방 만들기</button>
+            </form>
+        </div>
 
         <!-- 그룹 방 만들기 (userId 여러 명) -->
-        <form id="createGroupForm" method="post" action="#" class="space-y-2 mt12">
-            <input name="name" class="full input-pad" placeholder="그룹명 (예: 프로젝트 A)"/>
-            <input name="userIds" class="full input-pad" placeholder="초대 userId들(쉼표: 1,2,3)"/>
-            <button class="full mt6" type="submit">그룹 방 만들기</button>
-        </form>
+        <div class="form-card mt12">
+            <div class="form-card-title">그룹 방 만들기</div>
+            <form id="createGroupForm" method="post" action="#" class="space-y-2">
+                <input name="name" class="full input-pad form-input" placeholder="그룹명 (예: 프로젝트 A)"/>
+                <input name="userIds" class="full input-pad form-input" placeholder="초대 userId들(쉼표: 1,2,3)"/>
+                <button class="full mt6 form-btn" type="submit">그룹 방 만들기</button>
+            </form>
+        </div>
     </aside>
 
     <!-- 본문: 타이틀 / 메시지 / 입력 -->
