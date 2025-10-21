@@ -3,26 +3,44 @@
 <head>
     <meta charset="utf-8" />
     <title>전자결재</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" th:href="@{/css/styles.css}" />
     <meta name="_csrf" th:content="${_csrf.token}" />
     <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
-<body class="container py-6">
-<div class="flex items-center justify-between mb-4">
-    <h1 class="h1">전자결재</h1>
-    <a class="btn" href="/approvals/new">새 결재</a>
+<body class="bg-slate-50 text-slate-800"
+      th:with="activePage='approvals'">
+<!-- 전체 페이지 레이아웃: 위(헤더) / 아래(콘텐츠영역 그리드) -->
+<div class="min-h-dvh grid grid-rows-[auto,1fr]">
+
+    <!-- 상단 헤더 -->
+    <div th:replace="~{fragments/header :: siteHeader}"></div>
+
+    <!-- 좌: 사이드바 / 우: 메인 -->
+    <div class="grid grid-cols-[16rem,1fr] min-h-0">
+        <!-- 사이드바 -->
+        <div th:replace="~{fragments/sidebar :: siteSidebar}"></div>
+
+        <!-- 메인 콘텐츠 -->
+        <main class="p-6 overflow-auto">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-semibold">전자결재</h1>
+                <a class="btn" href="/approvals/new">새 결재</a>
+            </div>
+
+            <h2 class="text-lg font-medium mt-6">내 문서</h2>
+            <ul id="myList" class="list">
+                <li class="list-item skeleton">불러오는 중…</li>
+            </ul>
+
+            <h2 class="text-lg font-medium mt-8">결재할 문서</h2>
+            <ul id="inbox" class="list">
+                <li class="list-item skeleton">불러오는 중…</li>
+            </ul>
+        </main>
+    </div>
 </div>
-
-<h2 class="h2 mt-6">내 문서</h2>
-<ul id="myList" class="list">
-    <li class="list-item skeleton">불러오는 중…</li>
-</ul>
-
-<h2 class="h2 mt-8">결재할 문서</h2>
-<ul id="inbox" class="list">
-    <li class="list-item skeleton">불러오는 중…</li>
-</ul>
 
 <script>
     const csrf = document.querySelector('meta[name="_csrf"]')?.content;

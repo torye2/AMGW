@@ -1,0 +1,54 @@
+<aside th:fragment="siteSidebar" id="sidebar" xmlns:th="http://www.thymeleaf.org"
+       class="sidebar">
+    <nav class="nav">
+        <a class="nav-item active" th:href="@{/}">
+            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0h6"/></svg>
+            홈
+        </a>
+        <a class="nav-item" th:href="@{/approvals}">
+            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-7 4h8M7 8h10M5 5h14a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+            전자결재
+        </a>
+        <a class="nav-item" th:href="@{/chat}">
+            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l9 6 9-6M4 6h16a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>
+            메일/채팅
+        </a>
+        <a class="nav-item" th:href="@{/meetings}">
+            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14m-2 3H6a2 2 0 01-2-2V9a2 2 0 012-2h7a2 2 0 012 2v6a2 2 0 01-2 2z"/>
+            </svg>
+            화상회의
+        </a>
+        <a class="nav-item" th:href="@{/documents}">
+            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 6h8M8 10h8m-8 4h4M5 4h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V6a2 2 0 012-2z"/></svg>
+            문서관리
+        </a>
+        <a class="nav-item" th:href="@{/calendar}">
+            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
+            캘린더
+        </a>
+        <a class="nav-item" th:href="@{/attendance}">
+            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            근태관리
+        </a>
+        <a class="nav-item" th:href="@{/admin/users}">
+            <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l9-5-9-5-9 5 9 5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15l9-5-9-5-9 5 9 5zm0 0v6"/></svg>
+            관리자
+        </a>
+    </nav>
+
+    <!-- 하단 사용자 정보 -->
+    <div class="p-4 border-t border-slate-200">
+        <div th:if="${me != null}" class="flex items-center gap-2">
+            <img id="avatar" class="avatar" src="https://i.pravatar.cc/80" alt="avatar"/>
+            <div>
+                <p class="font-medium text-sm" th:text="${me.name}">사용자명</p>
+                <p class="text-xs text-slate-500" th:text="${me.department}">부서명</p>
+            </div>
+        </div>
+        <div th:if="${me == null}">
+            <a th:href="@{/login}" class="text-sm text-blue-600 hover:underline">로그인</a>
+        </div>
+    </div>
+</aside>

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class AttendancePageController {
     private final CurrentUserService current;
 
-    @GetMapping("/attendance.html")
+    @GetMapping("/attendance")
     public String page(Model model){
         model.addAttribute("meId", current.currentUserId());
         return "attendance"; // templates/attendance.html

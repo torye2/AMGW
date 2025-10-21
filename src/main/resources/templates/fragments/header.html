@@ -1,0 +1,71 @@
+<header th:fragment="siteHeader" class="site-header" xmlns:th="http://www.thymeleaf.org">
+    <div class="container h-16 flex items-center gap-3">
+        <button id="btnSidebar" class="icon-btn md:hidden" aria-label="메뉴 열기">
+            <!-- 햄버거 아이콘 -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+        </button>
+
+        <a th:href="@{/}" class="brand">
+            <span class="brand-badge">GW</span>
+            <span>Groupware</span>
+        </a>
+
+        <div class="ml-auto flex items-center gap-2">
+            <!-- 검색 -->
+            <div class="hidden md:block">
+                <label class="search">
+                    <span class="sr-only">검색</span>
+                    <span class="search-icon">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon-sm text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.3-4.3M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"/></svg>
+                        </span>
+                    <input id="globalSearch" type="search" placeholder="검색 (문서/결재/사람)" class="search-input" />
+                </label>
+            </div>
+
+            <!-- 알림 -->
+            <div class="relative">
+                <button id="btnNotif" class="icon-btn relative" aria-label="알림">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/>
+                    </svg>
+                    <span id="notifBadge" class="badge hidden">0</span>
+                </button>
+
+                <!-- ▼ 알림 드롭다운 -->
+                <div id="notifMenu" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 hidden">
+                    <div class="px-3 py-2 text-sm font-medium border-b">알림</div>
+                    <ul id="notifList" class="max-h-96 overflow-auto divide-y"></ul>
+                    <div id="notifEmpty" class="px-3 py-6 text-sm text-slate-500 text-center hidden">새 알림이 없습니다.</div>
+                </div>
+            </div>
+
+            <!-- 프로필 (로그인 상태) -->
+            <div class="relative" th:if="${me != null}">
+                <button id="btnProfile" class="profile-btn">
+                    <img id="avatar" class="avatar" src="https://i.pravatar.cc/80" alt="avatar"/>
+                    <span id="displayName" class="hidden sm:inline text-sm" th:text="${me.name}">사용자</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon-sm text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                    </svg>
+                </button>
+                <div id="menuProfile" class="dropdown hidden">
+                    <a href="/mypage.html" class="dropdown-item">마이페이지</a>
+                    <a href="/settings.html" class="dropdown-item">설정</a>
+                    <form th:action="@{/logout}" method="post" style="display:inline">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+                        <button id="btnLogout" class="dropdown-item w-full text-left">로그아웃</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 비로그인 상태 -->
+            <div class="relative" th:if="${me == null}">
+                <a id="loginBtn" class="hidden sm:inline text-sm" th:href="@{/login}">로그인</a>
+            </div>
+        </div>
+    </div>
+</header>

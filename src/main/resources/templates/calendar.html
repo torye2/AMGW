@@ -1,189 +1,315 @@
-<!-- templates/calendar.html -->
 <!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <title>캘린더</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AMU GROUP WARE · 캘린더</title>
+
+    <!-- Tailwind + site css -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+
+    <!-- CSRF (Thymeleaf) -->
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+
+    <!-- FullCalendar -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+    <style>
+        .container { max-width: 1100px; margin: 0 auto; }
+        /* 모달 베이스 */
+        .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,.35); z-index: 60; }
+        .modal.open { display: flex; }
+        .modal-panel { background: #fff; border-radius: .75rem; width: 100%; max-width: 520px; padding: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,.15); }
+        .modal-open .fc { pointer-events: none; } /* 모달 열리면 캘린더 배경 클릭 막기 */
+        .modal { pointer-events: auto; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+        .label { font-size: .875rem; color: #475569; margin-bottom: .25rem; display:block; }
+        .input, .select, .textarea {
+          width:100%; border:1px solid #e2e8f0; border-radius:.5rem; padding:.5rem .75rem;
+          font-size:.95rem; outline:none;
+        }
+        .input:focus, .select:focus, .textarea:focus { border-color:#94a3b8; box-shadow: 0 0 0 3px rgba(148,163,184,.25); }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-800">
-<div class="container mx-auto p-4">
-    <div class="flex items-center justify-between mb-4">
-        <h1 class="text-2xl font-semibold">내 캘린더</h1>
-        <div class="flex gap-2">
-            <button id="btnToday" class="btn">오늘</button>
-            <button id="btnNew" class="btn btn-ghost">새 일정</button>
-        </div>
-    </div>
+<div class="min-h-dvh grid grid-rows-[auto,1fr]">
 
-    <div id="calendar" class="bg-white rounded-2xl p-3 shadow"></div>
+    <!-- 헤더(필요시 프로젝트 공용과 동일하게) -->
+    <header class="site-header">
+        <div class="container h-16 flex items-center gap-3 px-4">
+            <a href="/" class="brand">
+                <span class="brand-badge">GW</span>
+                <span>Groupware</span>
+            </a>
+            <div class="ml-auto flex items-center gap-2">
+                <a th:href="@{/}" class="btn btn-ghost">홈</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 본문 -->
+    <main class="container px-4 py-6 space-y-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-semibold">캘린더</h1>
+                <p class="text-slate-500 text-sm">일정을 확인하고 추가하세요.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="btnNewEvent" class="btn">+ 새 일정</button>
+            </div>
+        </div>
+
+        <!-- 캘린더 -->
+        <div id="calendar" class="bg-white rounded-xl border border-slate-200 p-2"></div>
+    </main>
 </div>
 
-<!-- 간단 모달 -->
-<div id="modal" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4">
-    <div class="bg-white w-full max-w-md rounded-2xl p-4 space-y-3">
-        <h2 class="text-lg font-semibold" id="modalTitle">일정</h2>
-        <input type="hidden" id="evId">
-        <label class="block text-sm">제목
-            <input id="evTitle" class="input" placeholder="제목"/>
-        </label>
-        <label class="block text-sm">장소
-            <input id="evLoc" class="input" placeholder="회의실 A / 구글밋 링크 등"/>
-        </label>
-        <label class="block text-sm">설명
-            <textarea id="evDesc" class="input" rows="3" placeholder="상세 내용"></textarea>
-        </label>
-        <div class="flex items-center gap-2">
-            <input type="checkbox" id="evAllDay"><label for="evAllDay" class="text-sm">종일</label>
+<!-- 일정 모달 -->
+<div id="eventModal" class="modal" aria-hidden="true">
+    <div class="modal-panel" role="dialog" aria-modal="true">
+        <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-semibold">새 일정</h3>
+            <button id="btnCloseModal" class="icon-btn" aria-label="닫기" title="닫기"
+                    style="border:none;background:transparent;">
+                ✕
+            </button>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <label class="block text-sm">시작
-                <input id="evStart" type="datetime-local" class="input"/>
-            </label>
-            <label class="block text-sm">종료
-                <input id="evEnd" type="datetime-local" class="input"/>
-            </label>
-        </div>
-        <div class="flex gap-2 justify-end">
-            <button id="btnDelete" class="btn btn-ghost hidden">삭제</button>
-            <button id="btnCancel" class="btn btn-ghost">취소</button>
-            <button id="btnSave" class="btn">저장</button>
-        </div>
+        <form id="eventForm" class="space-y-3">
+            <div>
+                <label class="label">제목</label>
+                <input class="input" type="text" name="title" placeholder="예: 주간 스탠드업" required />
+            </div>
+            <div class="form-row">
+                <div>
+                    <label class="label">시작</label>
+                    <input class="input" type="datetime-local" name="start" required />
+                </div>
+                <div>
+                    <label class="label">종료</label>
+                    <input class="input" type="datetime-local" name="end" />
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <input id="allDay" type="checkbox" class="accent-slate-700">
+                <label for="allDay" class="text-sm text-slate-700">하루 종일</label>
+            </div>
+            <div>
+                <label class="label">설명</label>
+                <textarea class="textarea" name="description" rows="3" placeholder="설명(선택)"></textarea>
+            </div>
+            <div>
+                <label class="label">장소</label>
+                <input class="input" type="text" name="location" placeholder="회의실 A (선택)" />
+            </div>
+            <div class="flex items-center justify-end gap-2 pt-1">
+                <button id="btnCancel" type="button" class="btn btn-ghost">취소</button>
+                <button id="btnSave" type="button" class="btn">저장</button>
+            </div>
+        </form>
     </div>
 </div>
+
+<!-- 공용 스크립트들(있으면) -->
+<script defer th:src="@{/js/index.js}"></script>
 
 <script>
-    const csrfToken  = document.querySelector('meta[name="_csrf"]')?.content;
-    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.content;
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // ------ CSRF ------
+    const CSRF_TOKEN  = document.querySelector('meta[name="_csrf"]')?.content;
+    const CSRF_HEADER = document.querySelector('meta[name="_csrf_header"]')?.content;
 
-    const modal = document.getElementById('modal');
-    const evId = document.getElementById('evId');
-    const evTitle = document.getElementById('evTitle');
-    const evLoc = document.getElementById('evLoc');
-    const evDesc = document.getElementById('evDesc');
-    const evAllDay = document.getElementById('evAllDay');
-    const evStart = document.getElementById('evStart');
-    const evEnd = document.getElementById('evEnd');
-    const btnDelete = document.getElementById('btnDelete');
+    // ------ Modal helpers ------
+    const modal = document.getElementById('eventModal');
+    const form  = document.getElementById('eventForm');
+    const btnNewEvent   = document.getElementById('btnNewEvent');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnCancel     = document.getElementById('btnCancel');
+    const btnSave       = document.getElementById('btnSave');
+    const allDayEl      = document.getElementById('allDay');
 
-    let calendar;
+    function openModal({title='', start=null, end=null, allDay=false} = {}){
+      // 값 채우기
+      form.title.value = title || '';
+      allDayEl.checked = !!allDay;
 
-    function openModal(data){
-      modal.classList.remove('hidden','opacity-0');
-      if(data){
-        document.getElementById('modalTitle').textContent = '일정 수정';
-        evId.value = data.id || '';
-        evTitle.value = data.title || '';
-        evLoc.value = data.extendedProps?.location || '';
-        evDesc.value = data.extendedProps?.description || '';
-        evAllDay.checked = !!data.allDay;
-        // FullCalendar는 ISO(Z) 제공 → 로컬 input 값으로 변환
-        const toLocal = iso => iso ? new Date(iso).toISOString().slice(0,16) : '';
-        evStart.value = data.start ? toLocal(data.start) : '';
-        evEnd.value = data.end ? toLocal(data.end) : '';
-        btnDelete.classList.toggle('hidden', !data.id);
-      }else{
-        document.getElementById('modalTitle').textContent = '새 일정';
-        evId.value = ''; evTitle.value=''; evLoc.value=''; evDesc.value='';
-        evAllDay.checked = false; evStart.value=''; evEnd.value='';
-        btnDelete.classList.add('hidden');
+      // datetime-local 값 포맷팅
+      const toLocalInput = (d) => {
+        if(!d) return '';
+        // d는 Date 또는 ISO 문자열
+        const dt = (d instanceof Date) ? d : new Date(d);
+        const pad = n => String(n).padStart(2,'0');
+        const yyyy = dt.getFullYear();
+        const mm   = pad(dt.getMonth()+1);
+        const dd   = pad(dt.getDate());
+        const hh   = pad(dt.getHours());
+        const mi   = pad(dt.getMinutes());
+        return `${yyyy}-${mm}-${dd}T${hh}:${mi}`;
+      };
+
+      const now = new Date();
+      const startDefault = start ? new Date(start) : now;
+      const endDefault   = end   ? new Date(end)   : new Date(now.getTime() + 60*60*1000);
+
+      form.start.value = toLocalInput(startDefault);
+      form.end.value   = toLocalInput(endDefault);
+
+      document.documentElement.classList.add('modal-open');
+      modal.classList.add('open');
+    }
+    function closeModal(){
+      modal.classList.remove('open');
+      document.documentElement.classList.remove('modal-open');
+    }
+
+    // 모달 내부 버튼: 이벤트 버블링 차단!
+    [btnSave, btnCancel, btnCloseModal].forEach(btn=>{
+      btn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    // 바깥 클릭 시 닫기 (패널 내부는 전파 차단)
+    modal.addEventListener('click', (e)=>{
+      if(e.target === modal) closeModal();
+    });
+
+    btnCancel.addEventListener('click', () => closeModal());
+    btnCloseModal.addEventListener('click', () => closeModal());
+    btnNewEvent?.addEventListener('click', () => openModal({}));
+
+    // ------ FullCalendar ------
+    const calendarEl = document.getElementById('calendar');
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      height: 'auto',
+      initialView: 'dayGridMonth',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+      },
+      locale: 'ko',
+      navLinks: true,
+      selectable: true,
+      dayMaxEvents: true,
+      // 모달 영역 클릭은 선택 취소/배경 클릭으로 처리하지 않도록
+      unselectCancel: '.modal, .modal *',
+
+      // 월이동/주이동시 서버에서 이벤트 로드
+      datesSet: async (info) => {
+        await loadEvents(info.startStr, info.endStr);
+      },
+
+      // 날짜 클릭 → 모달 오픈
+      dateClick: (info) => {
+        // 하루 종일 기본
+        openModal({ start: info.dateStr + 'T09:00', end: info.dateStr + 'T10:00', allDay: false });
+      },
+
+      // 드래그로 범위 선택 → 모달 오픈
+      select: (info) => {
+        openModal({ start: info.startStr, end: info.endStr, allDay: info.allDay });
+      },
+
+      // 기존 이벤트 클릭 시(선택) 상세/수정으로 확장 가능
+      eventClick: (info) => {
+        const ev = info.event;
+        openModal({
+          title: ev.title,
+          start: ev.start,
+          end: ev.end || ev.start,
+          allDay: ev.allDay
+        });
+        // 저장 시 update 로직을 붙이려면 ev.id 를 어딘가에 보관
+        form.dataset.eventId = ev.id || '';
+      }
+    });
+    calendar.render();
+
+    // ------ 서버 연동: 목록 로드 ------
+    async function loadEvents(startISO, endISO){
+      try{
+        // 서버 API는 예시(/api/calendar/events?start=...&end=...)로 가정
+        const res = await fetch(`/api/calendar/events?start=${encodeURIComponent(startISO)}&end=${encodeURIComponent(endISO)}`, {
+          credentials: 'same-origin'
+        });
+        if(!res.ok) throw new Error('failed to load events');
+        const events = await res.json(); // [{id,title,start,end,allDay,backgroundColor,...}]
+        calendar.removeAllEvents();
+        calendar.addEventSource(events);
+      }catch(err){
+        console.error(err);
       }
     }
-    function closeModal(){ modal.classList.add('hidden'); }
 
-    document.getElementById('btnCancel').onclick = closeModal;
-    modal.addEventListener('click', (e)=>{ if(e.target === modal) closeModal(); });
+    // ------ 저장(추가/수정) ------
+    btnSave.addEventListener('click', async (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
 
-    document.getElementById('btnNew').onclick = ()=> openModal(null);
+      // 읽기
+      const title = form.title.value.trim();
+      const allDay = allDayEl.checked;
+      const start  = form.start.value; // "YYYY-MM-DDTHH:mm"
+      const end    = form.end.value;
+      const description = form.description.value?.trim() || '';
+      const location    = form.location.value?.trim() || '';
 
-    document.getElementById('btnSave').onclick = async ()=>{
-      const body = {
-        title: evTitle.value?.trim(),
-        location: evLoc.value?.trim(),
-        description: evDesc.value?.trim(),
-        allDay: evAllDay.checked,
-        start: evAllDay.checked ? evStart.value.slice(0,10) : evStart.value, // YYYY-MM-DD | YYYY-MM-DDTHH:mm
-        end: evEnd.value ? (evAllDay.checked ? evEnd.value.slice(0,10) : evEnd.value) : null,
-        tz
-      };
-      const hasId = !!evId.value;
-      const url = hasId ? `/api/calendar/events/${evId.value}` : `/api/calendar/events`;
-      const method = hasId ? 'PATCH' : 'POST';
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type':'application/json', ...(csrfHeader&&csrfToken?{[csrfHeader]:csrfToken}:{}) },
-        body: JSON.stringify(body)
-      });
-      if(!res.ok){ alert('저장 실패'); return; }
-      closeModal();
-      calendar.refetchEvents();
-    };
+      if(!title){ form.title.focus(); return; }
+      if(!start){ form.start.focus(); return; }
 
-    btnDelete.onclick = async ()=>{
-      if(!evId.value) return;
-      if(!confirm('삭제하시겠습니까?')) return;
-      const res = await fetch(`/api/calendar/events/${evId.value}`, {
-        method:'DELETE',
-        headers: { ...(csrfHeader&&csrfToken?{[csrfHeader]:csrfToken}:{}) }
-      });
-      if(res.ok){ closeModal(); calendar.refetchEvents(); }
-    };
+      // 서버로 저장 (신규/수정 분기)
+      const isUpdate = !!form.dataset.eventId;
+      const url  = isUpdate ? `/api/calendar/events/${form.dataset.eventId}` : '/api/calendar/events';
+      const meth = isUpdate ? 'PUT' : 'POST';
 
-    document.addEventListener('DOMContentLoaded', function() {
-      const calendarEl = document.getElementById('calendar');
-      calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'ko',
-        height: 'auto',
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        selectable: true,
-        selectMirror: true,
-        select: (info)=>{
-          openModal({
-            start: info.startStr,
-            end: info.endStr,
-            allDay: info.allDay
-          });
-          // 기본 선택 해제(파란 하이라이트 제거)
-          calendar.unselect();
-        },
-        eventClick: (info)=>{
-          openModal({
-            id: info.event.id,
-            title: info.event.title,
-            start: info.event.startStr,
-            end: info.event.endStr,
-            allDay: info.event.allDay,
-            extendedProps: info.event.extendedProps
-          });
-        },
-        events: function(fetchInfo, success, failure){
-          const params = new URLSearchParams({
-            start: fetchInfo.startStr.slice(0,10), // YYYY-MM-DD
-            end: fetchInfo.endStr.slice(0,10),
-            tz
-          });
-          fetch(`/api/calendar/events?`+params.toString(), { credentials:'same-origin' })
-            .then(r=> r.ok ? r.json() : Promise.reject())
-            .then(list => success(list))
-            .catch(()=> failure('load failed'));
+      try{
+        const res = await fetch(url, {
+          method: meth,
+          headers: {
+            'Content-Type':'application/json',
+            ...(CSRF_HEADER && CSRF_TOKEN ? { [CSRF_HEADER]: CSRF_TOKEN } : {})
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            title, start, end: end || null, allDay,
+            description, location
+          })
+        });
+        if(!res.ok){
+          const txt = await res.text();
+          throw new Error(txt || 'save failed');
         }
-      });
-      calendar.render();
+        const saved = await res.json(); // {id,...}
 
-      document.getElementById('btnToday').onclick = ()=> calendar.today();
+        // 캘린더에 반영(신규/업데이트)
+        if(isUpdate){
+          const ev = calendar.getEventById(form.dataset.eventId);
+          if(ev){
+            ev.setProp('title', title);
+            ev.setDates(start, end || null, { allDay });
+          }else{
+            calendar.addEvent({ id: saved.id, title, start, end: end || null, allDay });
+          }
+        }else{
+          calendar.addEvent({ id: saved.id, title, start, end: end || null, allDay });
+        }
+
+        closeModal();
+        calendar.unselect();
+      }catch(err){
+        console.error(err);
+        alert('저장에 실패했습니다.');
+      }
     });
+
+    // 페이지 진입 직후 현재 범위 이벤트 로드(초기 1회)
+    (async function bootstrapLoad(){
+      const view = calendar.view;
+      await loadEvents(view.currentStart.toISOString(), view.currentEnd.toISOString());
+    })();
 </script>
 </body>
 </html>
