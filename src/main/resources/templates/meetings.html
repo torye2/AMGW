@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title>화상회의(베타)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body class="p-4">
+<div class="max-w-5xl mx-auto">
+    <h1 class="text-2xl font-bold mb-3">화상회의(자체 WebRTC)</h1>
+
+    <div class="flex gap-2 mb-3">
+        <input id="room" class="border rounded px-3 py-2 flex-1" placeholder="회의방 이름" />
+        <button id="btnJoin" class="bg-slate-800 text-white px-4 py-2 rounded">입장</button>
+        <button id="btnLeave" class="bg-slate-200 px-4 py-2 rounded">나가기</button>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <video id="localVideo" autoplay playsinline muted class="w-full rounded border bg-black/80"></video>
+        <div id="remotes" class="grid grid-cols-1 gap-4"></div>
+    </div>
+</div>
+
+<script>
+    const uid = crypto.randomUUID(); // 세션 식별 (실서비스는 서버세션/사용자ID 사용)
+    let stomp, roomName, localStream;
+    const peers = new Map(); // peerId -> RTCPeerConnection
+
+    const rtcConfig = {
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" } // 개발용 STUN
+        // 운영은 TURN 추가: { urls:"turn:turn.example.com:3478", username:"...", credential:"..." }
+      ]
+    };
+
+    function connectStomp(){
+      const sock = new SockJS('/ws');
+      stomp = Stomp.over(sock);
+      stomp.debug = () => {};
+      stomp.connect({}, () => {
+        stomp.subscribe(`/topic/webrtc/${roomName}`, onSignal);
+        // 방 참여 공지(다른 참가자가 offer 만들도록 트리거)
+        publish({ type: 'join', from: uid });
+      });
+    }
+
+    function publish(payload){
+      stomp?.send(`/app/webrtc/${roomName}`, {}, JSON.stringify(payload));
+    }
+
+    async function onSignal(frame){
+      const msg = JSON.parse(frame.body);
+      if(msg.from === uid) return; // 내 메시지는 무시
+
+      switch(msg.type){
+        case 'join':
+          // 새 참가자가 들어오면 내가 offer 생성 (mesh 방식)
+          await ensurePeer(msg.from, true); // createOffer
+          break;
+
+        case 'offer':
+          await ensurePeer(msg.from, false); // createAnswer
+          await peers.get(msg.from).setRemoteDescription(new RTCSessionDescription(msg.sdp));
+          const answer = await peers.get(msg.from).createAnswer();
+          await peers.get(msg.from).setLocalDescription(answer);
+          publish({ type:'answer', from: uid, to: msg.from, sdp: peers.get(msg.from).localDescription });
+          break;
+
+        case 'answer':
+          if(msg.to === uid && peers.has(msg.from)){
+            await peers.get(msg.from).setRemoteDescription(new RTCSessionDescription(msg.sdp));
+          }
+          break;
+
+        case 'candidate':
+          if(msg.to === uid && peers.has(msg.from)){
+            try{
+              await peers.get(msg.from).addIceCandidate(msg.candidate);
+            }catch(e){ console.warn(e); }
+          }
+          break;
+
+        case 'leave':
+          removePeer(msg.from);
+          break;
+      }
+    }
+
+    async function ensurePeer(peerId, iAmOfferer){
+      if(peers.has(peerId)) return peers.get(peerId);
+
+      const pc = new RTCPeerConnection(rtcConfig);
+      peers.set(peerId, pc);
+
+      // 내 트랙 붙이기
+      localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+      // 원격 트랙 렌더
+      pc.ontrack = (e) => {
+        let v = document.getElementById('v-' + peerId);
+        if(!v){
+          v = document.createElement('video');
+          v.id = 'v-' + peerId;
+          v.autoplay = true; v.playsInline = true;
+          v.className = 'w-full rounded border bg-black/80';
+          document.getElementById('remotes').appendChild(v);
+        }
+        v.srcObject = e.streams[0];
+      };
+
+      // ICE 후보 전송
+      pc.onicecandidate = (e) => {
+        if(e.candidate){
+          publish({ type:'candidate', from: uid, to: peerId, candidate: e.candidate });
+        }
+      };
+
+      // 내가 Offer 생성해야 하면
+      if(iAmOfferer){
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        publish({ type:'offer', from: uid, to: peerId, sdp: pc.localDescription });
+      }
+      return pc;
+    }
+
+    function removePeer(peerId){
+      const pc = peers.get(peerId);
+      if(pc){ pc.close(); peers.delete(peerId); }
+      const v = document.getElementById('v-' + peerId);
+      if(v){ v.srcObject = null; v.remove(); }
+    }
+
+    async function join(){
+      roomName = document.getElementById('room').value.trim();
+      if(!roomName) return alert('회의방 이름을 입력하세요.');
+
+      // 미디어 권한
+      localStream = await navigator.mediaDevices.getUserMedia({ video:true, audio:true });
+      document.getElementById('localVideo').srcObject = localStream;
+
+      connectStomp();
+    }
+
+    function leave(){
+      publish({ type:'leave', from: uid });
+      peers.forEach((_, id)=> removePeer(id));
+      peers.clear();
+      if(localStream){
+        localStream.getTracks().forEach(t=>t.stop());
+        document.getElementById('localVideo').srcObject = null;
+      }
+      stomp?.disconnect(()=>{});
+    }
+
+    document.getElementById('btnJoin').onclick = join;
+    document.getElementById('btnLeave').onclick = leave;
+</script>
+</body>
+</html>
