@@ -3,11 +3,8 @@ package amgw.amgw.service;
 import amgw.amgw.chat.model.*;
 import amgw.amgw.chat.model.ChatEnums.ChatContentType;
 import amgw.amgw.chat.model.ChatEnums.ChatMemberRole;
-import amgw.amgw.repository.ChatRoomRepository;
+import amgw.amgw.repository.*;
 import amgw.amgw.service.CurrentUserService;
-import amgw.amgw.repository.ChatMessageReadRepository;
-import amgw.amgw.repository.ChatMessageRepository;
-import amgw.amgw.repository.ChatRoomMemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
@@ -26,6 +23,8 @@ public class ChatService {
     private final ChatMessageRepository messageRepo;
     private final ChatMessageReadRepository readRepo;
     private final CurrentUserService current;
+    private final NotificationService notificationService;
+    private final UserRepository userRepo;
 
     /* 방 만들기: 1:1(DIRECT) */
     @Transactional
@@ -110,7 +109,7 @@ public class ChatService {
 
     @Transactional
     public ChatMessage postMessage(Principal principal, Long roomId, String content, ChatContentType type) {
-        Long me = current.resolveUserId(principal); // ★ principal 기반
+        Long me = current.resolveUserId(principal);
         if (!memberRepo.existsByRoomIdAndUserId(roomId, me)) throw new SecurityException("not a member");
 
         ChatMessage msg = new ChatMessage();
@@ -127,8 +126,27 @@ public class ChatService {
         read.setReadAt(LocalDateTime.now());
         readRepo.save(read);
 
+        // 알림 전송
+        String senderName = userRepo.findNameById(me);
+        List<ChatRoomMember> members = memberRepo.findByRoomId(roomId);
+        for (ChatRoomMember m : members) {
+            if (!m.getUserId().equals(me)) {
+                notificationService.pushNotification(
+                        m.getUserId(),
+                        "chat",
+                        senderName + "님이 메시지를 보냈습니다",
+                        Map.of(
+                                "senderName", senderName,
+                                "content", content,
+                                "roomId", roomId
+                        )
+                );
+            }
+        }
         return msg;
     }
+
+
 
     /* 내 방 목록 (아주 간단 버전) */
     @Transactional(readOnly = true)

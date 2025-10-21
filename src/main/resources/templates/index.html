@@ -34,10 +34,22 @@
                     </label>
                 </div>
                 <!-- 알림 -->
-                <button id="btnNotif" class="icon-btn relative" aria-label="알림">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/></svg>
-                    <span id="notifBadge" class="badge hidden">0</span>
-                </button>
+                <div class="relative">
+                    <button id="btnNotif" class="icon-btn relative" aria-label="알림">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2a2 2 0 0 1-.6 1.4L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span id="notifBadge" class="badge hidden">0</span>
+                    </button>
+
+                    <!-- ▼ 알림 드롭다운 -->
+                    <div id="notifMenu" class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 hidden">
+                        <div class="px-3 py-2 text-sm font-medium border-b">알림</div>
+                        <ul id="notifList" class="max-h-96 overflow-auto divide-y"></ul>
+                        <div id="notifEmpty" class="px-3 py-6 text-sm text-slate-500 text-center hidden">새 알림이 없습니다.</div>
+                    </div>
+                </div>
                 <!-- 프로필 -->
                 <div class="relative" th:if="${me != null}">
                     <button id="btnProfile" class="profile-btn">

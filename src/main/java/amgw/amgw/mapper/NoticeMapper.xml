@@ -14,20 +14,24 @@
   	
   	<!-- 특정 공지사항 조회 -->
   	<select id="selectNotice" parameterType="int" resultType="amgw.amgw.dto.NoticeDto">
-  		SELECT * , 
-  			CASE WHEN important = TRUE THEN '중요!' ELSE NULL END AS displayNumber
-  		FROM notice n
-  		WHERE notice_id = #{notice_id}
-  	</select>
+	    SELECT n.*,
+	           u.username,
+	           CASE WHEN n.important = TRUE THEN '중요!' ELSE NULL END AS displayNumber
+	    FROM notice n
+	    JOIN users u ON n.user_id = u.id
+	    WHERE n.notice_id = #{notice_id}
+	</select>
   	
-  	<!-- 공지사항 전체 조회 (페이징 + 중요상단) -->
-  	<select id="selectAllNotices" resultType="amgw.amgw.dto.NoticeDto">
-  		SELECT *,
-  			CASE WHEN important = TRUE THEN '중요!' ELSE NULL END AS displayNumber
-  		FROM notice n
-  		ORDER BY important DESC, notice_id DESC
-  		LIMIT #{limit} OFFSET #{offset}
-  	</select>
+  	<!-- 공지사항 전체 조회 (페이징 + 중요상단 + 작성자 이름) -->
+	<select id="selectAllNotices" resultType="amgw.amgw.dto.NoticeDto">
+	    SELECT n.*,
+	           u.username,
+	           CASE WHEN n.important = TRUE THEN '중요!' ELSE NULL END AS displayNumber
+	    FROM notice n
+	    JOIN users u ON n.user_id = u.id
+	    ORDER BY n.important DESC, n.notice_id DESC
+	    LIMIT #{limit} OFFSET #{offset}
+	</select>
   	
   	<!-- 공지사항 전체 개수 조회 -->
   	<select id="selectNoticeCount" resultType="int">
@@ -93,19 +97,22 @@
   	
   	<!-- 검색 조건에 따라 제목/내용 검색 -->
   	<select id="searchNotices" resultType="amgw.amgw.dto.NoticeDto">
-  		SELECT *
-  		FROM notice
-  		<where>
-  			<if test="searchType == 'title'">
-  				notice_title LIKE CONCAT('%', #{keyword},'%')
-  			</if>
-  			<if test="searchType == 'content'">
-  				notice_title LIKE CONCAT('%', #{keyword},'%')
-  			</if>
-  		</where>
-  		ORDER BY important DESC, notice_id DESC
-  		LIMIT #{limit} OFFSET #{offset}
-  	</select>
+	    SELECT n.*,
+	           u.username,
+	           CASE WHEN n.important = TRUE THEN '중요!' ELSE NULL END AS displayNumber
+	    FROM notice n
+	    JOIN users u ON n.user_id = u.id
+	    <where>
+	        <if test="searchType == 'title'">
+	            n.notice_title LIKE CONCAT('%', #{keyword},'%')
+	        </if>
+	        <if test="searchType == 'content'">
+	            n.notice_detail LIKE CONCAT('%', #{keyword},'%')
+	        </if>
+	    </where>
+	    ORDER BY n.important DESC, n.notice_id DESC
+	    LIMIT #{limit} OFFSET #{offset}
+	</select>
   	
   	<!-- 검색 결과 개수 -->
   	<select id="selectNoticeCountBySearch" resultType="int">

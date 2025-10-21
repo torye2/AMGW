@@ -30,11 +30,11 @@ public class YuJinApplicationTests {
     void testinsertNotice() { 
     	
     	NoticeDto not = new NoticeDto(); 
-    	not.setFile_id(0);
+    	not.setFile_id((long) 0);
     	not.setNotice_count(0);
     	not.setNotice_title("테스트 공지사항");
     	not.setNotice_detail("테스트 공지사항 내용");
-    	not.setUser_id("gwapp");
+    	not.setUsername("gwapp");
     	not.setRegistration_time(Timestamp.valueOf(LocalDateTime.now()));
     	not.setImportant(true);
     	

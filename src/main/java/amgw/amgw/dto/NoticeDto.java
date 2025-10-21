@@ -11,12 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoticeDto {
-	private int notice_id;
-	private int file_id;
-	private int notice_count;
+	private Long notice_id;
+	private Long file_id;
+	private Integer notice_count;
 	private String notice_title;
 	private String notice_detail;
-	private String user_id;
+	private String username;
+	private Long user_id;
 	private Timestamp registration_time;
 	private Timestamp fix_time;
 	private boolean important;
