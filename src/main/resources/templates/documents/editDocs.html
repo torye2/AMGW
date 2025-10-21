@@ -1,0 +1,24 @@
+<!-- templates/documents/edit.html -->
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8"/>
+  <title th:text="'편집: ' + ${title}">문서 편집</title>
+  <script th:src="${@environment.getProperty('app.onlyoffice.server-base-url') + '/web-apps/apps/api/documents/api.js'}"></script>
+  <style>
+    html,body,#editor {height:100%; margin:0}
+  </style>
+</head>
+<body>
+<div id="editor"></div>
+<script>
+  (async () => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const res = await fetch(`/api/docs/${id}/editor-config`, {credentials:'include'});
+    const config = await res.json();
+    new DocsAPI.DocEditor("editor", config);
+  })();
+</script>
+</body>
+</html>

@@ -1,33 +1,50 @@
 ﻿services:
   onlyoffice:
-    restart: "no"
     image: onlyoffice/documentserver:8.1
     container_name: onlyoffice
+    restart: unless-stopped
     environment:
-      JWT_ENABLED: "${ONLYOFFICE_JWT_ENABLED:-true}"
-      JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
+      JWT_ENABLED: "${ONLYOFFICE_JWT_ENABLED}"
+      JWT_SECRET: "${ONLYOFFICE_JWT_SECRET}"
+      JWT_HEADER: "${ONLYOFFICE_JWT_HEADER:-Authorization}"
       TZ: ${TZ:-Asia/Seoul}
     ports:
       - "${ONLYOFFICE_PORT:-8081}:80"
 
-#  portal:
-#    restart: "no"
-#    build: ..
-#    container_name: portal
-#    depends_on:
-#      - db
-#      - onlyoffice
-#    environment:
-#      SPRING_DATASOURCE_URL: "jdbc:mysql://amgw-db.cjmik2sqe1xf.ap-northeast-2.rds.amazonaws.com:3306/gw?useSSL=true&serverTimezone=Asia/Seoul"
-#      SPRING_DATASOURCE_USERNAME: gwapp
-#      SPRING_DATASOURCE_PASSWORD: GwApp!2025
-#      ONLYOFFICE_URL: "http://onlyoffice"   # 내부 통신용
-#      ONLYOFFICE_JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
-#      TZ: ${TZ:-Asia/Seoul}
-#    ports:
-#      - "18080:8080"
-#    volumes:
-#      - ./files:/app/files  # 로컬 저장 쓸 때
+  portal:
+    build: ..
+    container_name: amgw-portal
+    restart: unless-stopped
+    environment:
+      SPRING_DATASOURCE_URL: "jdbc:mysql://amgw-db.cjmik2sqe1xf.ap-northeast-2.rds.amazonaws.com:3306/gw?useSSL=true&serverTimezone=Asia/Seoul"
+      SPRING_DATASOURCE_USERNAME: gwapp
+      SPRING_DATASOURCE_PASSWORD: GwApp!2025
+      ONLYOFFICE_URL: "http://onlyoffice"   # 내부 통신용
+      ONLYOFFICE_JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
+      TZ: ${TZ:-Asia/Seoul}
+    depends_on:
+      - onlyoffice
+    ports:
+      - "18080:8081"
+    volumes:
+      - ./uploads:/uploads
+      - ./logs:/app/logs
+
+  caddy:
+    image: caddy:2.8
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./uploads:/uploads:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - portal
 
 volumes:
-  mysql-data:
+  caddy-data:
+  caddy-config:
