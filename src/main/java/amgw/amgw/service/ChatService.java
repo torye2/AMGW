@@ -126,15 +126,14 @@ public class ChatService {
         read.setReadAt(LocalDateTime.now());
         readRepo.save(read);
 
-        // 🔔 알림: 본인 제외 방 멤버에게
-        String senderName = userRepo.findNameById(me); // ✅ 표시용 이름
+        // 알림 전송
+        String senderName = userRepo.findNameById(me);
         List<ChatRoomMember> members = memberRepo.findByRoomId(roomId);
         for (ChatRoomMember m : members) {
             if (!m.getUserId().equals(me)) {
                 notificationService.pushNotification(
                         m.getUserId(),
                         "chat",
-                        // DB summary(짧은 미리보기)
                         senderName + "님이 메시지를 보냈습니다",
                         Map.of(
                                 "senderName", senderName,
@@ -146,6 +145,7 @@ public class ChatService {
         }
         return msg;
     }
+
 
 
     /* 내 방 목록 (아주 간단 버전) */

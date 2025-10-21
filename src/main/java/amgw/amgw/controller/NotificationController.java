@@ -2,12 +2,15 @@ package amgw.amgw.controller;
 
 import amgw.amgw.config.CustomUserDetails;
 import amgw.amgw.entity.Notification;
+import amgw.amgw.service.CurrentUserService;
 import amgw.amgw.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -15,22 +18,34 @@ import java.util.List;
 public class NotificationController {
 
     private final NotificationService service;
+    private final CurrentUserService current;
 
-    // 미확인 알림 조회
+    /** 미확인 목록 (세션 사용자) */
     @GetMapping("/unread")
-    public List<Notification> unread(@AuthenticationPrincipal CustomUserDetails me){
-        return service.getUnread(me.getUserId());
+    public List<Map<String,Object>> unread(){
+        Long me = current.currentUserId();
+        return service.getUnread(me).stream().map(n -> {
+            Map<String,Object> m = new LinkedHashMap<>();
+            m.put("id", n.getId());
+            m.put("type", n.getType());
+            m.put("summary", n.getSummary());
+            m.put("data", n.getData());           // 클라이언트에서 JSON.parse()
+            m.put("createdAt", n.getCreatedAt()); // 표시용
+            return m;
+        }).toList();
     }
 
-    // 특정 알림 읽음 처리
-    @PostMapping("/read")
-    public void read(@RequestParam Long notificationId){
-        service.markAsRead(notificationId);
+    /** 단건 읽음 */
+    @PostMapping("/read-one")
+    public void readOne(@RequestParam("id") Long id){
+        service.markAsRead(id);
     }
 
-    // 모든 알림 읽음 처리
-    @PostMapping("/read-all")
-    public void readAll(@AuthenticationPrincipal CustomUserDetails me){
-        service.getUnread(me.getUserId()).forEach(n -> service.markAsRead(n.getId()));
+    /** 같은 채팅방 알림 묶음 읽음 */
+    @PostMapping("/read-by-room")
+    public void readByRoom(@RequestParam("roomId") Long roomId){
+        Long me = current.currentUserId();
+        service.markAllByRoom(me, roomId);
     }
 }
+
