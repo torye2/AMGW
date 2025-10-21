@@ -164,9 +164,9 @@
 					</div>
 						
 					<div class="Notice_Lbtn"> 
-						<button type="button" onclick="location.href='/Notice_W'">등록</button>
-						<button id="fix" type="button">수정</button>
-						<button id="delete" type="submit">삭제</button>
+						<button th:if="${me.roles.contains('ROLE_ADMIN')}" type="button" onclick="location.href='/Notice_W'">글쓰기</button>
+						<button th:if="${me.roles.contains('ROLE_ADMIN')}" id="fix" type="button">수정</button>
+						<button th:if="${me.roles.contains('ROLE_ADMIN')}" id="delete" type="submit">삭제</button>
 					</div>
 				</form>
 			</div>

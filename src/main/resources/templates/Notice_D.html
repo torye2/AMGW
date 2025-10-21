@@ -128,12 +128,12 @@
 			<div class="Notice_D-Btn">
 				<form th:action="@{/Notice_W}" method="get" id="fix_form">
 					<input type="hidden" name="notice_id" th:value="${notice.notice_id}" />
-					<button type="submit">수정</button>
+					<button th:if="${me.roles.contains('ROLE_ADMIN')}" type="submit">수정</button>
 				</form>
 				
 				<form th:action="@{/Notice_Delete}" method="post" id="delete_form">
 					<input type="hidden" name="noticeIds" th:value="${notice.notice_id}" />
-					<button type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
+					<button th:if="${me.roles.contains('ROLE_ADMIN')}" type="submit" onclick="return confirm('정말 삭제하시겠습니까?');">삭제</button>
 				</form>
 				
 				<form th:action="@{/Notice_L}" method="get" id="list_form">
