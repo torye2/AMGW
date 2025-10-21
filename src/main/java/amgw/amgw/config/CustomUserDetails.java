@@ -25,6 +25,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private final String email;
     private final UserStatus status;    // PENDING/ACTIVE/INACTIVE/SUSPENDED/TERMINATED
     private final List<String> roles;   // ["ROLE_EMPLOYEE", "ROLE_ADMIN"...]
+    private final String department;
     private final LocalDateTime createdAt;
     private final EmailVerifyStatus emailVerifyStatus;
     private final LocalDateTime emailVerifiedAt;

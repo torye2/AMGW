@@ -63,7 +63,7 @@ public class AiChatController {
                 JsonObject autoFillData = obj.getAsJsonObject("autoFillData");
                 Map<String, String> responseMap = Map.of(
                         "answer", answer != null ? answer : "휴가 신청 페이지로 이동합니다.",
-                        "redirect", redirect != null ? redirect : "/attendance.html",
+                        "redirect", redirect != null ? redirect : "/attendance",
                         "type", autoFillData.get("type").getAsString(),
                         "reason", autoFillData.get("reason").getAsString(),
                         "startDate", autoFillData.get("startDate").getAsString(),
