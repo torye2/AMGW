@@ -1,5 +1,6 @@
 package amgw.amgw.config;
 
+import amgw.amgw.entity.EmailVerifyStatus;
 import amgw.amgw.entity.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,8 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private final UserStatus status;    // PENDING/ACTIVE/INACTIVE/SUSPENDED/TERMINATED
     private final List<String> roles;   // ["ROLE_EMPLOYEE", "ROLE_ADMIN"...]
     private final LocalDateTime createdAt;
+    private final EmailVerifyStatus emailVerifyStatus;
+    private final LocalDateTime emailVerifiedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

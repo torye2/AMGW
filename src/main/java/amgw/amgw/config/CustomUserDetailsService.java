@@ -43,6 +43,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .status(user.getStatus_code())
                 .roles(roles)
                 .createdAt(LocalDateTime.now())
+                .emailVerifyStatus(user.getEmail_verify_status())
+                .emailVerifiedAt(user.getEmailVerifiedAt())
                 .build();
     }
 }
