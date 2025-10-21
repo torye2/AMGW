@@ -106,7 +106,8 @@ public class NoticeServiceImpl implements NoticeService {
 						uploadFile.setRel_path(uploadDir + storedName);
 						uploadFile.setContext_type(file.getContentType());
 						uploadFile.setFile_size((int) file.getSize());
-						uploadFile.setUser_id("gwapp");
+						
+						uploadFile.setUser_id(notice.getUser_id());
 						
 						noticeMapper.insertFile(uploadFile);
 					

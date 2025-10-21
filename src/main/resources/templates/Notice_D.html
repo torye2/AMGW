@@ -105,7 +105,7 @@
 					</tr>
 					<tr class="middle_table">
 						<th>작성자</th>
-						<td th:text="${notice.user_id}"></td> <!-- 작성자 아이디표시 -->
+						<td th:text="${notice.username}"></td> <!-- 작성자 아이디표시 -->
 						<th>작성날짜</th>
 						<td th:text="${#dates.format(notice.registration_time, 'yyyy-MM-dd HH:mm')}"></td> <!-- 등록날짜 아니면 수정날짜 표시 -->
 						<th>조회수</th>

@@ -136,7 +136,7 @@
 									<a th:href="@{/Notice_D/{id}(id=${notice.notice_id})}" th:text="${notice.notice_title}"></a>
 								</td>
 								
-								<td th:text="${notice.user_id}" id="userId_notice"></td>
+								<td th:text="${notice.username}" id="userId_notice"></td>
 								<td th:text="${#dates.format(notice.registration_time, 'yyyy-MM-dd')}" id="time_notice"></td>
 								<td th:text="${notice.notice_count}" id="count_notice"></td>
 							</tr>

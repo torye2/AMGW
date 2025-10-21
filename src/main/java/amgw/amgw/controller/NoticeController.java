@@ -13,6 +13,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import amgw.amgw.config.CustomUserDetails;
 import amgw.amgw.dto.NoticeDto;
 import amgw.amgw.dto.Upload_fileDto;
 import amgw.amgw.mapper.NoticeMapper;
@@ -99,7 +102,13 @@ public class NoticeController {
 		@RequestParam(value = "uploadFiles", required = false) List<MultipartFile> uploadFiles
 	) {
 		notice.setNotice_count(0);
-		notice.setUser_id("gwapp");
+		
+		// 로그인한 사용자 정보 가져오기
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+		notice.setUser_id(userDetails.getUserId());
+
+		
 		notice.setRegistration_time(new Timestamp(System.currentTimeMillis()));
 		
 		if (uploadFiles != null && !uploadFiles.isEmpty()) {
