@@ -3,24 +3,21 @@
 <head>
     <meta charset="UTF-8"/>
     <title>AMGW Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" th:href="@{/css/styles.css}" />
+    <link rel="stylesheet" th:href="@{/css/header.css}" />
+    <link rel="stylesheet" th:href="@{/css/chat.css}" />
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-
     <!-- 로그인 사용자의 gw.users.id (나/타인 구분용) -->
     <meta name="me-id" th:content="${meId}"/>
 
     <!-- CSRF (fetch에서 헤더로 전송) -->
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
-
-    <link rel="stylesheet" th:href="@{/css/chat.css}" />
 </head>
-<body>
-<div class="brand">
-    <a th:href="@{/}" class="brand text-slate-400">
-        <span class="brand-badge">GW</span>
-        <span>Groupware</span>
-    </a>
-</div>
+<body class="bg-slate-50 text-slate-800">
+<div class="min-h-dvh grid grid-rows-[auto,1fr]">
+    <div th:replace="~{fragments/header :: siteHeader}"></div>
 <div class="wrap">
     <!-- 사이드바: 방 목록 + 생성 -->
     <aside class="sidebar">
@@ -37,18 +34,22 @@
         </div>
 
         <!-- 1:1 방 생성 -->
-        <form id="directForm" method="post" action="#" class="mt12">
-            <input type="number" name="userId" placeholder="상대 userId" class="full input-pad"/>
-            <button type="submit" class="full mt6">1:1 방 만들기</button>
-        </form>
+        <div class="form-card mt12">
+            <form id="directForm" method="post" action="#" class="mt12">
+                <input type="number" name="userId" placeholder="상대 userId" class="full input-pad"/>
+                <button type="submit" class="full mt6">1:1 방 만들기</button>
+            </form>
+        </div>
 
         <!-- 그룹 방 만들기 (userId 여러 명) -->
-        <form id="createGroupForm" method="post" action="#" class="space-y-2 mt12">
-            <input name="name" class="full input-pad" placeholder="그룹명 (예: 프로젝트 A)"/>
-            <input name="userIds" class="full input-pad" placeholder="초대 userId들(쉼표: 1,2,3)"/>
-            <div class="help">userId는 gw.users.id 값입니다.</div>
-            <button class="full mt6" type="submit">그룹 방 만들기</button>
-        </form>
+        <div class="form-card mt12">
+            <div class="form-card-title">그룹 방 만들기</div>
+            <form id="createGroupForm" method="post" action="#" class="space-y-2">
+                <input name="name" class="full input-pad form-input" placeholder="그룹명 (예: 프로젝트 A)"/>
+                <input name="userIds" class="full input-pad form-input" placeholder="초대 userId들(쉼표: 1,2,3)"/>
+                <button class="full mt6 form-btn" type="submit">그룹 방 만들기</button>
+            </form>
+        </div>
     </aside>
 
     <!-- 본문: 타이틀 / 메시지 / 입력 -->
@@ -61,6 +62,7 @@
         </div>
     </main>
 </div>
+</div>
 
 <!-- WebSocket/STOMP -->
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
@@ -68,5 +70,6 @@
 
 <!-- 페이지 스크립트 -->
 <script th:src="@{/js/chat.js}"></script>
+<script th:src="@{/js/common.js}"></script>
 </body>
 </html>

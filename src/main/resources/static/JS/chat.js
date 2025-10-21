@@ -42,11 +42,29 @@
   let stomp = null;
   let currentRoom = null;
   let currentSubId = null;
+  let isConnected = false;
+
+  function updateInputState() {
+    const disabled = !isConnected || !currentRoom;
+    if (elMsg)  elMsg.disabled  = disabled;
+    if (elSend) elSend.disabled = disabled;
+  }
 
   function connectWs() {
     const sock = new SockJS('/ws');
     stomp = Stomp.over(sock);
-    stomp.connect({}, () => console.log('WS connected'));
+    stomp.connect({}, () => {
+      console.log('WS connected');
+      isConnected = true;           // 연결 상태 업
+      updateInputState();
+
+      // ★ 첫 방 자동 오픈 (있으면)
+      const first = document.querySelector('.room');
+      if (first && !currentRoom) {
+        const rid = first.getAttribute('data-room-id');
+        openRoom(rid, first);
+      }
+    });
   }
 
   function getSenderId(m){
@@ -91,7 +109,7 @@
     currentRoom = roomId;
     document.querySelectorAll('.room').forEach(n => n.classList.remove('active'));
     node?.classList.add('active');
-    elTitle.textContent = `Room #${roomId}`;
+    elTitle.textContent = node?.textContent?.trim() || `Room #${roomId}`;
     elMessages.innerHTML = '';
 
     // 히스토리 로드
@@ -99,6 +117,12 @@
     // console.debug('[chat] history', page); // 필요시 활성화
     const arr = Array.isArray(page.content) ? page.content.slice().reverse() : [];
     arr.forEach(appendMsg);
+    if (arr.length === 0) {
+      const tip = document.createElement('div');
+      tip.className = 'muted';
+      tip.textContent = '첫 메시지를 보내보세요.';
+      elMessages.appendChild(tip);
+    }
 
     // 구독 갱신
     if (stomp) {
@@ -110,6 +134,7 @@
       });
       currentSubId = sub.id;
     }
+    updateInputState();
   }
   // 외부에서 열 수 있게 노출(선택)
   window.openRoom = openRoom;
@@ -129,7 +154,7 @@
     // 메시지 전송 (낙관적 렌더 제거: 중복 방지)
     elSend?.addEventListener('click', () => {
       const text = elMsg.value.trim();
-      if (!text || !currentRoom || !stomp) return;
+      if (!text || !currentRoom || !stomp || !isConnected) return;
 
       stomp.send(`/app/rooms/${currentRoom}/send`, {}, JSON.stringify({
         roomId: currentRoom,
@@ -139,6 +164,15 @@
 
       // 서버 브로드캐스트가 오면 appendMsg에서 파란/회색 판별하여 렌더
       elMsg.value = '';
+      elMsg.focus();
+    });
+
+    elMsg?.addEventListener('keydown', (e) => {
+      if (e.isComposing) return;
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        elSend?.click();
+      }
     });
 
     // 1:1 방 생성

@@ -1,0 +1,20 @@
+/* 헤더 자체를 상단 고정 + 레이어 확보 */
+.site-header { position: sticky; top: 0; z-index: 40; background: #fff; }
+
+/* 드롭다운: 버튼 기준 절대배치 + 레이어 상향 */
+#btnProfile { position: relative; }
+#menuProfile {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    min-width: 180px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 20px rgba(0,0,0,.06);
+    display: none;
+    z-index: 50;
+}
+#menuProfile.show { display: block; }
+.dropdown-item { display:block; padding:.6rem .8rem; font-size:14px; color:#0f172a; }
+.dropdown-item:hover { background:#f8fafc; }
