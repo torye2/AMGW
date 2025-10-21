@@ -15,7 +15,7 @@
             <strong>이메일 인증 대기중</strong>
             <small style="display:block;">메일을 받지 못했다면 재전송을 눌러주세요.</small>
         </div>
-        <form method="post" action="/verify/email/start" data-guard="submit">
+        <form method="post" action="/verify/email/start-guest" data-guard="submit">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
             <button class="btn secondary" type="submit">재전송</button>
         </form>

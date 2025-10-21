@@ -30,6 +30,7 @@ public class UserService {
                 .status_code(UserStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .email_verify_status(EmailVerifyStatus.PENDING)
+                //.emailVerifiedAt(LocalDateTime.now())
                 .build();
         return userRepository.save(user);
     }

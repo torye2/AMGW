@@ -9,13 +9,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.DisabledException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
@@ -23,7 +20,6 @@ public class AuthController {
 
     private final UserService userService;
     private final EmailVerificationService emailVerificationService;
-    private final UserRepository userRepository;
 
     @GetMapping("/login")
     public String login() {
@@ -54,7 +50,7 @@ public class AuthController {
         }
 
         User user = userService.register(form);
-
+        req.getSession().setAttribute("pendingVerifyUserId", user.getId());
         try {
             emailVerificationService.start(
                     user.getId(),
