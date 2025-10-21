@@ -130,7 +130,7 @@ public class AiChatController {
             String systemPrompt = """
                 당신은 그룹웨어 시스템 AI 챗봇입니다.
                 - 특정 기능 요청은 확인 후 수행
-                - 페이지 이동 시 {"answer":"페이지로 이동하시겠습니까?", "redirect":"/페이지.html"} 형식
+                - 페이지 이동 시 {"answer":"페이지로 이동하시겠습니까?", "redirect":"/페이지"} 형식
                 - 일반 대화는 {"answer":"대화 내용"} 형식
                 - JSON 외 응답 금지
                 - 사용자가 '휴가 신청', '근태 등록', '외근 신청' 등 '근태 관리' 기능을 요청하면 반드시 autoFillData 필드를 JSON 형식으로 작성하세요. 추가로 일반 대화도 작성하세요. 일반 대화는 autoFillData 필드 외부에 작성 됩니다.
@@ -141,7 +141,7 @@ public class AiChatController {
                         - endDate: 종료 날짜 (YYYY-MM-DD)
                      JSON 구조 예시:
                      {
-                       "redirect": "/attendance.html",
+                       "redirect": "/attendance",
                        "autoFillData": {
                          "type": "연차",
                          "reason": "개인 사유",
