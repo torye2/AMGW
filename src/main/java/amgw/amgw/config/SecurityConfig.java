@@ -33,7 +33,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/health", "/error", "/favicon.ico",
                                 "/css/**", "/js/**", "/images/**", "/login",
-                                "/Notice_L","/signup","/verify/**").permitAll()
+                                "/Notice_L","/signup","/verify/**","/uploads/**",
+                                "/webjars/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/docs/*/onlyoffice/callback").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/docs/*/editor-config").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")

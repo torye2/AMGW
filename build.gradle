@@ -8,7 +8,12 @@ group = 'AMGW'
 version = '0.0.1-SNAPSHOT'
 description = 'AMGW'
 
+bootJar {
+    mainClass = 'amgw.amgw.AmgwApplication'
+}
+
 java {
+    toolchain { languageVersion = JavaLanguageVersion.of(21) }
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
 }
@@ -52,3 +57,10 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+tasks.named('bootJar') {
+    archiveFileName = 'app.jar'                      // 산출물 파일명을 고정
+    mainClass = 'amgw.amgw.AmgwApplication'          // Start-Class 명시
+}
+
+tasks.named("jar") { enabled = false }
