@@ -215,7 +215,7 @@ public class AiInfoService {
         sb.append("\n");
     }
 
-    // ===== todo 섹션 렌더링 =====
+    // ===== 할일 섹션 렌더링 =====
     private void appendTodos(StringBuilder sb, Long userId, int limit) {
         var rows = jdbc.queryForList("""
         SELECT id, title, done, due_date, priority, sort_order, created_at, updated_at
