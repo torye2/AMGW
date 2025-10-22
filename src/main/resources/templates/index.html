@@ -44,6 +44,7 @@
                             <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
                             휴가/근태 신청
                         </a>
+                        <button id="btnSyncNextcloud" class="btn" th:if="${me.roles.contains('ROLE_ADMIN')}">사용자 동기화</button>
                     </div>
                 </div>
 
@@ -156,6 +157,63 @@
       const hh = String(d.getHours()).padStart(2,'0');
       const mm = String(d.getMinutes()).padStart(2,'0');
       return `${hh}:${mm}`;
+    }
+
+    async function syncNextcloud() {
+        const btn = document.getElementById('btnSyncNextcloud');
+        if (!btn) return;
+
+        const origHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '동기화 중…';
+
+        try {
+            const res = await fetch('/admin/sync/nextcloud', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(csrfHeader && csrfToken ? { [csrfHeader]: csrfToken } : {})
+                },
+                credentials: 'same-origin' // 세션/쿠키 사용
+            });
+
+            // 서버가 200/204로만 주면 텍스트 건너뛰고 상태만 확인해도 OK
+            if (res.ok) {
+                toast('Nextcloud 동기화가 완료되었습니다 ✅');
+            } else {
+                const msg = await safeReadError(res);
+                toast(`동기화 실패: ${msg}`, true);
+            }
+        } catch (e) {
+            console.error(e);
+            toast('네트워크 오류로 동기화에 실패했습니다.', true);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = origHtml;
+        }
+    }
+
+    async function safeReadError(res){
+        try {
+            const ct = res.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const j = await res.json();
+                return j.message || j.error || res.statusText;
+            } else {
+                return (await res.text()) || res.statusText;
+            }
+        } catch { return res.statusText; }
+    }
+
+    // 아주 단순한 토스트
+    function toast(message, isError=false){
+        const el = document.createElement('div');
+        el.className = `fixed bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 rounded shadow ${
+            isError ? 'bg-red-600 text-white' : 'bg-slate-800 text-white'
+        }`;
+        el.textContent = message;
+        document.body.appendChild(el);
+        setTimeout(()=> el.remove(), 3000);
     }
 
     // =========================
@@ -360,9 +418,10 @@
 
     // 초기 로딩
     document.addEventListener('DOMContentLoaded', ()=>{
-      loadApprovalsWaiting();
-      loadTodayEvents();  // ← 오늘 일정 카드 채우기
-      loadTodosCard();
+        document.getElementById('btnSyncNextcloud')?.addEventListener('click', syncNextcloud);
+        loadApprovalsWaiting();
+        loadTodayEvents();  // ← 오늘 일정 카드 채우기
+        loadTodosCard();
     });
 </script>
 </body>
