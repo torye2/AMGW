@@ -76,7 +76,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       todayCheckIn.textContent = data?.checkInAt ? new Date(data.checkInAt).toLocaleTimeString() : "-";
       todayCheckOut.textContent = data?.checkOutAt ? new Date(data.checkOutAt).toLocaleTimeString() : "-";
     } catch (err) {
-      console.error("오늘 출퇴근 조회 실패", err);
+
     }
   }
 
