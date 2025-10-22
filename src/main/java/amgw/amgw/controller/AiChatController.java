@@ -24,7 +24,7 @@ public class AiChatController {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private AiInfoService aiInfoService; // ✅ AiInfoService 주입
+    private AiInfoService aiInfoService;
 
     // ⚠️ 실제 운영에선 환경변수/설정으로 관리 권장
     private static final String API_KEY = "AIzaSyCdkVsuY8DVF92MG2I_J2hitV7uzjEVyPA";
