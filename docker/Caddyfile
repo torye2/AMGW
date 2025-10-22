@@ -1,4 +1,8 @@
 :8080 {
+    log {
+        level DEBUG
+        output stdout
+      }
 	encode zstd gzip
 	# /uploads 정적 파일
 	handle_path /uploads/* {
