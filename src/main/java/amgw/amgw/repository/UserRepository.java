@@ -1,15 +1,23 @@
 package amgw.amgw.repository;
 
 import amgw.amgw.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    //Optional<UserEntity> findByProviderAndSubject(String provider, String subject);
     Optional<User> findByUsername(String username);
+
+    @Query("""
+        select u from User u
+        where lower(u.name) like lower(:kw)
+           or lower(u.username) like lower(:kw)
+        order by u.name asc
+    """)
+    Page<User> searchByNameOrUsername(@Param("kw") String kw, Pageable pageable);
 
     @Query("select u.username from User u where u.id = :userId")
     String findUsernameById(@Param("userId") Long userId);

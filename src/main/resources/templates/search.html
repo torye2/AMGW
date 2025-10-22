@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>검색 결과 - Groupware</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 공용 스타일 -->
+    <link rel="stylesheet" th:href="@{/css/styles.css}"/>
+    <!-- 검색 드롭다운 전용 스타일 (헤더 자동완성 UI용) -->
+    <link rel="stylesheet" th:href="@{/css/search.css}"/>
+
+    <!-- CSRF (있으면 자동 포함) -->
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body class="bg-slate-50 text-slate-800">
+<div class="min-h-dvh grid grid-rows-[auto,1fr]">
+
+    <!-- 헤더 (검색 입력/드롭다운/알림 포함) -->
+    <div th:replace="~{fragments/header :: siteHeader}"></div>
+
+    <!-- 본문 -->
+    <main class="container py-6">
+        <!-- 상단: 검색어 표시 -->
+        <header class="mb-4">
+            <h1 class="text-xl font-semibold">검색 결과</h1>
+            <p id="qEcho" class="text-slate-500 text-sm mt-1"></p>
+        </header>
+
+        <!-- 결과 영역 -->
+        <section id="searchResults" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+            <!-- JS가 채움 -->
+            <div class="col-span-full">
+                <div class="rounded-xl border border-slate-200 bg-white p-4">
+                    <div class="animate-pulse text-slate-400">검색 중…</div>
+                </div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- 공용 스크립트들 (알림/헤더 검색 자동완성에 필요) -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+<script defer th:src="@{/js/notifications.js}"></script>
+<script defer th:src="@{/js/globalSearch.js}"></script>
+
+<!-- 이 페이지 전용 -->
+<script defer th:src="@{/js/searchPage.js}"></script>
+</body>
+</html>

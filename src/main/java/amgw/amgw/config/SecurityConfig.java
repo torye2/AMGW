@@ -3,6 +3,7 @@ package amgw.amgw.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -27,12 +28,14 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/debug/**") // 필요 시
+                        .ignoringRequestMatchers("/debug/**", "/api/docs/*/onlyoffice/callback") // 필요 시
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/health", "/error", "/favicon.ico",
                                 "/css/**", "/js/**", "/images/**", "/login",
                                 "/Notice_L","/signup","/verify/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/docs/*/onlyoffice/callback").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/docs/*/editor-config").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )

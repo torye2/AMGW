@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="amgw.amgw.mapper.ComplimentMapper">
+
+  <!-- 게시글 등록 -->
+  <insert id="insertCompliment" parameterType="amgw.amgw.dto.ComplimentDto" useGeneratedKeys="true" keyProperty="compliment_id">
+    INSERT INTO compliment
+      (user_id, password, compliment_count, compliment_title, compliment_detail, registration_time)
+    VALUES
+      (#{user_id}, #{password}, #{compliment_count}, #{compliment_title}, #{compliment_detail}, NOW())
+  </insert>
+
+  <!-- 게시글 수정 -->
+  <update id="updateCompliment" parameterType="amgw.amgw.dto.ComplimentDto">
+    UPDATE compliment
+    SET 
+      compliment_title = #{compliment_title},
+      compliment_detail = #{compliment_detail},
+      fix_time = NOW()
+    WHERE compliment_id = #{compliment_id} 
+      AND user_id = #{user_id} 
+      AND password = #{password}
+  </update>
+
+  <!-- 게시글 삭제 -->
+  <delete id="deleteCompliment" parameterType="int">
+    DELETE FROM compliment
+    WHERE compliment_id = #{compliment_id}
+  </delete>
+
+  <!-- 단일 조회 -->
+  <select id="selectCompliment" parameterType="int" resultType="amgw.amgw.dto.ComplimentDto">
+    SELECT * FROM compliment
+    WHERE compliment_id = #{compliment_id}
+  </select>
+
+  <!-- 전체 조회 (페이지네이션) -->
+  <select id="selectAllCompliments" resultType="amgw.amgw.dto.ComplimentDto">
+    SELECT * FROM compliment
+    ORDER BY compliment_id DESC
+    LIMIT #{limit} OFFSET #{offset}
+  </select>
+
+  <!-- 전체 개수 조회 -->
+  <select id="selectComplimentCount" resultType="int">
+    SELECT COUNT(*) FROM compliment
+  </select>
+
+  <!-- 조회수 증가 -->
+  <update id="incrementComplimentCount" parameterType="int">
+    UPDATE compliment
+    SET compliment_count = compliment_count + 1
+    WHERE compliment_id = #{compliment_id}
+  </update>
+
+  <!-- 검색 + 페이지네이션 -->
+  <select id="searchCompliments" resultType="amgw.amgw.dto.ComplimentDto">
+    SELECT * FROM compliment
+    <where>
+      <if test="searchType == 'title'">
+        compliment_title LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+      <if test="searchType == 'content'">
+        compliment_detail LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+    </where>
+    ORDER BY compliment_id DESC
+    LIMIT #{limit} OFFSET #{offset}
+  </select>
+
+  <!-- 검색 결과 개수 -->
+  <select id="selectComplimentCountBySearch" resultType="int">
+    SELECT COUNT(*) FROM compliment
+    <where>
+      <if test="searchType == 'title'">
+        compliment_title LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+      <if test="searchType == 'content'">
+        compliment_detail LIKE CONCAT('%', #{keyword}, '%')
+      </if>
+    </where>
+  </select>
+
+</mapper>
