@@ -43,38 +43,45 @@
 	width: 100%;
 	max-width: 420px;
 	display: flex;
-	flex-wrap: wrap;
-	gap: 8px;
 	justify-content: flex-end;
 	align-items: center;
-	border-collapse: collapse; 
-	border-radius: 1rem;
-	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
+.Notice_searchbox form {
+	display: flex;
+	align-items: center;
+	gap: 0px;
 }
 
 .Notice_searchbox select {
 	padding: 6px 8px;
 	text-align: center;
 	width: 91px;
-	height: 55px;
-	border: 1px solid #e2e8f0;
-	backdrop-filter:blur(8px);
+	height: 50px;
 	border-radius: 1rem 0 0 1rem;
+	background:#f1f5f9;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	backdrop-filter:blur(8px);
 }
 
 .Notice_searchbox input {
 	width: 248px;
 	height: 50px;
 	padding: 6px 8px;
+	border-left: none;
+	border-right: none;
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	backdrop-filter:blur(8px);
 }
 
 .Notice_searchbox button {
 	padding: 6px 12px;
 	width: 69px;
-	height: 54px;
-	border: 1px solid #e2e8f0;
+	height: 50px;
+	border-left: none;
 	backdrop-filter:blur(8px);
-	background: #e2e8f0;
+	background: #f1f5f9;
 	border-radius: 0 1rem 1rem 0;
 }
 
@@ -85,10 +92,9 @@
 
 .Notice_Lbottonbox {
   width: 100%;
-  overflow-x: hidden;
 }
 
-.Notice_LBox{
+#Notice_LbigBox {
 	border: 1px solid #e2e8f0;
 	border-radius: 1rem;
 	background:rgba(255,255,255,.7);
@@ -97,12 +103,16 @@
 	backdrop-filter:blur(8px);
 }
 
+.Notice_LBox{
+	table-layout: fixed;
+}
+
 #Notice_L-head {
 	line-height: 50px;
+	border-bottom: 1px solid #e2e8f0;
 }
 
 #List_CheckBox {
-	border-radius: 1rem;
 	font-weight:bold;
 	text-align:center;
 	font-size: 20px;
@@ -140,7 +150,6 @@
 }
 
 .Notice_L-body {
-	border-bottom: 1px solid #ccc;
 	height: 50px;
 }
 

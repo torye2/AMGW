@@ -114,39 +114,40 @@
 			</div>
 			<div class="Notice_Lbottonbox">
 				<form th:action="@{/Notice_Delete}" method="post">
-					<table class="Notice_LBox">
-						<thead class="Notice_headbox">
-							<tr id="Notice_L-head">
-								<td id="List_CheckBox"><input type="checkbox" id="checkAll"></td>
-								<td id="List_number">순서</td>
-								<td id="List_title">제목</td>
-								<td id="user_id">작성자</td>
-								<td id="reg_Creationdate">작성날짜</td>
-								<td id="check_count">조회수</td>
-							</tr>	
-						</thead>
-						<tbody>
-							<tr th:each="notice, stat : ${notices}" class="Notice_L-body">
-								<td><input type="checkbox" name="noticeIds" th:value="${notice.notice_id}"/></td>
+					<div id="Notice_LbigBox">
+						<table class="Notice_LBox">
+							<thead class="Notice_headbox">
+								<tr id="Notice_L-head">
+									<td id="List_CheckBox"><input type="checkbox" id="checkAll"></td>
+									<td id="List_number">순서</td>
+									<td id="List_title">제목</td>
+									<td id="user_id">작성자</td>
+									<td id="reg_Creationdate">작성날짜</td>
+									<td id="check_count">조회수</td>
+								</tr>	
+							</thead>
+							<tbody>
+								<tr th:each="notice, stat : ${notices}" class="Notice_L-body">
+									<td><input type="checkbox" name="noticeIds" th:value="${notice.notice_id}"/></td>
+									
+									<td th:if="${notice.important}" class="important-cell"><p>중요!</p></td>
+									<td th:unless="${notice.important}" th:text="${stat.index + 1}" id="Number_notice"></td>
+									
+									<td id="title_notice">
+										<a th:href="@{/Notice_D/{id}(id=${notice.notice_id})}" th:text="${notice.notice_title}"></a>
+									</td>
+									
+									<td th:text="${notice.username}" id="userId_notice"></td>
+									<td th:text="${#dates.format(notice.registration_time, 'yyyy-MM-dd')}" id="time_notice"></td>
+									<td th:text="${notice.notice_count}" id="count_notice"></td>
+								</tr>
 								
-								<td th:if="${notice.important}" class="important-cell"><p>중요!</p></td>
-								<td th:unless="${notice.important}" th:text="${stat.index + 1}" id="Number_notice"></td>
-								
-								<td id="title_notice">
-									<a th:href="@{/Notice_D/{id}(id=${notice.notice_id})}" th:text="${notice.notice_title}"></a>
-								</td>
-								
-								<td th:text="${notice.username}" id="userId_notice"></td>
-								<td th:text="${#dates.format(notice.registration_time, 'yyyy-MM-dd')}" id="time_notice"></td>
-								<td th:text="${notice.notice_count}" id="count_notice"></td>
-							</tr>
-							
-							<tr th:if="${#lists.isEmpty(notices)}">
-								<td colspan="6" class="Notice_not">등록된 공지사항이 없습니다.</td>
-							</tr>
-						</tbody>
-					</table>
-					
+								<tr th:if="${#lists.isEmpty(notices)}">
+									<td colspan="6" class="Notice_not">등록된 공지사항이 없습니다.</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>	
 					<div class="pagination">
 						<span th:if="${currentPage > 1}">
 							<a th:href="@{/Notice_L(page=${currentPage - 1}, pageSize=10)}" id="Notice_Previous">이전</a>

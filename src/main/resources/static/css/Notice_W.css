@@ -30,7 +30,8 @@
 }
 
 .Notice_w {
-	width: 900px;
+  width: 100%;
+  max-width: 1200px;
 }
 
 .Notice_titleline {
@@ -56,14 +57,20 @@
 	align-items: center;
 }
 
+#box {
+	margin: 2px;
+}
+
 #Notice_typebox {
 	display: flex;
 	align-items: center;
+	width: 1015px;
 }
 
 #Notice_typetext {
 	height: 30px;
-	width: 1015px;
+	width: 100%;
+	max-width: 1015px;
 	padding: 5px;
 	border: 1px solid #ccc;
 	border-radius: 3px;
@@ -125,7 +132,8 @@
 #upload_area {
 	margin: 10px 28px 15px 0;
 	min-height: 123px;
-	width:1015px;
+	max-width: 1200px;
+	width: 1015px;
 	text-align: center;
 	border: 2px dashed #ccc;
 	border-radius: 6px;
@@ -465,53 +473,42 @@
 	color:#222;
 }
 
-
-/* ===== 기본 (노트북/중간 해상도용) ===== */
-.Notice_w {
-  width: 900px;
-}
-
 /* ===== 큰 화면 (데스크탑 1600px 이상) ===== */
 @media screen and (min-width: 1600px) {
+  .Noitce_middle {
+  	width: 1200px;
+  }
   .Notice_w {
     width: 1200px;
   }
-  #Notice_typetext {
-    width: 1300px;
-  }
-  #upload_area {
-    width: 1300px;
-  }
-  .file_list {
-    width: 1300px;
-  }
-  #FileCapacity_msg {
-    width: 1300px;
-  }
-  .Notice_w_btn button {
-    width: 1400px;
-  }
-}
-
-/* ===== 작은 화면 (태블릿 이하 1024px 이하) ===== */
-@media screen and (max-width: 1024px) {
-  .Notice_w {
-    width: 100%;
+  
+  .Notice_titleline {
+  	width: 1200px;
   }
   #Notice_typetext {
-    width: 100%;
+    width: 1015px;
   }
   #upload_area {
-    width: 95%;
+    width: 1020px;
   }
+  
   .file_list {
-    width: 95%;
+    width: 1200px;
   }
+  .UI_editor {
+  	width: 1200px;
+  }
+  
   #FileCapacity_msg {
-    width: 100%;
-    justify-content: center;
+    width: 900px;
   }
   .Notice_w_btn button {
-    width: 100%;
+    width: 1200px;
+  }
+  .editor-content {
+   	width: 1200px;
+  }
+  .Notice_w_btn {
+  	width: 1200px;
   }
 }
