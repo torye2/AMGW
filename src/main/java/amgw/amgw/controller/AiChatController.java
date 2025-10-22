@@ -26,7 +26,6 @@ public class AiChatController {
     @Autowired
     private AiInfoService aiInfoService;
 
-    // ⚠️ 실제 운영에선 환경변수/설정으로 관리 권장
     private static final String API_KEY = "AIzaSyCdkVsuY8DVF92MG2I_J2hitV7uzjEVyPA";
 
     @GetMapping
@@ -284,7 +283,7 @@ public class AiChatController {
         return "already";
     }
 
-    // (선택) 필요 없다면 삭제해도 되는 메서드
+
     private String getPageUrl(String pageName) {
         try {
             String sql = "SELECT url FROM pages WHERE page_name = ?";
