@@ -22,7 +22,7 @@
 	font-size: 30px;
 }
 
-#Noitce_middle {
+#Notice_middle {
 	border: 1px solid #e2e8f0;
 	background:rgba(255,255,255,.7);
 	backdrop-filter:blur(8px);
@@ -102,10 +102,11 @@
 }
 
 #Notice_D {
-	margin: 20px auto;
+	margin: 0px auto;
 	padding: 5px;
 	border: 1px solid #e2e8f0;
-	width: 1150px;
+	max-width: 1150px;
+	width: 100%;
 	min-height: 400px;
 }
 
@@ -130,4 +131,32 @@
 .Notice_D-Btn button:hover {
 	background: #e2e8f0;
 	color: #222;
+}
+
+/* 📱 노트북 이하 (작은 화면) */
+@media screen and (max-width: 1024px) {
+	#Notice_top h1 {
+		font-size: 22px;
+	}
+	.Notice_D_table th,
+	.Notice_D_table td {
+		font-size: 14px;
+		padding: 4px;
+	}
+	#Notice_D {
+		padding: 10px;
+	}
+}
+
+/* 🖥 큰 화면용 (데스크탑) */
+@media screen and (min-width: 1440px) {
+	#Notice_top h1 {
+		font-size: 32px;
+	}
+	.Notice_D_table {
+		margin: 40px auto;
+	}
+	#Notice_D {
+		min-height: 500px;
+	}
 }

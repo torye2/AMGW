@@ -2,7 +2,7 @@
 // 공통 변수 선언
 //---------------------------------------------------------------
 const editor = document.getElementById('editor');
-const titleInput = document.getElementById('Notice_typetext');
+const titleInput = document.getElementById('Compliment_typetext');
 const insertImageBtn = document.getElementById('insertImageBtn');
 const imageInput = document.getElementById('imageInput');
 const textColorBtn = document.getElementById('textColorBtn');
@@ -12,7 +12,7 @@ const bgColorInput = document.getElementById('bgColorInput');
 const noticeDetailInput = document.getElementById("notice_detail_input");
 
 // HTML에는 form이 주석 처리되어 있으므로 null 에러 방지
-const noticeForm = document.getElementById("noticeForm") || null;
+const ComplimentForm = document.getElementById('ComplimentForm') || null;
 
 const fontSelect = document.getElementById('font_box');
 const fontSizeSelect = document.getElementById('font-size');
@@ -235,3 +235,17 @@ bgColorInput.addEventListener('input', e => {
     editor.focus();
     document.execCommand('hiliteColor', false, e.target.value);
 });
+
+//---------------------------------------------------------------
+// Form submit 시 에디터 내용을 hidden input으로 전달
+//---------------------------------------------------------------
+const complimentForm = document.getElementById('complimentForm');
+const Compliment_detail_input = document.getElementById('compliment_detail_input');
+
+if (complimentForm) {
+    complimentForm.addEventListener('submit', function(e) {
+        if (editor) {
+            complimentDetailInput.value = editor.innerHTML;
+        }
+    });
+}
