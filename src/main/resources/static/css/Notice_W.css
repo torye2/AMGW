@@ -464,3 +464,54 @@
 	background:#e2e8f0;
 	color:#222;
 }
+
+
+/* ===== 기본 (노트북/중간 해상도용) ===== */
+.Notice_w {
+  width: 900px;
+}
+
+/* ===== 큰 화면 (데스크탑 1600px 이상) ===== */
+@media screen and (min-width: 1600px) {
+  .Notice_w {
+    width: 1200px;
+  }
+  #Notice_typetext {
+    width: 1300px;
+  }
+  #upload_area {
+    width: 1300px;
+  }
+  .file_list {
+    width: 1300px;
+  }
+  #FileCapacity_msg {
+    width: 1300px;
+  }
+  .Notice_w_btn button {
+    width: 1400px;
+  }
+}
+
+/* ===== 작은 화면 (태블릿 이하 1024px 이하) ===== */
+@media screen and (max-width: 1024px) {
+  .Notice_w {
+    width: 100%;
+  }
+  #Notice_typetext {
+    width: 100%;
+  }
+  #upload_area {
+    width: 95%;
+  }
+  .file_list {
+    width: 95%;
+  }
+  #FileCapacity_msg {
+    width: 100%;
+    justify-content: center;
+  }
+  .Notice_w_btn button {
+    width: 100%;
+  }
+}

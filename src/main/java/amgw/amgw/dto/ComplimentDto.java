@@ -11,8 +11,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ComplimentDto {
 	
-	private int compliment_id;
-	private String user_id;
+	private Long compliment_id;
+	private Long user_id;
+	private String username;
 	private String password;
 	private int compliment_count;
 	private String compliment_title;

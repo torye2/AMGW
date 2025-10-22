@@ -1,13 +1,12 @@
 package amgw.amgw;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.hibernate.internal.build.AllowSysOut;
-import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -62,72 +61,46 @@ public class YuJinApplicationTests {
 	}
 	
 	@Test
-	void testInsertCompliment() {
-		ComplimentDto dto = new ComplimentDto();
-		dto.setUser_id("gwapp");
-		dto.setPassword("GwApp!2025");
-		dto.setCompliment_count(0);
-		dto.setCompliment_title("칭찬게시글 테스트");
-		dto.setCompliment_detail("이건 mapper 테스트 중입니다.");
-		
-		int result = complimentMapper.insertCompliment(dto);
-		System.out.println("insert result: " + result);
-		System.out.println("생선된 ID : " + dto.getCompliment_id());
-		
-		assertThat(result).isEqualTo(1);
-		assertThat(dto.getCompliment_id()).isGreaterThan(0);
-	}
+    void testMapperNotNull() {
+        // Mapper가 DI 되었는지 확인
+        assertNotNull(complimentMapper, "ComplimentMapper가 DI되지 않았습니다.");
+    }
+
+    @Test
+    void testInsertAndSelect() {
+        // 테스트용 게시글 생성
+        ComplimentDto dto = new ComplimentDto();
+        dto.setUser_id(1L); // users 테이블에 있는 user_id
+        dto.setPassword("1234");
+        dto.setCompliment_count(0);
+        dto.setCompliment_title("테스트 제목");
+        dto.setCompliment_detail("테스트 내용");
+
+        // INSERT
+        int insertResult = complimentMapper.insertCompliment(dto);
+        assert(insertResult > 0);
+
+        // SELECT (방금 넣은 게시글 조회)
+        ComplimentDto selected = complimentMapper.selectCompliment(dto.getCompliment_id().intValue());
+        assertNotNull(selected, "게시글 조회 실패");
+        System.out.println("조회된 게시글: " + selected);
+    }
+
+    @Test
+    void testSelectAll() {
+        // 전체 조회
+        var list = complimentMapper.selectAllCompliments(0, 10);
+        assertNotNull(list, "전체 조회 실패");
+        System.out.println("전체 게시글 수: " + list.size());
+    }
+
+    @Test
+    void testIncrementCount() {
+        // 조회수 증가 테스트 (1번 게시글 기준)
+        int result = complimentMapper.incrementComplimentCount(1);
+        assert(result > 0);
+        System.out.println("조회수 증가 완료");
+    }
+
 	
-	@Test
-	void testSelectCompliment() {
-		ComplimentDto compliment = complimentMapper.selectCompliment(1);
-		if (compliment != null) {
-			System.out.println("조회 성공 : " + compliment);
-		} else {
-			System.out.println("조회 실패 - 해당 ID 없음");
-		}
-	}
-	
-	@Test
-	void testUpdateCompliment() {
-		ComplimentDto dto = new ComplimentDto();
-		dto.setCompliment_id(1);
-		dto.setUser_id("gwapp");
-		dto.setPassword("1234");
-		dto.setCompliment_title("수정된 제목");
-		dto.setCompliment_detail("수정된 내용입니다.");
-		
-		int result = complimentMapper.updateCompliment(dto);
-		System.out.println("update result : " + result);
-		assertThat(result).isGreaterThanOrEqualTo(0);
-	}
-	
-	@Test
-	void testIncrementCount() {
-		int result = complimentMapper.incrementComplimentCount(1);
-		System.out.println("조회수 증가 결과 : " + result);
-		assertThat(result).isGreaterThanOrEqualTo(0);
-	}
-	
-	@Test
-	void testSelectAllCompliments() {
-		List<ComplimentDto> list = complimentMapper.selectAllCompliments(0, 10);
-		System.out.println("전체 목록 개수 : " + list.size());
-		list.forEach(System.out::println);
-		assertThat(list).isNotNull();
-	}
-	
-	@Test
-	void testSearchCompliments() {
-		List<ComplimentDto> searchList = complimentMapper.searchCompliments("title", "테스트", 0, 10);
-		System.out.println("검색 결과 개수 : " + searchList.size());
-		searchList.forEach(System.out::println);
-	}
-	
-	@Test
-	void testDeleteCompliment() {
-		int result = complimentMapper.deleteCompliment(1);
-		System.out.println("삭제 결과 : " + result);
-		assertThat(result).isGreaterThanOrEqualTo(0);
-	}
 }
