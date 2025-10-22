@@ -69,7 +69,7 @@
     switch(t){
       case 'approval': return '결재';
       case 'chat':     return '채팅방';
-      case 'user':     return '사람';
+      case 'user':     return '직원';
       case 'notice':   return '공지';
       case 'doc':      return '문서';
       default:         return '기타';
