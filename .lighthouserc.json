@@ -1,0 +1,19 @@
+{
+  "ci": {
+    "collect": {
+      "url": ["http://localhost:8081/"],
+      "numberOfRuns": 2,
+      "settings": {
+        "preset": "desktop",
+        "disableStorageReset": false
+      }
+    },
+    "assert": {
+      "assertions": {
+        "server-response-time": ["warn", {"maxNumericValue": 300000}],
+        "first-contentful-paint": ["warn", {"maxNumericValue": 2500}],
+        "speed-index": ["warn", {"maxNumericValue": 4000}]
+      }
+    }
+  }
+}
