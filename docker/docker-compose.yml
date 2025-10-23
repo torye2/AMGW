@@ -1,33 +1,49 @@
 ﻿services:
+  nextcloud:
+    image: nextcloud:28-apache
+    container_name: nextcloud
+    ports:
+      - "8085:80"
+    environment:
+      - MYSQL_HOST=amgw-db.cjmik2sqe1xf.ap-northeast-2.rds.amazonaws.com
+      - MYSQL_DATABASE=gw
+      - MYSQL_USER=admin
+      - MYSQL_PASSWORD=GwApp!2025
+      - REDIS_HOST=redis
+      - REDIS_HOST_PORT=6379
+      - NEXTCLOUD_CONFIG_EXTRA={"system":{"allow_local_remote_servers":true}}
+    depends_on:
+      - onlyoffice
+      - redis
+    volumes:
+      - nextcloud_data:/var/www/html
+    restart: unless-stopped
+    networks:
+      - gw-net
+
   onlyoffice:
-    restart: "no"
     image: onlyoffice/documentserver:8.1
     container_name: onlyoffice
-    environment:
-      JWT_ENABLED: "${ONLYOFFICE_JWT_ENABLED:-true}"
-      JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
-      TZ: ${TZ:-Asia/Seoul}
     ports:
-      - "${ONLYOFFICE_PORT:-8081}:80"
+      - "8086:80"
+    environment:
+      - JWT_ENABLED=true
+      - JWT_SECRET=4c1e7b8adf9df0a0b2e8f1c6a2d90f1c4a0f9e1d5b3a7c6e3f0d2a1b9c8d7e6
+      - JWT_HEADER=${ONLYOFFICE_JWT_HEADER:-Authorization}
+      - TZ=${TZ:-Asia/Seoul}
+    restart: unless-stopped
+    networks:
+      - gw-net
 
-#  portal:
-#    restart: "no"
-#    build: ..
-#    container_name: portal
-#    depends_on:
-#      - db
-#      - onlyoffice
-#    environment:
-#      SPRING_DATASOURCE_URL: "jdbc:mysql://amgw-db.cjmik2sqe1xf.ap-northeast-2.rds.amazonaws.com:3306/gw?useSSL=true&serverTimezone=Asia/Seoul"
-#      SPRING_DATASOURCE_USERNAME: gwapp
-#      SPRING_DATASOURCE_PASSWORD: GwApp!2025
-#      ONLYOFFICE_URL: "http://onlyoffice"   # 내부 통신용
-#      ONLYOFFICE_JWT_SECRET: "${ONLYOFFICE_JWT_SECRET:-super-secret}"
-#      TZ: ${TZ:-Asia/Seoul}
-#    ports:
-#      - "18080:8080"
-#    volumes:
-#      - ./files:/app/files  # 로컬 저장 쓸 때
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    networks: [gw-net]
+    restart: unless-stopped
 
 volumes:
-  mysql-data:
+  nextcloud_data:
+
+networks:
+  gw-net:
+    driver: bridge

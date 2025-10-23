@@ -22,7 +22,8 @@
 	font-size: 30px;
 }
 
-#Noitce_middle {
+#Notice_middle {
+	width: 950px;
 	border: 1px solid #e2e8f0;
 	background:rgba(255,255,255,.7);
 	backdrop-filter:blur(8px);
@@ -32,8 +33,8 @@
 }
 
 .Notice_D_table {
-	width: 1150px;
-	margin: 20px auto;
+	width: 910px;
+	margin: 20px 20px;
 }
 
 .top_table {
@@ -102,10 +103,11 @@
 }
 
 #Notice_D {
-	margin: 20px auto;
+	margin: 20px;
 	padding: 5px;
 	border: 1px solid #e2e8f0;
-	width: 1150px;
+	max-width: 1200px;
+	width: 910;
 	min-height: 400px;
 }
 
@@ -130,4 +132,22 @@
 .Notice_D-Btn button:hover {
 	background: #e2e8f0;
 	color: #222;
+}
+
+
+/* ===== 큰 화면 (데스크탑 1600px 이상) ===== */
+@media screen and (min-width: 1600px) {
+	#Notice_top h1 {
+		font-size: 32px;
+	}
+	#Notice_middle {
+		width: 1200px;
+	}
+	.Notice_D_table {
+		width: 1150px;
+	}
+	#Notice_D {
+		min-height: 500px;
+		width: 1150px;
+	}
 }

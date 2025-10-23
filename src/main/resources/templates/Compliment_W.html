@@ -5,7 +5,7 @@
 <title>공지사항 작성 페이지</title>
 <!-- toast ui CSS -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="../css/Notice_W.css" />
+<link rel="stylesheet" href="../css/Compliment_W.css" />
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" th:href="@{/css/styles.css}" />
 <meta name="_csrf" th:content="${_csrf.token}" />
@@ -95,23 +95,23 @@
             </nav>
         </aside>
 		<div>
-			<div class="Notice_Topbox"> 
+			<div class="Compliment_Topbox"> 
 				<h1>칭찬합니다.</h1>
 			</div>		
-			<!-- <form id="noticeForm" th:action="@{/Compliment_W}" method="post" enctype="multipart/form-data"> -->
-				<div class="Noitce_middle">
-					<table class="Notice_w">
-						<tr class="Notice_titleline">
-							<td id="Notice_title">제목</td>
-							<td id="Notice_typebox">
-								<input type="text" id="Notice_typetext" name="notice_title" required>
-								<input type="hidden" name="notice_id">
+			<form id="ComplimentForm" th:action="@{/compliment}" method="post" enctype="multipart/form-data">
+				<div class="Compliment_middle">
+					<table class="Compliment_w">
+						<tr class="Compliment_titleline">
+							<td id="Compliment_title">제목</td>
+							<td id="Compliment_typebox">
+								<input type="text" id="Compliment_typetext" name="Compliment_title" required>
+								<input type="hidden" name="Compliment_id">
 							</td>
 						</tr>
 						<tr>
 							<th>비밀번호</th>
 							<td> 
-								<input type="text" name="password"> 
+								<input type="text" name="password" maxlength="4" placeholder="4자리를 입력해주세요"> 
 							</td>
 						</tr>
 					</table>
@@ -187,7 +187,7 @@
 					</div>
 				
 					<div id="editor" contenteditable="true" class="editor-content"></div>
-					<input type="hidden" name="notice_detail" id="notice_detail_input">
+					<input type="hidden" name="Compliment_detail" id="Compliment_detail_input">
 					
 					<div id="alignMenu">
 						<button type="button" title="왼쪽"><i class="fa-solid fa-align-left"></i></button>
@@ -211,10 +211,10 @@
 						<button type="button" data-line="180%">180%</button>
 					</div>
 				</div>
-				<div class="Notice_w_btn">
+				<div class="Compliment_w_btn">
 					<button type="submit">등록</button>
 				</div>
-			<!-- </form>  -->
+			</form>
 		</div>
 	</div>
 	<script src="/JS/Compliment_W.js"></script>

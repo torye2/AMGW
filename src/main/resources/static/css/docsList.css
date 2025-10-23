@@ -1,0 +1,14 @@
+body { background: #f7f8fa; }
+.card { border-radius: 14px; }
+.dropzone {
+    border: 2px dashed #ced4da;
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    background: #fff;
+    transition: background .2s, border-color .2s;
+}
+.dropzone.dragover { background: #f0f7ff; border-color: #5fa8ff; }
+.table td, .table th { vertical-align: middle; }
+.cursor-pointer { cursor: pointer; }
+.truncate { max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
