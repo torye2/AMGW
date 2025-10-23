@@ -288,7 +288,8 @@
 #reg_Creationdate { width: 15%; }
 #check_count { width: 10%; }
 
-@media (max-width: 1366px) {
+/* ===== 큰 화면 (데스크탑 1600px 이상) ===== */
+@media screen and (min-width: 1600px) {
   .Notice_section {
     padding: 8px;
   }
