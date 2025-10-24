@@ -1,5 +1,7 @@
 <header th:fragment="siteHeader" class="site-header" xmlns:th="http://www.thymeleaf.org">
     <link rel="stylesheet" href="/css/search.css">
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
     <div class="container h-16 flex items-center gap-3">
         <button id="btnSidebar" class="icon-btn md:hidden" aria-label="메뉴 열기">
             <!-- 햄버거 아이콘 -->

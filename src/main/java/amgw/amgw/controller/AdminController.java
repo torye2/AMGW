@@ -1,5 +1,6 @@
 package amgw.amgw.controller;
 
+import amgw.amgw.config.NextcloudClient;
 import amgw.amgw.entity.User;
 import amgw.amgw.entity.UserStatus;
 import amgw.amgw.repository.UserRepository;
@@ -31,7 +32,7 @@ public class AdminController {
 
     @PostMapping("/users/{id}/approve")
     @ResponseBody
-    public String approveUser(@PathVariable Long id) {
+    public String approveUser(@PathVariable("id") Long id) {
         User user = userRepository.findById(id).orElseThrow();
         user.setStatus_code(UserStatus.ACTIVE);
         userRepository.save(user);
@@ -40,9 +41,9 @@ public class AdminController {
 
     @PostMapping("/users/{id}/reject")
     @ResponseBody
-    public String rejectUser(@PathVariable Long id) {
+    public String rejectUser(@PathVariable("id") Long id) {
         User user = userRepository.findById(id).orElseThrow();
-        user.setStatus_code(UserStatus.REJECTED);
+        user.setStatus_code(UserStatus.SUSPENDED);
         userRepository.save(user);
         return "OK";
     }
