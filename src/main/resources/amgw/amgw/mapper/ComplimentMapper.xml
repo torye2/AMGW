@@ -8,9 +8,9 @@
   <!-- 게시글 등록 -->
   <insert id="insertCompliment" parameterType="amgw.amgw.dto.ComplimentDto" useGeneratedKeys="true" keyProperty="compliment_id">
     INSERT INTO compliment
-      (user_id, password, compliment_count, compliment_title, compliment_detail, registration_time)
+      (user_id, compliment_count, compliment_title, compliment_detail, registration_time)
     VALUES
-      (#{user_id}, #{password}, #{compliment_count}, #{compliment_title}, #{compliment_detail}, NOW())
+      (#{user_id}, #{compliment_count}, #{compliment_title}, #{compliment_detail}, NOW())
   </insert>
 
   <!-- 게시글 수정 -->
@@ -22,7 +22,6 @@
       fix_time = NOW()
     WHERE compliment_id = #{compliment_id} 
       AND user_id = #{user_id} 
-      AND password = #{password}
   </update>
 
   <!-- 게시글 삭제 -->

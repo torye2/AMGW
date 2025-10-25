@@ -131,5 +131,21 @@ public class ComplimentController {
         }
         return ResponseEntity.ok().build();
     }
+    
+    @PostMapping("/Compliment_Delete_One")
+    public String deleteSingleCompliment(@RequestParam("compliment_id") Long complimentId,
+                                         @AuthenticationPrincipal CustomUserDetails user,
+                                         Model model) {
+        ComplimentDto post = complimentMapper.selectCompliment(complimentId.intValue());
+        
+        // 작성자 확인
+        if (user == null || !post.getUser_id().equals(user.getUserId())) {
+            model.addAttribute("error", "작성자만 삭제할 수 있습니다.");
+            return "redirect:/Compliment_D/" + complimentId;
+        }
+
+        complimentMapper.deleteCompliment(complimentId.intValue());
+        return "redirect:/Compliment_L";
+    }
 
 }

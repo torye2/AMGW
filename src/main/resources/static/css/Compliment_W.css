@@ -20,7 +20,6 @@
 }
 
 .Compliment_middle {
-	height: 130px;
 	width: 950px;
 	border: 1px solid #e2e8f0;
 	border-radius: 1rem;
@@ -30,8 +29,11 @@
 	display: flex;
 	flex-wrap: wrap;
     align-content: space-around;
-	margin-bottom: 25px;
-	padding: 20px 10px;
+	margin-bottom: 25px;	
+}
+
+.Compliment_w {
+	margin: 20px 0;
 }
 
 .Compliment_titleline {
@@ -39,23 +41,19 @@
 }
 
 #Compliment_title {
-	font-weight: bold;
-	width: 130px;
-}
-
-#passowrd_box {
+	font-size: 25px;
 	font-weight: bold;
 	width: 130px;
 }
 
 #Compliment_typebox {
-	height: 30px;
-	width: 750px;
+	height: 45px;
+	width: 800px;
 	margin-bottom: 10px;
 }
 
 #Compliment_typetext {
-	height: 30px;
+	height: 40px;
 	width: 100%;
 	max-width: 1015px;
 	padding: 5px;
@@ -359,6 +357,22 @@
 .Compliment_w_btn button:hover {
 	background:#e2e8f0;
 	color:#222;
+}
+/*표 삽입 스타일 */ 
+#editor table {
+  border-collapse: collapse;
+}
+
+#editor table, 
+#editor th, 
+#editor td {
+  border: 1px solid #000;
+}
+
+#editor td {
+  padding: 8px;
+  min-width: 50px;
+  height: 30px;
 }
 
 @media screen and (min-width: 1600px) {
