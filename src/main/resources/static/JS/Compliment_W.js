@@ -239,12 +239,13 @@ bgColorInput.addEventListener('input', e => {
 //---------------------------------------------------------------
 // Form submit 시 에디터 내용을 hidden input으로 전달
 //---------------------------------------------------------------
-const complimentForm = document.getElementById('complimentForm');
-const Compliment_detail_input = document.getElementById('compliment_detail_input');
+const complimentForm = document.getElementById('ComplimentForm'); // HTML id와 정확히 맞춤
+const complimentDetailInput = document.getElementById('Compliment_detail_input'); // HTML id와 정확히 맞춤
 
 if (complimentForm) {
     complimentForm.addEventListener('submit', function(e) {
-        if (editor) {
+        if (editor && complimentDetailInput) {
+            // contenteditable div 내용을 hidden input에 넣어서 서버로 전송
             complimentDetailInput.value = editor.innerHTML;
         }
     });
