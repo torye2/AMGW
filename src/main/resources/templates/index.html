@@ -36,15 +36,15 @@
                             <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             새 결재 작성
                         </a>
-                        <a href="/docs-new.html" class="btn">
+                        <a href="http://localhost:8085/apps/files/files" class="btn">
                             <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                             새 문서
                         </a>
-                        <a href="/attendance.html#request" class="btn">
+                        <a th:href="@{/attendance}" class="btn">
                             <svg class="icon-sm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M4 11h16M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/></svg>
                             휴가/근태 신청
                         </a>
-                        <button id="btnSyncNextcloud" class="btn" th:if="${me.roles.contains('ROLE_ADMIN')}">사용자 동기화</button>
+                        <button id="btnSyncNextcloud" class="btn" th:if="${me?.roles?.contains('ROLE_ADMIN')}">사용자 동기화</button>
                     </div>
                 </div>
 
@@ -96,7 +96,7 @@
                 <article class="card">
                     <div class="card-head">
                         <h2 class="h2">최근 문서</h2>
-                        <a href="http://nc.localhost/apps/files/?view=recent" class="link">문서함</a>
+                        <a href="http://localhost:8085/apps/files/?view=recent" class="link">문서함</a>
                     </div>
                     <ul id="recentDocs" class="list">
                         <li class="list-item skeleton">불러오는 중…</li>

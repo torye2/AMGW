@@ -1,191 +1,74 @@
-.Notice_box {
-	display: flex;
+.ComplimentW_container {
+	max-width: 950px;
 }
 
-.Notice_Topbox {
+.Compliment_Top {
 	width: 300px;
 	height: 60px;
+	font-size: 30px;
+	font-weight: bold;
+	text-align: center;
 	border: 1px solid #e2e8f0;
 	border-radius: 1rem;
 	backdrop-filter:blur(8px);
 	box-shadow:0 8px 24px rgba(15,23,42,.08);
 	background:rgba(255,255,255,.7);
-	text-align: center;
-	font-size: 30px;
 	display: flex;
 	justify-content: space-around;
 	align-items: center;
 	margin-bottom: 25px;
-	
 }
 
-.Noitce_middle {
+.Compliment_middle {
+	width: 950px;
 	border: 1px solid #e2e8f0;
 	border-radius: 1rem;
 	backdrop-filter:blur(8px);
 	box-shadow:0 8px 24px rgba(15,23,42,.08);
 	background:rgba(255,255,255,.7);
-	margin-bottom: 25px;
-	height: 238px;
-	width: 950px;
-}
-
-.Notice_w {
-  width: 100%;
-  max-width: 1200px;
-}
-
-.Notice_titleline {
-	margin: 10px 0;
 	display: flex;
+	flex-wrap: wrap;
+    align-content: space-around;
+	margin-bottom: 25px;	
 }
 
-#Notice_title {
-	margin-left:10px;
-	text-align:center;
-	padding:5px;
-	width: 70px;
-	font-weight: bold;
+.Compliment_w {
+	margin: 20px 0;
 }
 
-#Notice_importance{
-	padding:5px;
-	font-size: 14px;
+.Compliment_titleline {
 	text-align: center;
-	width: 70px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
 }
 
-#box {
-	margin: 2px;
+#Compliment_title {
+	font-size: 25px;
+	font-weight: bold;
+	width: 130px;
 }
 
-#Notice_typebox {
-	display: flex;
-	align-items: center;
-	width: 760px;
+#Compliment_typebox {
+	height: 45px;
+	width: 800px;
+	margin-bottom: 10px;
 }
 
-#Notice_typetext {
-	height: 30px;
+#Compliment_typetext {
+	height: 40px;
 	width: 100%;
 	max-width: 1015px;
 	padding: 5px;
-	border: 1px solid #ccc;
-	border-radius: 3px;
-}
-
-.fileupload_line {
-	display: flex;
-}
-
-#file_upload {
-	margin-left: 10px;
-	text-align:center;
-	padding:5px;
-	width: 75px;
-	font-weight: bold;
-}
-
-.upload_btn {
-	display: flex;
-	text-align:center;
-	width: 195px;
-	justify-content: space-around;
-}
-
-#My_PC{
-	padding: 3px;
-	width: 50px;
-	height: 30px;
-	border: 1px solid #ccc;
-	border-radius: 3px;
-	background: #fff;
-	color: #222;
-}
-
-#My_PC:hover {
-	background: #e2e8f0;
-	color: #222;
-}
-
-#FileCapacity_msg {
-	font-size: 12px;
-	width: 640px;
-	color: #8a8686;
-	display: flex;
-	justify-content: flex-end;
-}
-
-#FileCapacity_msg p {
-	text-align: center;
-	padding: 5px;
-	margin: 0;
-}
-
-.upload_box {
-	display: flex;
-	justify-content: flex-end;
-}
-
-#upload_area {
-	margin: 10px 28px 15px 0;
-	min-height: 123px;
-	max-width: 1200px;
-	width: 765px;
-	text-align: center;
-	border: 2px dashed #ccc;
-	border-radius: 6px;
-	
-}
-
-.upload_area.dragover {
-	border-color: #999;
-	background-color: #f0f0f0;
-}
-
-#upload_msg {
-	display:flex;
-	justify-content:space-around;
-	align-items:center;
-	height: 123px;
-	color: #888;
-	font-size: 14px;
-	margin: 0;
-}
-
-.file_list {
-	height: 100px;
-	width: 760px;
-	border-collapse: collapse;
-	display: none;
-}
-
-#fileupload_box {
-	height: 40px;
-	border-bottom: 1px solid #ccc;
-}
-
-.file_list th{
-	background-color: #f1f5f9;
 	border: 1px solid #e2e8f0;
-	padding: 6px;
-	font-size: 14px;
+	border-radius: 3px;
 }
 
-.file_list th:last-child {
-	width: 200px;
+
+.Compliment_passwordline {
+	text-align: center;
 }
 
-.file_list td:first-child {
-	cursor: pointer;
-	width: 80px;
-}
-
-.file_list td:first-child:hover {
-	color: red;
+.passoword_typebox {
+	border: 1px solid #e2e8f0;
+	height: 30px;
 }
 
 .UI_editor {
@@ -378,6 +261,25 @@
 	display: none !important;
 }
 
+.editor-content {
+	padding: 10px;
+	background: #fff;
+	border: 1px solid #f1f5f9;
+	border-radius: 0 0 1rem 1rem;
+	min-height: 300px;
+	caret-color: black;
+}
+
+.editor-content ul {
+    list-style-type: disc;   /* 동그라미로 표시 */
+    margin-left: 1.5em;      /* 들여쓰기 */
+}
+
+.editor-content ol {
+    list-style-type: decimal; /* 숫자로 표시 */
+    margin-left: 1.5em;       /* 들여쓰기 */
+}
+
 #alignMenu {
 	background: #fff;
 	display: none;
@@ -435,32 +337,14 @@
 	margin: 7px 0;
 }
 
-.editor-content {
-	background: #fff;
-	border: 1px solid #f1f5f9;
-	border-radius: 0 0 1rem 1rem;
-	min-height: 300px;
-	caret-color: black;
-}
-
-.editor-content ul {
-    list-style-type: disc;   /* 동그라미로 표시 */
-    margin-left: 1.5em;      /* 들여쓰기 */
-}
-
-.editor-content ol {
-    list-style-type: decimal; /* 숫자로 표시 */
-    margin-left: 1.5em;       /* 들여쓰기 */
-}
-
-.Notice_w_btn {
+.Compliment_w_btn {
 	margin-top: 10px;
 	line-height: 40px;
 	display:flex;
 	justify-content: flex-end;
 }
 
-.Notice_w_btn button {
+.Compliment_w_btn button {
 	width: 950px;
 	text-align: center;
 	border: 1px solid #e2e8f0;
@@ -470,11 +354,10 @@
 	box-shadow:0 8px 24px rgba(15,23,42,.08);
 }
 
-.Notice_w_btn button:hover {
+.Compliment_w_btn button:hover {
 	background:#e2e8f0;
 	color:#222;
 }
-
 /*표 삽입 스타일 */ 
 #editor table {
   border-collapse: collapse;
@@ -492,45 +375,25 @@
   height: 30px;
 }
 
-/* ===== 큰 화면 (데스크탑 1600px 이상) ===== */
 @media screen and (min-width: 1600px) {
-  .Noitce_middle {
-  	width: 1200px;
-  }
-  .Notice_w {
-    width: 1200px;
-  }
-  
-  .Notice_titleline {
-  	width: 1200px;
-  }
-  #Notice_typebox {
-  	width: 1015px;
-  }
-  #Notice_typetext {
-    width: 1015px;
-  }
-  #upload_area {
-    width: 1015px;
-  }
-  
-  .file_list {
-    width: 1011px;
-  }
-  .UI_editor {
-  	width: 1200px;
-  }
-  
-  #FileCapacity_msg {
-    width: 900px;
-  }
-  .Notice_w_btn button {
-    width: 1200px;
-  }
-  .editor-content {
-   	width: 1200px;
-  }
-  .Notice_w_btn {
-  	width: 1200px;
-  }
+	
+	.ComplimentW_container {
+		max-width: 1200px;
+	}
+	
+	.Compliment_middle {
+		width: 1200px;
+	}
+	
+	#Compliment_typetext {
+		width: 1150px;
+	}
+	
+	.UI_editor {
+		width: 1200px;
+	}
+	
+	.Compliment_w_btn button {
+		width: 1200px;
+	}
 }

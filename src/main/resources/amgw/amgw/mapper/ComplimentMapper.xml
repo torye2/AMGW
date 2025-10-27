@@ -8,9 +8,9 @@
   <!-- 게시글 등록 -->
   <insert id="insertCompliment" parameterType="amgw.amgw.dto.ComplimentDto" useGeneratedKeys="true" keyProperty="compliment_id">
     INSERT INTO compliment
-      (user_id, password, compliment_count, compliment_title, compliment_detail, registration_time)
+      (user_id, compliment_count, compliment_title, compliment_detail, registration_time)
     VALUES
-      (#{user_id}, #{password}, #{compliment_count}, #{compliment_title}, #{compliment_detail}, NOW())
+      (#{user_id}, #{compliment_count}, #{compliment_title}, #{compliment_detail}, NOW())
   </insert>
 
   <!-- 게시글 수정 -->
@@ -22,26 +22,30 @@
       fix_time = NOW()
     WHERE compliment_id = #{compliment_id} 
       AND user_id = #{user_id} 
-      AND password = #{password}
   </update>
 
   <!-- 게시글 삭제 -->
-  <delete id="deleteCompliment" parameterType="int">
+  <delete id="deleteCompliment" parameterType="map">
     DELETE FROM compliment
     WHERE compliment_id = #{compliment_id}
   </delete>
 
   <!-- 단일 조회 -->
   <select id="selectCompliment" parameterType="int" resultType="amgw.amgw.dto.ComplimentDto">
-    SELECT * FROM compliment
-    WHERE compliment_id = #{compliment_id}
-  </select>
+	  SELECT c.*,
+	         u.username
+	  FROM compliment c
+	  JOIN users u ON c.user_id = u.id
+	  WHERE c.compliment_id = #{compliment_id}
+</select>
 
   <!-- 전체 조회 (페이지네이션) -->
   <select id="selectAllCompliments" resultType="amgw.amgw.dto.ComplimentDto">
-    SELECT * FROM compliment
-    ORDER BY compliment_id DESC
-    LIMIT #{limit} OFFSET #{offset}
+    SELECT c.*, u.username
+    FROM compliment c
+  	JOIN users u ON c.user_id = u.id
+  	ORDER BY c.compliment_id DESC
+  	LIMIT #{limit} OFFSET #{offset}
   </select>
 
   <!-- 전체 개수 조회 -->
@@ -58,13 +62,15 @@
 
   <!-- 검색 + 페이지네이션 -->
   <select id="searchCompliments" resultType="amgw.amgw.dto.ComplimentDto">
-    SELECT * FROM compliment
+    SELECT c.*, u.username
+    FROM compliment c
+  	JOIN users u ON c.user_id = u.id
     <where>
       <if test="searchType == 'title'">
-        compliment_title LIKE CONCAT('%', #{keyword}, '%')
+        c.compliment_title LIKE CONCAT('%', #{keyword}, '%')
       </if>
       <if test="searchType == 'content'">
-        compliment_detail LIKE CONCAT('%', #{keyword}, '%')
+        c.compliment_detail LIKE CONCAT('%', #{keyword}, '%')
       </if>
     </where>
     ORDER BY compliment_id DESC

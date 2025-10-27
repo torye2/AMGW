@@ -10,7 +10,6 @@
 <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 <body>
-	
 	<div th:replace="~{fragments/header :: siteHeader}"></div>
 	<div class="container grid grid-cols-1 md:grid-cols-[240px,1fr] gap-4 sm:gap-6 py-4">
 	<div th:replace="~{fragments/sidebar :: siteSidebar}"></div>
@@ -38,7 +37,7 @@
 						<table class="Notice_LBox">
 							<thead class="Notice_headbox">
 								<tr id="Notice_L-head">
-									<td id="List_CheckBox"><input type="checkbox" id="checkAll"></td>
+									<td th:if="${me.roles.contains('ROLE_ADMIN')}" id="List_CheckBox"><input type="checkbox" id="checkAll"></td>
 									<td id="List_number">순서</td>
 									<td id="List_title">제목</td>
 									<td id="user_id">작성자</td>
@@ -48,7 +47,7 @@
 							</thead>
 							<tbody>
 								<tr th:each="notice, stat : ${notices}" class="Notice_L-body">
-									<td><input type="checkbox" name="noticeIds" th:value="${notice.notice_id}"/></td>
+									<td th:if="${me.roles.contains('ROLE_ADMIN')}"><input type="checkbox" name="noticeIds" th:value="${notice.notice_id}"/></td>
 									
 									<td th:if="${notice.important}" class="important-cell"><p>중요!</p></td>
 									<td th:unless="${notice.important}" th:text="${stat.index + 1}" id="Number_notice"></td>

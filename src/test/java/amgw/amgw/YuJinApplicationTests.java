@@ -71,7 +71,6 @@ public class YuJinApplicationTests {
         // 테스트용 게시글 생성
         ComplimentDto dto = new ComplimentDto();
         dto.setUser_id(1L); // users 테이블에 있는 user_id
-        dto.setPassword("1234");
         dto.setCompliment_count(0);
         dto.setCompliment_title("테스트 제목");
         dto.setCompliment_detail("테스트 내용");

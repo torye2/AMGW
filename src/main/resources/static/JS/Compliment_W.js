@@ -63,27 +63,46 @@ function execCmd(command) {
     if (command === 'createLink') {
         const url = prompt('링크 주소(URL)을 입력하세요:');
         if (url) document.execCommand('createLink', false, url);
+
     } else if (command === 'insertCheckbox') {
         document.execCommand('insertHTML', false, '<input type="checkbox">');
+
     } else if (command === 'insertHr') {
         document.execCommand('insertHTML', false, '<hr>');
+
     } else if (command === 'insertTable') {
         const rows = parseInt(prompt('행 개수 입력', '2'));
         const cols = parseInt(prompt('열 개수 입력', '2'));
         if (isNaN(rows) || isNaN(cols) || rows <= 0 || cols <= 0) return;
-        let tableHTML = '<table border="1" style="border-collapse: collapse;">';
+
+        let tableHTML = '<table border="1" style="border-collapse: collapse; width:100%;">';
         for (let i = 0; i < rows; i++) {
             tableHTML += '<tr>';
-            for (let j = 0; j < cols; j++) tableHTML += '<td>&nbsp;</td>';
+            for (let j = 0; j < cols; j++) {
+                tableHTML += '<td style="padding:5px;">&nbsp;</td>';
+            }
             tableHTML += '</tr>';
         }
         tableHTML += '</table><br>';
-        document.execCommand('insertHTML', false, tableHTML);
-    } else {
-        document.execCommand(command, false, null);
+
+        // ✅ 커서 위치에 삽입
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = tableHTML;
+            const fragment = document.createDocumentFragment();
+            let node;
+            while ((node = tempDiv.firstChild)) {
+                fragment.appendChild(node);
+            }
+            range.insertNode(fragment);
+        } else {
+            editor.innerHTML += tableHTML;
+        }
     }
-    updateButtonState();
 }
+
 
 //---------------------------------------------------------------
 // 메뉴 관련
@@ -239,12 +258,13 @@ bgColorInput.addEventListener('input', e => {
 //---------------------------------------------------------------
 // Form submit 시 에디터 내용을 hidden input으로 전달
 //---------------------------------------------------------------
-const complimentForm = document.getElementById('complimentForm');
-const Compliment_detail_input = document.getElementById('compliment_detail_input');
+const complimentForm = document.getElementById('ComplimentForm'); // HTML id와 정확히 맞춤
+const complimentDetailInput = document.getElementById('Compliment_detail_input'); // HTML id와 정확히 맞춤
 
 if (complimentForm) {
     complimentForm.addEventListener('submit', function(e) {
-        if (editor) {
+        if (editor && complimentDetailInput) {
+            // contenteditable div 내용을 hidden input에 넣어서 서버로 전송
             complimentDetailInput.value = editor.innerHTML;
         }
     });

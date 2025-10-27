@@ -1,0 +1,144 @@
+.Compliment_Container {
+	max-width: 950px;
+}
+
+#Compliment_top {
+	width: 300px;
+	height: 60px;
+	font-size: 30px;
+	font-weight: bold;
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	margin-bottom: 25px;
+}
+
+.Compliment_middle {
+	width: 950px;
+	min-height: 100px;
+	font-size: 20px;
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	margin-bottom: 25px;
+	display: flex;
+	justify-content: space-around;
+}
+
+#middle_table {
+	width: 900px;
+	padding: 10px;
+	margin: 10px;
+	border: 1px solid #e2e8f0;
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+}
+
+#middle_titlebox {
+	width: 50px;
+}
+
+#middle_titlebox th {
+	background: #f1f5f9;
+	width: 144.51px;
+}
+
+#middle_titlebox td {
+	padding-left: 15px;	
+}
+
+#middle_name {
+	border-top: 1px solid #e2e8f0;
+}
+
+#middle_name th {
+	background: #f1f5f9;
+}
+
+#middle_name td {
+	text-align: center;
+}
+
+#nema_th {
+	width: 144.51px;
+	height: 38.8; 
+}
+
+#name_width {
+	width: 180px;
+	height: 38.8; 
+}
+
+#date_th {
+	width: 200px;
+}
+
+#date_width {
+	width: 200px;
+}
+
+.Compliment_editor {
+	width: 950px;
+	min-height: 300px; 
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	margin-bottom: 15px;
+}
+
+.Compliment_editor div {
+	margin: 20px;
+	min-height: 260px;
+	border: 1px solid #e2e8f0;
+	
+}
+
+.compliment-btns {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+.compliment-btns button {
+	gap: 20px;
+	width: 70px;
+	height: 40px;
+	margin: 10px 0;
+	border: 1px solid #e2e8f0;
+	background:rgba(255,255,255,.7);
+	backdrop-filter:blur(8px);
+	border-radius: 1rem;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
+.compliment-btns button:hover {
+	background: #e2e8f0;
+	color: #222;
+}
+@media screen and (min-width: 1600px) {
+	
+	.Compliment_Container {
+		max-width: 1200px;
+	}
+	
+	.Compliment_middle {
+		width: 1200px;
+	}
+	
+	#middle_table {
+		width: 1150px;
+	}
+	
+	.Compliment_editor {
+		width: 1200px;
+	}
+}

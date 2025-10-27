@@ -1,5 +1,6 @@
 package amgw.amgw.controller;
 
+import amgw.amgw.config.NextcloudClient;
 import amgw.amgw.dto.SignupForm;
 import amgw.amgw.entity.User;
 import amgw.amgw.repository.UserRepository;
@@ -8,6 +9,7 @@ import amgw.amgw.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,10 +18,12 @@ import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
     private final UserService userService;
     private final EmailVerificationService emailVerificationService;
+    private final NextcloudClient nextcloudClient;
 
     @GetMapping("/login")
     public String login() {
@@ -51,6 +55,8 @@ public class AuthController {
 
         User user = userService.register(form);
         req.getSession().setAttribute("pendingVerifyUserId", user.getId());
+        nextcloudClient.ensureUser(form.getUsername(), form.getName(), form.getEmail(), form.getPassword(), form.getDepartment());
+        log.info("nextcloud create user: {}", form.getUsername());
         try {
             emailVerificationService.start(
                     user.getId(),

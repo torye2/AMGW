@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>칭찬합니다 상세 페이지</title>
+<link rel="stylesheet" href="../css/Compliment_D.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" th:href="@{/css/styles.css}" />
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body>
+	<div th:replace="~{fragments/header :: siteHeader}"></div>
+	<div class="container grid grid-cols-1 md:grid-cols-[240px,1fr] gap-4 sm:gap-6 py-4">
+	<div th:replace="~{fragments/sidebar :: siteSidebar}"></div>
+		<div class="Compliment_Container">
+			<div id="Compliment_top">
+				<h1>칭찬합니다.</h1>
+			</div>
+			<div class="Compliment_middle">
+				<table id="middle_table">
+					<tr id="middle_titlebox">
+						<th>제목</th>
+						<td th:text="${compliment.compliment_title}" colspan="5"></td>
+					</tr>
+					<tr id="middle_name">
+						<th id="nema_th">작성자</th>
+						<td id="name_width" th:text="${compliment.username}"></td>
+						<th id="date_th">작성날짜</th>
+						<td id="date_width" th:text="${#dates.format(compliment.registration_time, 'yyyy-MM-dd HH:mm')}"></td>
+						<th>조회수</th>
+						<td id="count_center" th:text="${compliment.compliment_count}"></td>
+					</tr>
+				</table>
+			</div>
+			<div class="Compliment_editor">
+				<div th:text="${compliment.compliment_detail}"></div> <!-- 게시글 내용 -->
+			</div>
+			<div class="compliment-btns">
+				<div th:if="${loginUser != null and loginUser.userId == compliment.user_id}">
+					<button class="fixBtn"
+					        th:if="${loginUser != null and loginUser.userId == compliment.user_id}"
+					        th:onclick="'location.href=\'/Compliment_W?compliment_id=' + ${compliment.compliment_id} + '\''">수정
+					</button>
+					<form th:action="@{/Compliment_Delete_One}" method="post" style="display:inline;">
+					  <input type="hidden" name="compliment_id" th:value="${compliment.compliment_id}">
+					  <button type="submit" class="deletebtn"
+					          th:if="${loginUser != null and loginUser.userId == compliment.user_id}">삭제
+					  </button>
+					</form>
+			 	</div>
+		 		<button type="button" onclick="location.href='/Compliment_L'" class="ListBtn">목록</button>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

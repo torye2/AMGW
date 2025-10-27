@@ -1,0 +1,232 @@
+.ComplimentL_container {
+	max-width: 950px;
+}
+
+.ComplimentL_top {
+	width: 300px;
+	height: 60px;
+	font-size: 30px;
+	font-weight: bold;
+	border: 1px solid #e2e8f0;
+	border-radius: 1rem;
+	backdrop-filter:blur(8px);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	background:rgba(255,255,255,.7);
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	margin-bottom: 25px;
+}
+
+#searchForm {
+	display: flex;
+	justify-content: flex-end;
+	gap: 0;
+	margin-bottom: 15px;
+}
+
+#searchForm select {
+	text-align: center;
+	width: 91px;
+	height: 50px;
+	border: 1px solid #e2e8f0;
+	border-radius: 1rem 0 0 1rem;
+	background:#f1f5f9;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	backdrop-filter:blur(8px);
+}
+
+#searchForm input {
+	height: 50px;
+	border: 1px solid #e2e8f0;
+	background:#fff;
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	backdrop-filter:blur(8px);
+}
+
+#searchForm button {
+	width: 69px;
+	height: 50px;
+	border: 1px solid #e2e8f0;
+	border-left: none;
+	backdrop-filter:blur(8px);
+	background: #f1f5f9;
+	border-radius: 0 1rem 1rem 0;
+}
+
+#Compliment_thead {
+	border: 1px solid #e2e8f0;
+	border-radius: 1rem;
+	backdrop-filter:blur(8px);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	background:rgba(255,255,255,.7);
+}
+
+.Compliment_theadBox {
+	width: 950px;
+	height: 50px;
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	border-bottom: 1px solid #e2e8f0;
+}
+
+#checkAll {
+	width: 30px;
+}
+
+#theadBox_title {
+	width: 450px;
+}
+
+#theadBox_name {
+	width: 80px;
+}
+
+#theadBox_date {
+	width: 200px;
+}
+
+.Compliment_tbody {
+	min-height: 50px;
+}
+
+#tbodybox_post {
+	height: 40px;
+	text-align: center;
+}
+
+#Compliment_tbodybox {
+	min-height: 40px;
+	display: flex;
+	justify-content:space-around;
+	align-items: center;
+	text-align: center;
+}
+
+#tbodybox_checkbox {
+	width: 35px;
+}
+
+#tbodybox_number {
+	width: 40px;
+}
+
+#tbodybox_title {
+	width: 450px;
+}
+
+#Compliment_name {
+	width: 90px;
+}
+
+#Compliment_date {
+	width: 200px;
+}
+
+#Compliment_count {
+	width: 50px;
+}
+
+.pagination {
+	gap:8px;
+	width:100%;
+	max-width: 1200px;
+	margin: 10px;
+	display: flex;
+	justify-content: center;
+}
+
+.pagination a {
+  display: inline-block;
+  text-decoration: none;
+  color: #333;
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 30px;
+}
+
+.pagination a:hover {
+  background-color: #f0f0f0;
+}
+
+.pagination a:active {
+  background-color: #f1f5f9; /* 파란색 배경 */
+  color: #333;
+  border-color: #f1f5f9;
+  font-weight: bold;
+}
+
+#Compliment_Previous {
+	text-align: center;
+	display:inline-block;
+	height: 30px;
+	width: 60px;
+	border: 1px solid #e2e8f0;
+	border-radius: .5rem 0 0 .5rem;
+	backdrop-filter:blur(8px);
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	color: #333;
+	transition: all 0.2s ease;
+}
+
+#Compliment-number {
+	text-align: center;
+	display:inline-block;
+	height: 30px;
+	width: 40px;
+	border: 1px solid #e2e8f0;
+	backdrop-filter:blur(8px);
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
+#Compliment_Next {
+	text-align: center;
+	display:inline-block;
+	height: 30px;
+	width: 60px;
+	border: 1px solid #e2e8f0;
+	border-radius: 0 .5rem .5rem 0;
+	backdrop-filter:blur(8px);
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+}
+
+.Compliment_btn {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	width: 100%;
+	max-width: 1200px;
+	margin-top: 12px;
+	justify-content: flex-end;
+}
+
+.Compliment_btn button {
+	margin: 3px;
+	border: 1px solid #e2e8f0;
+	border-radius: .5rem;
+	backdrop-filter:blur(8px);
+	background:rgba(255,255,255,.7);
+	box-shadow:0 8px 24px rgba(15,23,42,.08);
+	line-height: 30px;
+	width:60px;
+}
+
+.Compliment_btn button:hover {
+	background:#e2e8f0;
+	color: #222;
+	border: 2px solid #e2e8f0;
+}
+@media screen and (min-width: 1600px) {
+	
+	.ComplimentL_container {
+		max-width: 1200px;
+	}
+	
+	.Compliment_theadBox {
+		width: 1200px;
+	}
+}

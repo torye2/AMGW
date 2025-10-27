@@ -83,30 +83,72 @@ function updateButtonState() {
 // execCmd 함수
 function execCmd(command) {
     editor.focus();
+
+    // 🔹 기본 명령 처리
+    const basicCommands = [
+        'bold', 'italic', 'underline', 'strikeThrough',
+        'insertUnorderedList', 'insertOrderedList',
+        'indent', 'outdent', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'
+    ];
+
+    if (basicCommands.includes(command)) {
+        document.execCommand(command, false, null);
+        return;
+    }
+
+    // 🔹 링크 삽입
     if (command === 'createLink') {
         const url = prompt('링크 주소(URL)을 입력하세요:');
         if (url) document.execCommand('createLink', false, url);
-    } else if (command === 'insertCheckbox') {
+        return;
+    }
+
+    // 🔹 체크박스 삽입
+    if (command === 'insertCheckbox') {
         document.execCommand('insertHTML', false, '<input type="checkbox">');
-    } else if (command === 'insertHr') {
+        return;
+    }
+
+    // 🔹 구분선 삽입
+    if (command === 'insertHr') {
         document.execCommand('insertHTML', false, '<hr>');
-    } else if (command === 'insertTable') {
+        return;
+    }
+
+    // 🔹 표 삽입
+    if (command === 'insertTable') {
         const rows = parseInt(prompt('행 개수 입력', '2'));
         const cols = parseInt(prompt('열 개수 입력', '2'));
         if (isNaN(rows) || isNaN(cols) || rows <= 0 || cols <= 0) return;
-        let tableHTML = '<table border="1" style="border-collapse: collapse;">';
+
+        let tableHTML = '<table border="1" style="border-collapse: collapse; border: 1px solid #000;">';
         for (let i = 0; i < rows; i++) {
             tableHTML += '<tr>';
-            for (let j = 0; j < cols; j++) tableHTML += '<td>&nbsp;</td>';
+            for (let j = 0; j < cols; j++) {
+                tableHTML += '<td style="padding:5px; border: 1px solid #000;">&nbsp;</td>';
+            }
             tableHTML += '</tr>';
         }
         tableHTML += '</table><br>';
-        document.execCommand('insertHTML', false, tableHTML);
-    } else {
-        document.execCommand(command, false, null);
+
+        const selection = window.getSelection();
+        if (selection.rangeCount > 0) {
+            const range = selection.getRangeAt(0);
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = tableHTML;
+            const fragment = document.createDocumentFragment();
+            let node;
+            while ((node = tempDiv.firstChild)) {
+                fragment.appendChild(node);
+            }
+            range.insertNode(fragment);
+        } else {
+            editor.innerHTML += tableHTML;
+        }
+        return;
     }
-    updateButtonState();
 }
+
 
 //---------------------------------------------------------------
 // -----------------------------

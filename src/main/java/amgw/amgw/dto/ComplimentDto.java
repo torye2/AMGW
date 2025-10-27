@@ -14,7 +14,6 @@ public class ComplimentDto {
 	private Long compliment_id;
 	private Long user_id;
 	private String username;
-	private String password;
 	private int compliment_count;
 	private String compliment_title;
 	private String compliment_detail;

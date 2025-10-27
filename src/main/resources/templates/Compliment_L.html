@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>칭찬합니다. 목록</title>
+<link rel="stylesheet" href="../css/Compliment_L.css" />
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" th:href="@{/css/styles.css}" />
+<meta name="_csrf" th:content="${_csrf.token}" />
+<meta name="_csrf_header" th:content="${_csrf.headerName}" />
+</head>
+<body>
+	<div th:replace="~{fragments/header :: siteHeader}"></div>
+	<div class="container grid grid-cols-1 md:grid-cols-[240px,1fr] gap-4 sm:gap-6 py-4">
+	<div th:replace="~{fragments/sidebar :: siteSidebar}"></div>
+		<div class="ComplimentL_container">
+			<div class="ComplimentL_top">
+				<h1>칭찬합니다.</h1>
+			</div>
+			<div>
+				<div>
+					 <form th:action="@{/Compliment_L}" method="get" id="searchForm">
+				    	<select name="searchType">
+				    		<option value="title" th:selected="${searchType == 'title'}">제목</option>
+				    		<option value="content" th:selected="${searchType == 'content'}">내용</option>
+				    	</select>
+				        <input type="text" name="keyword" th:value="${keyword}" placeholder="검색어를 입력해주세요" />
+				        <button type="submit">검색</button>
+				    </form>
+				</div>
+			</div>
+			<div>
+				<form action="">
+					<div id="Compliment_thead">
+						<table class="Compliment_table">
+							<thead>
+								<tr class="Compliment_theadBox">
+									<th th:if="${me.roles.contains('ROLE_ADMIN')}"><input type="checkbox" id="checkAll"></th>
+									<th>순서</th>
+									<th id="theadBox_title">제목</th>
+									<th id="theadBox_name">작성자</th>
+									<th id="theadBox_date">작성날짜</th>
+									<th>조회수</th>
+								</tr>
+							</thead>
+							<tbody class="Compliment_tbody">
+							  <tr id="Compliment_tbodybox"  th:each="compliment, stat : ${complimentList}">
+							    <td id="tbodybox_checkbox"><input th:if="${me.roles.contains('ROLE_ADMIN')}" type="checkbox" name="check" th:value="${compliment.compliment_id}" /></td>
+							    <td id="tbodybox_number" th:text="${stat.count}"></td>
+							    <td id="tbodybox_title">
+							      <a th:href="@{'/Compliment_D/' + ${compliment.compliment_id}}" 
+							         th:text="${compliment.compliment_title}"></a>
+							    </td>
+							    <td id="Compliment_name" th:text="${compliment.username}"></td>
+							    <td id="Compliment_date" th:text="${#dates.format(compliment.registration_time, 'yyyy-MM-dd')}"></td>
+							    <td id="Compliment_count" th:text="${compliment.compliment_count}"></td>
+							  </tr>
+							  <tr th:if="${#lists.isEmpty(complimentList)}">
+							    <td id="tbodybox_post" colspan="6">등록된 게시글이 없습니다.</td>
+							  </tr>
+							</tbody>
+						</table>
+					</div>
+					<div class="pagination">
+					    <span th:if="${currentPage > 1}">
+					      <a th:href="@{/Compliment_L(page=${currentPage - 1}, searchType=${searchType}, keyword=${keyword})}" id="Compliment_Previous">이전</a>
+					    </span>
+					
+					    <span th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+					        th:classappend="${pageNum == currentPage} ? 'active'" id="Compliment-number">
+					      <a th:href="@{/Compliment_L(page=${pageNum}, searchType=${searchType}, keyword=${keyword})}"
+					         th:text="${pageNum}"></a>
+					    </span>
+					
+					    <span th:if="${currentPage < totalPages}" id="Compliment_Next">
+					      <a th:href="@{/Compliment_L(page=${currentPage + 1}, searchType=${searchType}, keyword=${keyword})}">다음</a>
+					    </span>
+					</div>
+					<div class="Compliment_btn">
+						<button type="button" id="writeBtn">글쓰기</button>
+						<button id="editBtn" th:if="${me.roles.contains('ROLE_ADMIN')}">수정</button>
+						<button type="button" id="deleteBtn" th:if="${me.roles.contains('ROLE_ADMIN')}">삭제</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+	<script src="/JS/Compliment_L.js"></script>
+</body>
+</html>
