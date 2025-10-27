@@ -38,22 +38,32 @@ document.body.appendChild(fileInput);
 // 에디터 기본 기능
 // -----------------------------
 function applyStyleToSelection(style) {
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
-    const range = selection.getRangeAt(0);
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+  const range = selection.getRangeAt(0);
+
+  // 선택된 텍스트가 없는 경우
+  if (selection.isCollapsed) {
     const span = document.createElement('span');
     span.setAttribute('style', style);
-    if (selection.isCollapsed) {
-        span.appendChild(document.createTextNode('\u200B'));
-        range.insertNode(span);
-        range.setStartAfter(span);
-        range.setEndAfter(span);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    } else {
-        range.surroundContents(span);
-    }
+    span.appendChild(document.createTextNode('\u200B')); // 빈문자
+    range.insertNode(span);
+    range.setStartAfter(span);
+    range.setEndAfter(span);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    return;
+  }
+
+  // ✅ 선택 영역이 있을 경우 - 안전한 방식으로 처리
+  document.execCommand('fontSize', false, '7'); // 임시 적용
+  const fontElements = editor.querySelectorAll('font[size="7"]');
+  fontElements.forEach(el => {
+    el.removeAttribute('size');
+    el.style.cssText += style; // 실제 스타일 덮어쓰기
+  });
 }
+
 
 function saveSelection() {
     const sel = window.getSelection();
@@ -214,11 +224,10 @@ function setLineHeightForSelection(lineHeight) {
 // 글꼴 / 글자 크기
 // -----------------------------
 if (fontSelect) {
-    fontSelect.addEventListener('change', e => {
-        const val = e.target.value;
-        try { document.execCommand('fontName', false, val); } catch {}
-        applyStyleToSelection(`font-family: ${val};`);
-    });
+  fontSelect.addEventListener('change', e => {
+    const val = e.target.value;
+    document.execCommand('fontName', false, val);
+  });
 }
 
 if (fontSizeSelect) {

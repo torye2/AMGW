@@ -95,6 +95,7 @@
 }
 
 .Notice_Botton {
+	width: 950px;
 	border: 1px solid #e2e8f0;
 	background:rgba(255,255,255,.7);
 	backdrop-filter:blur(8px);
@@ -104,10 +105,7 @@
 
 #Notice_D {
 	margin: 20px;
-	padding: 5px;
 	border: 1px solid #e2e8f0;
-	max-width: 1200px;
-	width: 910;
 	min-height: 400px;
 }
 
@@ -136,18 +134,25 @@
 
 
 /* ===== 큰 화면 (데스크탑 1600px 이상) ===== */
-@media screen and (min-width: 1600px) {
+@media screen and (min-width: 1536px) {
 	#Notice_top h1 {
 		font-size: 32px;
 	}
+	
 	#Notice_middle {
 		width: 1200px;
 	}
+	
 	.Notice_D_table {
-		width: 1150px;
+		width: 1155px;
 	}
+	
+	.Notice_Botton {
+		width: 1200px;
+	}
+	
 	#Notice_D {
 		min-height: 500px;
-		width: 1150px;
+		width: 1155px;
 	}
 }
