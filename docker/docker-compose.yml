@@ -11,7 +11,7 @@
       - MYSQL_PASSWORD=GwApp!2025
       - REDIS_HOST=redis
       - REDIS_HOST_PORT=6379
-      - NEXTCLOUD_CONFIG_EXTRA={"system":{"allow_local_remote_servers":true}}
+      - NEXTCLOUD_CONFIG_EXTRA={"system":{"allow_local_remote_servers":true,"trusted_domains":["localhost","127.0.0.1","nextcloud"]}}
     depends_on:
       - onlyoffice
       - redis

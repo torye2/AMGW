@@ -5,6 +5,7 @@ import amgw.amgw.service.AiInfoService;
 import com.google.gson.*;
 import com.google.gson.stream.JsonReader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -26,7 +27,8 @@ public class AiChatController {
     @Autowired
     private AiInfoService aiInfoService;
 
-    private static final String API_KEY = "AIzaSyCdkVsuY8DVF92MG2I_J2hitV7uzjEVyPA";
+    @Value("${ai.gemini.api-key}")
+    private String API_KEY;
 
     @GetMapping
     public String chatPage() {
