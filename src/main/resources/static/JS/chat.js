@@ -126,13 +126,12 @@
 
     // 구독 갱신
     if (stomp) {
-      if (currentSubId) stomp.unsubscribe(currentSubId);
-      const sub = stomp.subscribe(`/topic/rooms/${roomId}`, (frame) => {
+      if (currentSubId) stomp.unsubscribe(currentSubId); // 이전 구독 해제
+      const sub = stomp.subscribe(`/topic/rooms/${roomId}`, (frame) => { // 구독
         const m = JSON.parse(frame.body);
-        // console.debug('[chat] recv', m); // 필요시 활성화
-        appendMsg(m);
+        appendMsg(m); // 수신 메시지 렌더
       });
-      currentSubId = sub.id;
+      currentSubId = sub.id; // 구독 id 저장(해제용)
     }
     updateInputState();
   }
