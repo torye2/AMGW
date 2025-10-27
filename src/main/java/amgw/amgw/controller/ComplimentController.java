@@ -1,6 +1,7 @@
 package amgw.amgw.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -104,16 +105,26 @@ public class ComplimentController {
     }
 
     @PostMapping("/Compliment_W")
-    public String insertCompliment(@AuthenticationPrincipal CustomUserDetails user, 
-                                   ComplimentDto compliment, Model model) {
+    public String saveCompliment(@AuthenticationPrincipal CustomUserDetails user, 
+                                 ComplimentDto compliment, Model model) {
         try {
             if (user == null) { // 로그인 안 한 사용자 차단
                 model.addAttribute("error", "로그인이 필요합니다.");
                 return "redirect:/login";
             }
 
+            // 로그인한 사용자 정보 설정
             compliment.setUser_id(user.getUserId());
-            complimentMapper.insertCompliment(compliment);
+
+            if (compliment.getCompliment_id() != null) {
+                // ✅ 수정 로직
+                complimentMapper.updateCompliment(compliment);
+            } else {
+                // ✅ 새 글 등록 로직
+                compliment.setCompliment_count(0);
+                complimentMapper.insertCompliment(compliment);
+            }
+
             return "redirect:/Compliment_L";
         } catch (Exception e) {
             e.printStackTrace();
@@ -125,27 +136,15 @@ public class ComplimentController {
     @PostMapping("/Compliment_Delete")
     @ResponseBody
     public ResponseEntity<?> deleteCompliments(@RequestBody List<Long> ids) {
-    	System.out.println("========================"+ids);
-        for (Long id : ids) {
-            complimentMapper.deleteCompliment(id.intValue());
+        try {
+            for (Long id : ids) {
+                complimentMapper.deleteCompliment(id.intValue());
+            }
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("삭제 중 오류가 발생하였습니다.");
         }
-        return ResponseEntity.ok().build();
-    }
-    
-    @PostMapping("/Compliment_Delete_One")
-    public String deleteSingleCompliment(@RequestParam("compliment_id") Long complimentId,
-                                         @AuthenticationPrincipal CustomUserDetails user,
-                                         Model model) {
-        ComplimentDto post = complimentMapper.selectCompliment(complimentId.intValue());
-        
-        // 작성자 확인
-        if (user == null || !post.getUser_id().equals(user.getUserId())) {
-            model.addAttribute("error", "작성자만 삭제할 수 있습니다.");
-            return "redirect:/Compliment_D/" + complimentId;
-        }
-
-        complimentMapper.deleteCompliment(complimentId.intValue());
-        return "redirect:/Compliment_L";
     }
 
 }

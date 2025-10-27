@@ -25,10 +25,11 @@
   </update>
 
   <!-- 게시글 삭제 -->
-  <delete id="deleteCompliment" parameterType="map">
+  <delete id="deleteCompliment" parameterType="int">
     DELETE FROM compliment
     WHERE compliment_id = #{compliment_id}
   </delete>
+
 
   <!-- 단일 조회 -->
   <select id="selectCompliment" parameterType="int" resultType="amgw.amgw.dto.ComplimentDto">

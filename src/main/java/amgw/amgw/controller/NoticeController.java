@@ -98,28 +98,38 @@ public class NoticeController {
 	
 	@PostMapping("/Notice_W")
 	public String noticeWrite(
-		@ModelAttribute NoticeDto notice,
-		@RequestParam(value = "uploadFiles", required = false) List<MultipartFile> uploadFiles
+	    @ModelAttribute NoticeDto notice,
+	    @RequestParam(value = "uploadFiles", required = false) List<MultipartFile> uploadFiles
 	) {
-		notice.setNotice_count(0);
-		
-		// 로그인한 사용자 정보 가져오기
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
-		notice.setUser_id(userDetails.getUserId());
+	    // 로그인 사용자 정보 설정
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    CustomUserDetails userDetails = (CustomUserDetails) auth.getPrincipal();
+	    notice.setUser_id(userDetails.getUserId());
 
-		
-		notice.setRegistration_time(new Timestamp(System.currentTimeMillis()));
-		
-		if (uploadFiles != null && !uploadFiles.isEmpty()) {
-			noticeService.insertNoticeWithFiles(notice, uploadFiles);			
-		} else {
-			
-			noticeService.insertNotice(notice);
-			
-		}
-		return "redirect:/Notice_L";
+	    if (notice.getNotice_id() != null) {
+	        // 🔹 수정 로직
+	        noticeService.updateNotice(notice);
+
+	        // (선택) 기존 파일 삭제 후 새 파일 등록 로직
+	        if (uploadFiles != null && !uploadFiles.isEmpty()) {
+	            noticeService.insertNoticeWithFiles(notice, uploadFiles);
+	        }
+
+	    } else {
+	        // 🔹 새 글 등록 로직
+	        notice.setNotice_count(0);
+	        notice.setRegistration_time(new Timestamp(System.currentTimeMillis()));
+
+	        if (uploadFiles != null && !uploadFiles.isEmpty()) {
+	            noticeService.insertNoticeWithFiles(notice, uploadFiles);
+	        } else {
+	            noticeService.insertNotice(notice);
+	        }
+	    }
+
+	    return "redirect:/Notice_L";
 	}
+
 	
 	@PostMapping("/Notice_Delete")
 	public String deleteNotices(@RequestParam("noticeIds") List<Integer> noticeIds) {
