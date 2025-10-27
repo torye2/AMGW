@@ -220,7 +220,7 @@
 	color: #222;
 	border: 2px solid #e2e8f0;
 }
-@media screen and (min-width: 1600px) {
+@media screen and (min-width: 1536px) {
 	
 	.ComplimentL_container {
 		max-width: 1200px;

@@ -33,8 +33,8 @@
 					</tr>
 				</table>
 			</div>
-			<div class="Compliment_editor">
-				<div th:text="${compliment.compliment_detail}"></div> <!-- 게시글 내용 -->
+			<div class="Compliment_botton">
+				<div id="Compliment_editor" th:utext="${compliment.compliment_detail}"></div> <!-- 게시글 내용 -->
 			</div>
 			<div class="compliment-btns">
 				<div th:if="${loginUser != null and loginUser.userId == compliment.user_id}">

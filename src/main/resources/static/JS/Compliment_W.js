@@ -13,7 +13,6 @@ const noticeDetailInput = document.getElementById("notice_detail_input");
 
 // HTML에는 form이 주석 처리되어 있으므로 null 에러 방지
 const ComplimentForm = document.getElementById('ComplimentForm') || null;
-
 const fontSelect = document.getElementById('font_box');
 const fontSizeSelect = document.getElementById('font-size');
 
@@ -21,25 +20,44 @@ let savedSelection = null;
 let currentAlign = 'left';
 let currentList = 'ul';
 
+
 //---------------------------------------------------------------
-// 에디터 스타일 적용 함수
+// 스타일 적용 (폰트 사이즈, 폰트명 등) - 개선 버전
 //---------------------------------------------------------------
 function applyStyleToSelection(style) {
-    const selection = window.getSelection();
-    if (!selection.rangeCount) return;
-    const range = selection.getRangeAt(0);
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+
+  const range = selection.getRangeAt(0);
+
+  // 🔹 선택된 내용이 비었을 때 (커서만 있을 때)
+  if (selection.isCollapsed) {
     const span = document.createElement('span');
     span.setAttribute('style', style);
-    if (selection.isCollapsed) {
-        span.appendChild(document.createTextNode('\u200B'));
-        range.insertNode(span);
-        range.setStartAfter(span);
-        range.setEndAfter(span);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    } else {
-        range.surroundContents(span);
-    }
+    span.appendChild(document.createTextNode('\u200B')); // 빈문자 삽입
+    range.insertNode(span);
+    range.setStartAfter(span);
+    range.setEndAfter(span);
+    selection.removeAllRanges();
+    selection.addRange(range);
+    saveSelection();
+    return;
+  }
+
+  // 🔹 선택된 영역이 있을 때
+  const wrapper = document.createElement('span');
+  wrapper.setAttribute('style', style);
+
+  const contents = range.extractContents();
+  wrapper.appendChild(contents);
+  range.insertNode(wrapper);
+
+  // 선택 영역 다시 지정
+  selection.removeAllRanges();
+  const newRange = document.createRange();
+  newRange.selectNodeContents(wrapper);
+  selection.addRange(newRange);
+  saveSelection();
 }
 
 function updateButtonState() {
@@ -58,34 +76,79 @@ function updateButtonState() {
 //---------------------------------------------------------------
 // 명령 실행
 //---------------------------------------------------------------
+function saveSelection() {
+  if (window.getSelection) {
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0) {
+      savedSelection = sel.getRangeAt(0);
+    }
+  }
+}
+
+function restoreSelection() {
+  if (savedSelection) {
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(savedSelection);
+  }
+}
+
+function applyStyle(command, value = null) {
+  restoreSelection(); // 🔥 저장된 선택 영역 복원
+  document.execCommand(command, false, value);
+  saveSelection(); // 🔥 다시 저장
+}
+
 function execCmd(command) {
     editor.focus();
+
+    // 🔹 기본 명령 처리
+    const basicCommands = [
+        'bold', 'italic', 'underline', 'strikeThrough',
+        'insertUnorderedList', 'insertOrderedList',
+        'indent', 'outdent', 'justifyLeft', 'justifyCenter', 'justifyRight', 'justifyFull'
+    ];
+
+    if (basicCommands.includes(command)) {
+        document.execCommand(command, false, null);
+        return;
+    }
+
+    // 🔹 링크 삽입
     if (command === 'createLink') {
         const url = prompt('링크 주소(URL)을 입력하세요:');
         if (url) document.execCommand('createLink', false, url);
+        return;
+    }
 
-    } else if (command === 'insertCheckbox') {
+    // 🔹 체크박스 삽입
+    if (command === 'insertCheckbox') {
         document.execCommand('insertHTML', false, '<input type="checkbox">');
+        return;
+    }
 
-    } else if (command === 'insertHr') {
+    // 🔹 구분선 삽입
+    if (command === 'insertHr') {
         document.execCommand('insertHTML', false, '<hr>');
+        return;
+    }
 
-    } else if (command === 'insertTable') {
+    // 🔹 표 삽입
+    if (command === 'insertTable') {
         const rows = parseInt(prompt('행 개수 입력', '2'));
         const cols = parseInt(prompt('열 개수 입력', '2'));
         if (isNaN(rows) || isNaN(cols) || rows <= 0 || cols <= 0) return;
 
-        let tableHTML = '<table border="1" style="border-collapse: collapse; width:100%;">';
+        let tableHTML = '<table border="1" style="border-collapse: collapse; border: 1px solid #000;">';
         for (let i = 0; i < rows; i++) {
             tableHTML += '<tr>';
             for (let j = 0; j < cols; j++) {
-                tableHTML += '<td style="padding:5px;">&nbsp;</td>';
+                tableHTML += '<td style="padding:5px; border: 1px solid #000;">&nbsp;</td>';
             }
             tableHTML += '</tr>';
         }
         tableHTML += '</table><br>';
 
-        // ✅ 커서 위치에 삽입
         const selection = window.getSelection();
         if (selection.rangeCount > 0) {
             const range = selection.getRangeAt(0);
@@ -100,6 +163,7 @@ function execCmd(command) {
         } else {
             editor.innerHTML += tableHTML;
         }
+        return;
     }
 }
 
@@ -157,19 +221,23 @@ function setLineHeightForSelection(lineHeight) {
 // 글꼴 / 글자 크기
 //---------------------------------------------------------------
 if (fontSelect) {
-    fontSelect.addEventListener('change', e => {
-        const val = e.target.value;
-        try { document.execCommand('fontName', false, val); } catch {}
-        applyStyleToSelection(`font-family: ${val};`);
-    });
+  fontSelect.addEventListener('mousedown', saveSelection);
+  fontSelect.addEventListener('change', e => {
+    const val = e.target.value;
+    restoreSelection();
+    applyStyleToSelection(`font-family: ${val};`);
+  });
 }
 
 if (fontSizeSelect) {
-    fontSizeSelect.addEventListener('change', e => {
-        const val = e.target.value;
-        applyStyleToSelection(`font-size: ${val};`);
-    });
+  fontSizeSelect.addEventListener('mousedown', saveSelection);
+  fontSizeSelect.addEventListener('change', e => {
+    const val = e.target.value;
+    restoreSelection();
+    applyStyleToSelection(`font-size: ${val};`);
+  });
 }
+
 
 //---------------------------------------------------------------
 // 에디터 이벤트
@@ -269,3 +337,5 @@ if (complimentForm) {
         }
     });
 }
+
+

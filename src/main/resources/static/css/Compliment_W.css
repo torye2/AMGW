@@ -375,7 +375,7 @@
   height: 30px;
 }
 
-@media screen and (min-width: 1600px) {
+@media screen and (min-width: 1536px) {
 	
 	.ComplimentW_container {
 		max-width: 1200px;

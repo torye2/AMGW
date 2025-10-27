@@ -493,7 +493,7 @@
 }
 
 /* ===== 큰 화면 (데스크탑 1600px 이상) ===== */
-@media screen and (min-width: 1600px) {
+@media screen and (min-width: 1536px) {
   .Noitce_middle {
   	width: 1200px;
   }
