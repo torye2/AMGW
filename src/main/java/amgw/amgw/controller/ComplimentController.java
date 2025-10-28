@@ -146,5 +146,37 @@ public class ComplimentController {
             return ResponseEntity.status(500).body("삭제 중 오류가 발생하였습니다.");
         }
     }
+    
+    @PostMapping("/Compliment_Delete_One")
+    public String deleteOneCompliment(@RequestParam("compliment_id") int complimentId,
+                                      @AuthenticationPrincipal CustomUserDetails user,
+                                      Model model) {
+        try {
+            // 글 정보 가져오기
+            ComplimentDto compliment = complimentMapper.selectCompliment(complimentId);
+            if (compliment == null) {
+                model.addAttribute("error", "존재하지 않는 게시글입니다.");
+                return "redirect:/Compliment_L";
+            }
+
+            // 로그인 사용자 본인 확인
+            if (user == null || !compliment.getUser_id().equals(user.getUserId())) {
+                model.addAttribute("error", "본인만 삭제할 수 있습니다.");
+                return "redirect:/Compliment_D/" + complimentId;
+            }
+
+            // 삭제 수행
+            complimentMapper.deleteCompliment(complimentId);
+
+            // 삭제 후 목록으로 이동
+            return "redirect:/Compliment_L";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "삭제 중 오류가 발생했습니다.");
+            return "redirect:/Compliment_D/" + complimentId;
+        }
+    }
+
 
 }
