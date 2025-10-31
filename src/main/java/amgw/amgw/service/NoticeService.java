@@ -2,6 +2,7 @@ package amgw.amgw.service;
 
 import java.util.List;
 
+import amgw.amgw.entity.Notice;
 import org.springframework.web.multipart.MultipartFile;
 
 import amgw.amgw.dto.NoticeDto;
@@ -23,5 +24,6 @@ public interface NoticeService {
 	
 	void insertNoticeWithFiles(NoticeDto notice, List<MultipartFile> uploadFiles);
 	Upload_fileDto selectFileById(int fileId);
-	
+
+	List<Notice> getRecentNotices();
 }

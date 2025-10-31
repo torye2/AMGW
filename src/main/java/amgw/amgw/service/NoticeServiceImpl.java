@@ -2,6 +2,9 @@ package amgw.amgw.service;
 
 import java.util.List;
 
+import amgw.amgw.entity.Notice;
+import amgw.amgw.repository.NoticeRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,10 +14,13 @@ import amgw.amgw.dto.Upload_fileDto;
 import amgw.amgw.mapper.NoticeMapper;
 
 @Service
+@RequiredArgsConstructor
 public class NoticeServiceImpl implements NoticeService {
 	
 	@Autowired
 	private NoticeMapper noticeMapper;
+
+	private final NoticeRepository noticeRepository;
 	
 	@Override
 	public int insertNotice(NoticeDto notice) {
@@ -118,5 +124,13 @@ public class NoticeServiceImpl implements NoticeService {
 				}
 			}
 		}
+	}
+
+	@Override
+	public List<Notice> getRecentNotices() {
+		return noticeRepository.findTop5ByOrderByRegistrationTimeDesc();
+				//.stream()
+				//.map(NoticeDto::fromEntity)
+				//.toList();
 	}
 }
